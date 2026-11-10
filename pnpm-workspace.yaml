@@ -1,0 +1,5 @@
+packages:
+  - '.'
+
+# Only install versions that are at least 3 days old.
+minimumReleaseAge: 4320
