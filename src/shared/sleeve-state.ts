@@ -6,13 +6,21 @@
  *   audio    metadata is known and videoWidth is 0
  *   video    metadata is known and videoWidth is above 0
  *
- * It writes only that attribute, and the skin's CSS hides the element. The host's `data-mode` on the root is the CSS's business, not read here.
+ * The skin's CSS hides the element. The CSS decides the look from `data-media` and the host's `data-mode` on the same root.
+ *
+ * One thing the CSS cannot do: while the player is in audio mode (`data-mode="audio"`, or `data-media="audio"` unless
+ * the host said `data-mode="video"`), the element sets Video.js's own `disabled` attribute on the hotkeys and gestures
+ * the template marks with `data-sleeve-picture` (fullscreen, captions, picture in picture), and takes it off again
+ * when the player leaves audio mode. An element that was disabled by someone else is left alone.
+ *
  * Which events reach the media element, and when it exists, is recorded in docs/spikes.md (s14).
  */
 type MediaElement = HTMLElement & { videoWidth?: number; readyState?: number };
 
 const ROOT_SELECTOR = '.media-skin';
 const MEDIA_SELECTOR = ':scope > :is(video, audio, [slot="media"])';
+// Input that only makes sense with a picture; the template marks it.
+const PICTURE_INPUT_SELECTOR = ':is(media-hotkey, media-gesture)[data-sleeve-picture]';
 // Events that return the state to pending, and the ones that settle it.
 const RESET_EVENTS = ['loadstart', 'emptied'] as const;
 
@@ -33,6 +41,8 @@ class SleeveState extends HTMLElement {
   #root: HTMLElement | null = null;
   #media: MediaElement | null = null;
   #observer: MutationObserver | null = null;
+  // The elements this helper switched off, so it only switches those back on.
+  readonly #switchedOff = new Set<Element>();
 
   connectedCallback(): void {
     this.#root = this.closest<HTMLElement>(ROOT_SELECTOR);
@@ -41,19 +51,23 @@ class SleeveState extends HTMLElement {
 
     this.#attach(findMedia(this.#root));
 
-    // The media element may not be there yet, and a host may swap it later.
+    // The media element may not be there yet, and a host may swap it later. The host may also change data-mode.
     this.#observer = new MutationObserver(() => {
       const media = this.#root ? findMedia(this.#root) : null;
 
       if (media !== this.#media) this.#attach(media);
+
+      this.#syncPictureInput();
     });
-    this.#observer.observe(this.#root, { childList: true });
+    this.#observer.observe(this.#root, { childList: true, attributes: true, attributeFilter: ['data-mode'] });
+    this.#syncPictureInput();
   }
 
   disconnectedCallback(): void {
     this.#observer?.disconnect();
     this.#observer = null;
     this.#detach();
+    this.#restorePictureInput();
     this.#root = null;
   }
 
@@ -99,6 +113,36 @@ class SleeveState extends HTMLElement {
 
   #write(value: 'pending' | 'audio' | 'video'): void {
     if (this.#root && this.#root.getAttribute('data-media') !== value) this.#root.setAttribute('data-media', value);
+
+    this.#syncPictureInput();
+  }
+
+  /** Audio mode as the CSS sees it: the host's data-mode wins, otherwise what the media turned out to be. */
+  #isAudioMode(): boolean {
+    const mode = this.#root?.getAttribute('data-mode');
+
+    if (mode === 'audio') return true;
+
+    return mode !== 'video' && this.#root?.getAttribute('data-media') === 'audio';
+  }
+
+  #syncPictureInput(): void {
+    if (!this.#root) return;
+
+    if (!this.#isAudioMode()) return this.#restorePictureInput();
+
+    for (const element of this.#root.querySelectorAll(PICTURE_INPUT_SELECTOR)) {
+      if (element.hasAttribute('disabled')) continue;
+
+      element.setAttribute('disabled', '');
+      this.#switchedOff.add(element);
+    }
+  }
+
+  #restorePictureInput(): void {
+    for (const element of this.#switchedOff) element.removeAttribute('disabled');
+
+    this.#switchedOff.clear();
   }
 }
 

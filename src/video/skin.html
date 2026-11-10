@@ -32,6 +32,8 @@
 </media-title>
 <media-time class="sleeve-cover-time" type="duration">
 </media-time>
+<media-time class="sleeve-cover-time" type="remaining">
+</media-time>
 </div>
 <media-controls>
 <media-controls-content class="sleeve-strip">
@@ -367,11 +369,11 @@
 </media-hotkey>
 <media-hotkey keys="<" action="speedDown">
 </media-hotkey>
-<media-hotkey keys="f" action="toggleFullscreen">
+<media-hotkey keys="f" action="toggleFullscreen" data-sleeve-picture>
 </media-hotkey>
-<media-hotkey keys="c" action="toggleSubtitles">
+<media-hotkey keys="c" action="toggleSubtitles" data-sleeve-picture>
 </media-hotkey>
-<media-hotkey keys="i" action="togglePictureInPicture">
+<media-hotkey keys="i" action="togglePictureInPicture" data-sleeve-picture>
 </media-hotkey>
 <media-gesture type="tap" action="togglePaused" pointer="mouse" region="center">
 </media-gesture>
@@ -379,7 +381,7 @@
 </media-gesture>
 <media-gesture type="doubletap" action="seekStep" region="left" value="-10">
 </media-gesture>
-<media-gesture type="doubletap" action="toggleFullscreen" region="center">
+<media-gesture type="doubletap" action="toggleFullscreen" region="center" data-sleeve-picture>
 </media-gesture>
 <media-gesture type="doubletap" action="seekStep" region="right" value="10">
 </media-gesture>

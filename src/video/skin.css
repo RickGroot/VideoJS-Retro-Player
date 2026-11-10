@@ -1454,6 +1454,11 @@
       display: block;
     }
 
+    /* The cover shows the duration; the remaining time is the audio-mode numeral (see audio mode below). */
+    .sleeve-cover-time[type="remaining"] {
+      display: none;
+    }
+
     /* Before the first play and at the end; not while scrubbing, not under the error dialog, and not on narrow players, where the play/restart glyph and the Block carry the state. */
     @container media-root (width >= 30rem) {
       :scope:is(:has(media-play-button:not([data-started])), :has(media-play-button[data-ended])):not(:has(media-time-slider[data-dragging])):not(:has(media-dialog-popup[data-open])) .sleeve-cover {
@@ -1662,11 +1667,24 @@
    * What changes: the cover stays up in every state (its label is the state as a word), the strip never hides,
    * the poster stays and narrows to the area beside the cover, a default print fills that area when there is no
    * poster, and the controls that need a picture are removed (display:none, so they leave the tab order too).
-   * Not done in CSS: the f, c and i hotkeys and the double-tap gesture stay registered.
+   * The cover's numeral counts down (the remaining time), as on the audio skin.
+   * Not CSS: <sleeve-state> sets `disabled` on the hotkeys and the gesture marked data-sleeve-picture (f, c, i and
+   * double-tap fullscreen) while the player is in audio mode.
    */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     :scope {
       --sleeve-cover-w: clamp(160px, 34cqi, 360px);
+    }
+
+    /*
+     * Where the cover also shows before first play (30rem and up), audio mode keeps that cover's width, so the
+     * cover does not change size when automatic detection settles on audio. Set on the parts that read it: a
+     * container query cannot style the container itself.
+     */
+    @container media-root (width >= 30rem) {
+      :is(.sleeve-cover, .media-poster, .sleeve-print) {
+        --sleeve-cover-w: clamp(200px, 34cqi, 360px);
+      }
     }
 
     /* The default print is an audio-mode part only. */
@@ -1697,6 +1715,15 @@
 
     :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover {
       width: var(--sleeve-cover-w);
+    }
+
+    /* The numeral counts down: the remaining time replaces the duration (the cover is aria-hidden; the strip reads the time out). */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover-time[type="duration"] {
+      display: none;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover-time[type="remaining"]:not([data-unavailable]) {
+      display: block;
     }
 
     /* The label: the state as a word, same order as the audio skin's (the last match wins; Buffering is last). */
