@@ -1,4 +1,4 @@
-import '../styles/video/scaffold.css';
+import '../styles/video/sleeve.css';
 import './skin.css';
 import '@videojs/html/i18n';
 import '@videojs/html/ui/container';

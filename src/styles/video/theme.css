@@ -114,7 +114,7 @@
     --media-caption-controls-y: calc(var(--media-spacing) * -18);
   }
 
-  .media-skin:is([data-preset="video"], [data-preset="live-video"])[data-theme="scaffold"] {
+  .media-skin:is([data-preset="video"], [data-preset="live-video"])[data-theme="sleeve"] {
     --media-caption-controls-y: calc(var(--media-spacing) * -20);
   }
 
