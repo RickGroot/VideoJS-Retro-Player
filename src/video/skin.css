@@ -271,6 +271,8 @@
       grid-area: 1 / 1;
       width: var(--sleeve-disc);
       height: var(--sleeve-disc);
+      /* The disc is the one round shape in the skin; everything else keeps square corners. */
+      border-radius: 50%;
       background-color: var(--sleeve-disc-bg);
     }
 
