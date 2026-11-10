@@ -9,3 +9,9 @@ Copyright 2025-present Video.js contributors. Licensed under the Apache
 License, Version 2.0.
 
 "Video.js" is a registered trademark of Brightcove Inc.
+
+The Archivo variable font (src/styles/fonts/archivo-latin-var.woff2) is
+copyright the Archivo Project Authors (Omnibus-Type) and is licensed under the
+SIL Open Font License, Version 1.1 (https://openfontlicense.org/). It is
+bundled unmodified and is not sold on its own; see
+src/styles/fonts/archivo.NOTICE.md.

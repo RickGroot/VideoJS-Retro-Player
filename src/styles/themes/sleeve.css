@@ -1,63 +1,147 @@
+/* Archivo, self-hosted (SIL OFL 1.1, see fonts/archivo.NOTICE.md). Top level: @font-face is not valid inside @scope. */
+@font-face {
+  font-family: "Sleeve Archivo";
+  src: url("../fonts/archivo-latin-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base.theme, base.preset, base.preferences;
 
 @layer base.preset {
+  /*
+   * Sleeve tokens. Light values first; the colour scheme (`color-scheme` on the page, set by the workbench switch or
+   * the operating system) picks the dark ones through `light-dark()`, kept behind `@supports` like the audio theme.
+   */
   .media-skin[data-theme="sleeve"] {
-    --media-background: transparent;
-    --media-foreground: white;
-    --media-accent: var(--media-accent-color, var(--media-default-accent-color));
-    --media-accent-foreground: var(--media-accent-text-color, black);
-    --media-primary: var(--media-accent);
-    --media-primary-foreground: var(--media-accent-text-color, black);
-    --media-muted: #404040;
-    --media-popover: black;
+    --sleeve-ground: #ffffff;
+    --sleeve-paper: #ffffff;
+    --sleeve-wash: #f0f0ed;
+    --sleeve-ink: #0e0e0f;
+    --sleeve-ink-2: #3f3f43;
+    --sleeve-ink-3: #5c5c60;
+    /* ink-4 keeps 3:1 against paper in both schemes (3.5:1 light, 3.8:1 dark): it draws parts and disabled states, and is never used for running text. */
+    --sleeve-ink-4: #8a8a85;
+    --sleeve-rule: #dadad6;
+    --sleeve-danger: #d4102c;
+    --sleeve-major: #ffbd1a;
+    --sleeve-minor: #4f7dff;
+    --sleeve-dominant: #ff5c1c;
+    --sleeve-diminished: #ff4583;
+    --sleeve-augmented: #19c17a;
+    --sleeve-suspended: #22b5d7;
+    --sleeve-on-pigment: #0e0e0f;
+    --sleeve-letterbox: #000000;
+
+    /* A custom --media-accent-color becomes the field; it must keep 4.5:1 with --sleeve-on-pigment, which is fixed. */
+    --sleeve-field: var(--media-accent-color, var(--sleeve-dominant));
+    --sleeve-on-field: var(--sleeve-on-pigment);
+
+    --sleeve-font: "Sleeve Archivo", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --sleeve-rule-width: 2px;
+    --sleeve-cell: 44px;
+    --sleeve-play-cell: 72px;
+    --sleeve-disc: 44px;
+    --sleeve-stretch: 78%;
+    --sleeve-slider-row: 24px;
+
+    --sleeve-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --sleeve-motion-fast: 120ms;
+    --sleeve-motion: 180ms;
+
+    font-family: var(--sleeve-font);
+    --media-font-family: var(--sleeve-font);
+  }
+
+  @supports (color: light-dark(red, red)) {
+    .media-skin[data-theme="sleeve"] {
+      --sleeve-ground: light-dark(#ffffff, #1c1915);
+      --sleeve-paper: light-dark(#ffffff, #26221c);
+      --sleeve-wash: light-dark(#f0f0ed, #2c2821);
+      --sleeve-ink: light-dark(#0e0e0f, #ede4d3);
+      --sleeve-ink-2: light-dark(#3f3f43, #d3c9b6);
+      --sleeve-ink-3: light-dark(#5c5c60, #aaa08d);
+      --sleeve-ink-4: light-dark(#8a8a85, #857c6c);
+      --sleeve-rule: light-dark(#dadad6, #3b362e);
+      --sleeve-danger: light-dark(#d4102c, #ff7b6b);
+      --sleeve-major: light-dark(#ffbd1a, #f0b43a);
+      --sleeve-minor: light-dark(#4f7dff, #6a8ef0);
+      --sleeve-dominant: light-dark(#ff5c1c, #f0703a);
+      --sleeve-diminished: light-dark(#ff4583, #ec5c88);
+      --sleeve-augmented: light-dark(#19c17a, #3db87f);
+      --sleeve-suspended: light-dark(#22b5d7, #3fb3cc);
+      --sleeve-on-pigment: light-dark(#0e0e0f, #1a1713);
+    }
+  }
+
+  /* Both presets: ink on paper. The extra attribute selector outranks the audio theme's preset rules. */
+  .media-skin[data-theme="sleeve"][data-preset] {
+    --media-background: var(--sleeve-paper);
+    --media-foreground: var(--sleeve-ink);
+    --media-controls: var(--sleeve-paper);
+    --media-controls-foreground: var(--sleeve-ink);
+    --media-border: var(--sleeve-rule);
+    --media-accent: var(--sleeve-field);
+    --media-accent-foreground: var(--sleeve-on-field);
+    --media-primary: var(--sleeve-field);
+    --media-primary-foreground: var(--sleeve-on-field);
+    --media-muted: var(--sleeve-rule);
+    --media-muted-foreground: var(--sleeve-ink-3);
+    --media-popover: var(--sleeve-paper);
+    --media-popover-foreground: var(--sleeve-ink);
     --media-popover-boundary-offset: calc(var(--media-spacing) * 3);
     --media-tooltip-boundary-offset: var(--media-popover-boundary-offset);
-    --media-popover-foreground: white;
-    --media-ring: var(--media-accent);
-    --media-button-highlight: rgb(255 255 255 / 0.2);
-    --media-video-border-radius: var(--media-border-radius, 0px);
+    --media-ring: var(--sleeve-ink);
+    --media-button-highlight: var(--sleeve-wash);
+    --media-live-color: var(--sleeve-danger);
+    --media-video-border-radius: 0px;
     --media-control-radius: 0px;
     --media-controls-radius: 0px;
     --media-menu-item-radius: 0px;
     --media-popup-radius: 0px;
     --media-dialog-radius: 0px;
-    --media-scrollbar-thumb-color: #808080;
+    --media-scrollbar-thumb-color: var(--sleeve-ink-4);
     --media-shadow-surface: none;
     --media-shadow-surface-inset: none;
     --media-shadow-thumb: none;
+    --media-shadow-tooltip: none;
+    --media-shadow-separator: none;
+    --media-text-shadow-dialog: none;
     --media-backdrop-filter-surface: none;
     --media-backdrop-filter-indicator: none;
     --media-backdrop-filter-dialog: none;
   }
 
-  .media-skin[data-theme="sleeve"][data-preset$="audio"] {
-    --media-foreground: black;
-    --media-muted: #e5e5e5;
-  }
-
-  @supports (color: light-dark(red, red)) {
-    .media-skin[data-theme="sleeve"][data-preset$="audio"] {
-      --media-foreground: light-dark(black, white);
-      --media-muted: light-dark(#e5e5e5, #404040);
+  /* Ink and paper are already high contrast; harden the muted tones and the rules. */
+  @media (prefers-contrast: more) {
+    .media-skin[data-theme="sleeve"] {
+      --sleeve-rule: var(--sleeve-ink-3);
+      --sleeve-ink-3: var(--sleeve-ink-2);
     }
-  }
 
-  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-    .media-skin[data-theme="sleeve"]:where([data-preset$="video"]) {
-      --media-background: black;
+    .media-skin[data-theme="sleeve"][data-preset] {
+      --media-background: var(--sleeve-paper);
+      --media-scrollbar-thumb-color: var(--sleeve-ink);
     }
   }
 
   @media (forced-colors: active) {
-    .media-skin[data-theme="sleeve"] {
+    .media-skin[data-theme="sleeve"][data-preset] {
       --media-background: Canvas;
+      --media-controls: Canvas;
       --media-popover: Canvas;
       --media-popover-foreground: CanvasText;
       --media-foreground: CanvasText;
+      --media-border: CanvasText;
       --media-accent: Highlight;
+      --media-accent-foreground: HighlightText;
       --media-primary: Highlight;
       --media-primary-foreground: HighlightText;
       --media-ring: Highlight;
+      --media-button-highlight: Canvas;
+      --media-scrollbar-thumb-color: CanvasText;
     }
   }
 }
