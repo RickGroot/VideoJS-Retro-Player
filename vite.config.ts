@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 
 const path = (file: string) => fileURLToPath(new URL(file, import.meta.url));
 
-// The workbench in apps/preview serves the app; `@/` imports reach the skin in src/.
+// apps/preview serves the demo page and the workbench; `@/` imports reach the skin in src/.
 export default defineConfig({
   root: path('./apps/preview'),
   // Relative URLs, so the build works at a domain root or in a subfolder such as GitHub Pages.
@@ -25,9 +25,10 @@ export default defineConfig({
     outDir: path('./dist'),
     emptyOutDir: true,
     rolldownOptions: {
-      // The workbench shell, the video preview it frames, and the audio skin's own preview page.
+      // The public demo page, the workbench shell, the video preview it frames, and the audio skin's own preview page.
       input: {
-        workbench: path('./apps/preview/index.html'),
+        demo: path('./apps/preview/index.html'),
+        workbench: path('./apps/preview/workbench.html'),
         preview: path('./apps/preview/preview.html'),
         audio: path('./apps/preview/audio.html'),
       },

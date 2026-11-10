@@ -1,0 +1,437 @@
+/*
+ * The public demo page. Ink on paper, square corners, 2px ink rules, one flat colour field, no shadows or gradients.
+ * The skins' own --sleeve-* tokens live on the player, so the page defines its own once here.
+ */
+:root {
+  color-scheme: light dark;
+
+  --paper: light-dark(#ffffff, #0a0a0b);
+  --wash: light-dark(#f0f0ed, #1a1a1c);
+  --ink: light-dark(#0e0e0f, #f4f4f0);
+  --ink-2: light-dark(#3f3f43, #c4c4c0);
+  --rule: 2px solid var(--ink);
+  --demo-field: #ff5c1c;
+  --on-field: #0e0e0f;
+  --font: "Sleeve Archivo", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --gutter: 16px;
+  --cell: 44px;
+}
+
+@supports (color: contrast-color(red)) {
+  :root {
+    --on-field: contrast-color(var(--demo-field));
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+/* Page rules stay out of the players: the skins are light DOM, and unlayered page CSS would beat their layer. */
+:focus-visible:not(.demo-player *) {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.masthead :focus-visible {
+  outline-color: var(--on-field);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  z-index: 10;
+  padding: 12px 16px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  text-transform: uppercase;
+  transform: translateY(-120%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--paper);
+  outline-offset: -6px;
+}
+
+/* Display type: condensed capitals. */
+h1,
+h2,
+legend,
+th,
+.actions button,
+figcaption,
+.swatch-label {
+  font-stretch: 78%;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(4rem, 22vw, 11rem);
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  margin: 0 0 8px;
+  padding-top: 12px;
+  border-top: var(--rule);
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* The one colour field. */
+.masthead {
+  padding: 32px 0 24px;
+  background: var(--demo-field);
+  color: var(--on-field);
+  border-bottom: var(--rule);
+}
+
+.lede {
+  max-width: 28ch;
+  margin: 16px 0 24px;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.page-controls,
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  align-items: flex-end;
+}
+
+.toolbar {
+  margin: 16px 0;
+}
+
+/* Radio groups drawn as a row of square cells. The pressed cell is solid and carries a mark and heavier type. */
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choice legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.choice > label {
+  position: relative;
+  display: inline-flex;
+  min-width: var(--cell);
+  min-height: var(--cell);
+  margin: 0 -2px 0 0;
+}
+
+.choice > label > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.choice > label:not(.swatch) > span {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font-stretch: 78%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.choice > label > input:checked + span {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 900;
+}
+
+.choice > label > input:checked + span::before {
+  content: "\2713";
+}
+
+.choice > label > input:focus-visible + span {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.masthead .choice > label:not(.swatch) > span {
+  background: transparent;
+  color: var(--on-field);
+  border-color: var(--on-field);
+}
+
+.masthead .choice > label > input:checked + span {
+  background: var(--on-field);
+  color: var(--demo-field);
+}
+
+.masthead .choice > label > input:focus-visible + span {
+  outline-color: var(--on-field);
+}
+
+.choice > .swatch {
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 0 16px;
+  min-width: 0;
+}
+
+.swatch-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.choice > .swatch > input {
+  position: static;
+  width: 64px;
+  height: var(--cell);
+  padding: 0;
+  border: var(--rule);
+  border-color: currentColor;
+  background: none;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.choice > .swatch > input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Buttons. */
+.actions button {
+  min-width: var(--cell);
+  min-height: var(--cell);
+  padding: 0 18px;
+  border: var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.actions button:active {
+  transform: translateY(2px);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Sections. */
+main {
+  padding-bottom: 32px;
+}
+
+.block {
+  margin-top: 48px;
+}
+
+.note {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--ink-2);
+}
+
+.stage {
+  margin-top: 8px;
+}
+
+.demo-player {
+  width: 100%;
+}
+
+/* The host gives a video player its shape; without it the player is only as tall as the loaded picture. */
+#video-stage .demo-player {
+  aspect-ratio: 16 / 9;
+}
+
+media-i18n,
+video-player,
+audio-player {
+  display: contents;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 32px 24px;
+  align-items: start;
+}
+
+.case {
+  min-width: 0;
+  margin: 0;
+}
+
+figcaption {
+  margin-top: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+/* Keyboard table. */
+.keys {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+  border-top: var(--rule);
+}
+
+.keys th,
+.keys td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--ink);
+  text-align: left;
+  vertical-align: top;
+}
+
+.keys thead th {
+  font-size: 0.875rem;
+  font-weight: 800;
+  border-bottom: var(--rule);
+}
+
+.keys tbody th {
+  font-stretch: 100%;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.9em;
+  padding: 0 6px;
+  border: var(--rule);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Design note. */
+.prose {
+  max-width: 44rem;
+  margin-top: 16px;
+}
+
+.prose h3 {
+  margin: 28px 0 4px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-stretch: 78%;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.prose p,
+.prose ul {
+  margin: 8px 0;
+}
+
+.prose code {
+  padding: 0 4px;
+  background: var(--wash);
+  font-size: 0.9em;
+}
+
+/* Footer. */
+.colophon {
+  padding: 24px 0 40px;
+  border-top: var(--rule);
+}
+
+.colophon p {
+  margin: 4px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .actions button:active {
+    transform: none;
+  }
+}

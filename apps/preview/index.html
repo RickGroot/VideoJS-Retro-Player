@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sleeve: a Video.js v10 skin</title>
+    <meta
+      name="description"
+      content="Sleeve is a Video.js v10 skin for video and audio, printed like a record cover. Ink on paper, square corners, one flat colour field."
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the players</a>
+
+    <header class="masthead">
+      <div class="wrap">
+        <h1>Sleeve</h1>
+        <p class="lede">A Video.js v10 skin for video and audio, printed like a record cover.</p>
+
+        <div class="page-controls">
+          <fieldset class="choice" data-control="scheme">
+            <legend>Colour scheme</legend>
+            <label><input type="radio" name="scheme" value="light" /><span>Light</span></label>
+            <label><input type="radio" name="scheme" value="dark" /><span>Dark</span></label>
+            <label><input type="radio" name="scheme" value="system" checked /><span>System</span></label>
+          </fieldset>
+
+          <fieldset class="choice" data-control="field">
+            <legend>Field colour</legend>
+            <label><input type="radio" name="field" value="state" checked /><span>State</span></label>
+            <label><input type="radio" name="field" value="fixed" /><span>Fixed</span></label>
+            <label class="swatch">
+              <span class="swatch-label">Fixed colour</span>
+              <input id="field-colour" type="color" value="#3d5afe" />
+            </label>
+          </fieldset>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <section aria-labelledby="video-heading" class="block">
+        <h2 id="video-heading">Video</h2>
+        <p class="note">One player, 16:9, with chapters on the time slider. Pick a width to see the size bands.</p>
+        <div class="toolbar">
+          <fieldset class="choice" data-control="size">
+            <legend>Width</legend>
+            <label><input type="radio" name="size" value="960" checked /><span>960</span></label>
+            <label><input type="radio" name="size" value="640" /><span>640</span></label>
+            <label><input type="radio" name="size" value="480" /><span>480</span></label>
+            <label><input type="radio" name="size" value="320" /><span>320</span></label>
+          </fieldset>
+          <div class="actions" role="group" aria-label="Video player test">
+            <button type="button" data-action="break" data-slot="video">Break it</button>
+            <button type="button" data-action="reset" data-slot="video">Reset</button>
+          </div>
+        </div>
+        <div id="video-stage" class="stage"></div>
+      </section>
+
+      <section aria-labelledby="audio-heading" class="block">
+        <h2 id="audio-heading">Side B</h2>
+        <p class="note">The audio skin, and the video skin set to audio mode.</p>
+        <div class="toolbar">
+          <div class="actions" role="group" aria-label="Audio player test">
+            <button type="button" data-action="break" data-slot="audio">Break it</button>
+            <button type="button" data-action="reset" data-slot="audio">Reset</button>
+          </div>
+        </div>
+        <div id="audio-grid" class="grid"></div>
+      </section>
+
+      <section aria-labelledby="keys-heading" class="block">
+        <h2 id="keys-heading">Keyboard</h2>
+        <p class="note">Focus a player, then use these keys.</p>
+        <table class="keys">
+          <caption class="visually-hidden">Hotkeys of the players</caption>
+          <thead>
+            <tr><th scope="col">Action</th><th scope="col">Keys</th><th scope="col">Player</th></tr>
+          </thead>
+          <tbody id="keys-body"></tbody>
+        </table>
+      </section>
+
+      <section aria-labelledby="note-heading" class="block">
+        <h2 id="note-heading">Design note</h2>
+        <div id="design-note" class="prose"></div>
+      </section>
+    </main>
+
+    <footer class="colophon">
+      <div class="wrap">
+        <p><strong>Sleeve</strong> is licensed under <a href="https://github.com/RickGroot/sleeve/blob/main/LICENSE">Apache-2.0</a>. <a href="https://github.com/RickGroot/sleeve">Source on GitHub</a>.</p>
+        <p>Media: NASA &ldquo;Cosmic Dawn&rdquo; trailer, streamed from Mux.</p>
+        <p>Type: Archivo, SIL OFL 1.1.</p>
+        <p>Built on <a href="https://videojs.org">Video.js v10</a>.</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/demo/main.ts"></script>
+  </body>
+</html>
