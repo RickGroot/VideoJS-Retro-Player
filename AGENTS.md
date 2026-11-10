@@ -8,6 +8,7 @@ Sleeve is a Video.js **v10** skin for HTML, in two parts: a video skin (`src/vid
 - Never use Video.js 8 or older APIs: no `videojs()` call, no `data-setup`, no `video-js` class, no `vjs-*` class names, no `player.on(...)` plugins. v10 is custom elements imported from `@videojs/html/ui/<name>`, with state in data attributes and CSS custom properties.
 - Use the `videojs-skin` skill when changing a skin. `pnpm dlx @videojs/cli agents skills` prints how to install it.
 - Write original code. Do not copy source, names or constants from other players or from any proprietary project.
+- The skin talks to the player only through Video.js v10's own elements, attributes and CSS custom properties. Do not add a player API of our own (no adapter, store layer, state enum or command set), and do not model anything on another player's interface. A helper element may only write `data-*` attributes for the CSS.
 
 ## Where things live
 
@@ -26,4 +27,4 @@ Sleeve is a Video.js **v10** skin for HTML, in two parts: a video skin (`src/vid
 - No secrets in the repository. Media URLs in the previews are public playback URLs.
 - Run `pnpm typecheck` and `pnpm build` after changes, and check both skins in the workbench with `pnpm dev` (`/` for video, `/audio.html` for audio).
 - Commits follow Conventional Commits and carry no "Generated with" line and no AI co-author trailer.
-- Deploys happen from `main` through `.github/workflows/deploy.yml` (GitHub Pages). Do not push or deploy unless asked.
+- Work directly on `main`; there is one developer, so no feature branches. Deploys happen from `main` through `.github/workflows/deploy.yml` (GitHub Pages). Do not push or deploy unless asked.
