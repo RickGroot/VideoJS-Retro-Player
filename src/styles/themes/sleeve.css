@@ -33,10 +33,16 @@
     --sleeve-augmented: #19c17a;
     --sleeve-suspended: #22b5d7;
     --sleeve-on-pigment: #0e0e0f;
+    /* Danger is too dark for ink text in the light scheme, so text on it is paper-white (5.4:1); in dark the pigment is light again and the dark ink works (7.1:1). */
+    --sleeve-on-danger: #ffffff;
     --sleeve-letterbox: #000000;
 
-    /* A custom --media-accent-color becomes the field; it must keep 4.5:1 with --sleeve-on-pigment, which is fixed. */
-    --sleeve-field: var(--media-accent-color, var(--sleeve-dominant));
+    /*
+     * The field is the colour of the current state (see the state rules below); --sleeve-pigment holds it. A custom
+     * --media-accent-color pins the field instead and must keep 4.5:1 with --sleeve-on-pigment, which is fixed.
+     */
+    --sleeve-pigment: var(--sleeve-dominant);
+    --sleeve-field: var(--media-accent-color, var(--sleeve-pigment));
     --sleeve-on-field: var(--sleeve-on-pigment);
 
     --sleeve-font: "Sleeve Archivo", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -73,7 +79,30 @@
       --sleeve-augmented: light-dark(#19c17a, #3db87f);
       --sleeve-suspended: light-dark(#22b5d7, #3fb3cc);
       --sleeve-on-pigment: light-dark(#0e0e0f, #1a1713);
+      --sleeve-on-danger: light-dark(#ffffff, #1a1713);
     }
+  }
+
+  /*
+   * Field colour per state, read from the player's own data attributes on the play button, the time slider and the
+   * error dialog. :where() keeps every rule at the same specificity, so the order decides: the last match wins and
+   * the error is last. While the time slider is dragged the media is treated as not ended, so scrubbing back from
+   * the end does not flash green.
+   */
+  .media-skin[data-theme="sleeve"]:where(:has(media-play-button[data-started]:is([data-paused], [data-ended]))) {
+    --sleeve-pigment: var(--sleeve-minor);
+  }
+
+  .media-skin[data-theme="sleeve"]:where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) {
+    --sleeve-pigment: var(--sleeve-major);
+  }
+
+  .media-skin[data-theme="sleeve"]:where(:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging]))) {
+    --sleeve-pigment: var(--sleeve-augmented);
+  }
+
+  .media-skin[data-theme="sleeve"]:where(:has(media-error-dialog media-dialog-popup[data-open])) {
+    --sleeve-pigment: var(--sleeve-danger);
   }
 
   /* Both presets: ink on paper. The extra attribute selector outranks the audio theme's preset rules. */
@@ -112,6 +141,15 @@
     --media-backdrop-filter-surface: none;
     --media-backdrop-filter-indicator: none;
     --media-backdrop-filter-dialog: none;
+  }
+
+  /*
+   * The audio skin draws its progress fill with --media-accent on paper, so it keeps one pigment that holds 3:1 there
+   * (the state pigments are for the video skin's fields; yellow and green fall below 3:1 on light paper).
+   */
+  .media-skin[data-theme="sleeve"][data-preset="audio"] {
+    --media-accent: var(--media-accent-color, var(--sleeve-dominant));
+    --media-primary: var(--media-accent-color, var(--sleeve-dominant));
   }
 
   /* Ink and paper are already high contrast; harden the muted tones and the rules. */

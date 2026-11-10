@@ -4,6 +4,12 @@
  * Cells sit on an ink ground and are separated by 2px gaps, so the gaps read as ink rules.
  */
 @layer components {
+  @keyframes sleeve-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   /* The player, its poster and the shared type treatment. */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     .media-container,
@@ -22,6 +28,8 @@
       position: relative;
       overflow: hidden;
       container: media-root / inline-size;
+      /* The strip's height: both rows, the gap between them and the top rule. The cover and the spine measure from it. */
+      --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-cell) + var(--sleeve-rule-width) * 2);
     }
 
     /* Two-tone ring (ink outside, ground inside): one of the two always contrasts with whatever frame is playing. */
@@ -79,7 +87,7 @@
     .media-popup,
     .media-dialog-popup,
     .media-indicator,
-    .media-buffering-indicator {
+    .sleeve-cover {
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-family: var(--sleeve-font);
@@ -143,8 +151,11 @@
       color: var(--sleeve-ink);
     }
 
-    /* Hidden but still reachable with Tab: no display:none, no visibility:hidden. Anything inside showing a focus ring, or an open menu, keeps the strip up. */
-    media-controls:not([data-visible]):not(:has(:focus-visible)):not(:has([aria-expanded="true"])) .sleeve-strip {
+    /*
+     * Hidden but still reachable with Tab: no display:none, no visibility:hidden. Anything inside showing a focus ring,
+     * an open menu, or buffering keeps the strip up (the Block and the buffering word live in it).
+     */
+    :scope:not(:has(media-buffering-indicator[data-visible])) media-controls:not([data-visible]):not(:has(:focus-visible)):not(:has([aria-expanded="true"])) .sleeve-strip {
       opacity: 0;
       pointer-events: none;
     }
@@ -257,8 +268,9 @@
   /* Play cell: the button is the cell's hit area; the disc and the glyph sit centred on the field colour. */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     .sleeve-play {
-      --sleeve-disc-bg: var(--sleeve-ink);
-      --sleeve-disc-fg: var(--sleeve-ground);
+      /* The disc is drawn in on-field and its glyph in the field colour: both keep 4.5:1 or better in every state and scheme (ink would drop to 2:1 on the pigments in dark). */
+      --sleeve-disc-bg: var(--sleeve-on-field);
+      --sleeve-disc-fg: var(--sleeve-field);
       width: 100%;
       height: 100%;
       min-width: var(--sleeve-cell);
@@ -282,7 +294,27 @@
       height: var(--sleeve-disc);
       /* The disc is the one round shape in the skin; everything else keeps square corners. */
       border-radius: 50%;
+      box-sizing: border-box;
       background-color: var(--sleeve-disc-bg);
+      border: var(--sleeve-rule-width) solid var(--sleeve-on-field);
+    }
+
+    /* The buffering ring: dashed, round the disc, turning. Drawn in on-field, which has 4.5:1 or better on every pigment. */
+    .sleeve-play::after {
+      content: "";
+      grid-area: 1 / 1;
+      box-sizing: border-box;
+      width: calc(var(--sleeve-disc) + 8px);
+      height: calc(var(--sleeve-disc) + 8px);
+      border: var(--sleeve-rule-width) dashed var(--sleeve-on-field);
+      border-radius: 50%;
+      display: none;
+      pointer-events: none;
+      animation: sleeve-spin 1.4s linear infinite;
+    }
+
+    :scope:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .sleeve-play::after {
+      display: block;
     }
 
     .sleeve-play .media-button-icon-base {
@@ -293,17 +325,20 @@
     }
 
     @media (hover: hover) {
+      /* Hover empties the disc: field inside, outline kept (the outline is the part that is always there). */
       .sleeve-play:hover {
-        --sleeve-disc-bg: var(--sleeve-ink-2);
+        --sleeve-disc-bg: var(--sleeve-field);
+        --sleeve-disc-fg: var(--sleeve-on-field);
       }
     }
 
     .sleeve-play:active {
-      --sleeve-disc-fg: var(--sleeve-ground);
+      --sleeve-disc-bg: var(--sleeve-on-field);
+      --sleeve-disc-fg: var(--sleeve-field);
     }
 
     .sleeve-play:focus-visible::before {
-      outline: var(--sleeve-rule-width) solid var(--sleeve-ground);
+      outline: var(--sleeve-rule-width) solid var(--sleeve-disc-fg);
       outline-offset: -4px;
     }
 
@@ -535,9 +570,38 @@
 
   /* Row 2 cells: time, title, mute with inline volume. */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    /* Paper cell with ink text; the Block (paused, buffering) floods it with the field and every part switches to on-field. */
     .sleeve-time-cell {
+      --sleeve-time-bg: var(--sleeve-paper);
+      --sleeve-time-fg: var(--sleeve-ink);
+      --sleeve-time-fg-2: var(--sleeve-ink-3);
+      --sleeve-time-fg-3: var(--sleeve-ink-4);
       flex: none;
       padding-inline: calc(var(--media-spacing) * 3);
+      background-color: var(--sleeve-time-bg);
+      color: var(--sleeve-time-fg);
+      position: relative;
+    }
+
+    :scope:has(media-play-button[data-started][data-paused]:not([data-ended])) .sleeve-time-cell,
+    :scope:has(media-play-button[data-ended]):has(media-time-slider[data-dragging]) .sleeve-time-cell,
+    :scope:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .sleeve-time-cell {
+      --sleeve-time-bg: var(--sleeve-field);
+      --sleeve-time-fg: var(--sleeve-on-field);
+      --sleeve-time-fg-2: var(--sleeve-on-field);
+      --sleeve-time-fg-3: var(--sleeve-on-field);
+    }
+
+    /* Replaces the time readout while buffering. Decorative: the role=status element already announces it. */
+    .sleeve-buffering-word {
+      padding-inline: calc(var(--media-spacing) * 3);
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      pointer-events: none;
+      display: none;
+      position: absolute;
+      inset: 0;
     }
 
     .media-time-group {
@@ -554,18 +618,18 @@
     }
 
     .media-time-current-value {
-      color: var(--sleeve-ink);
+      color: var(--sleeve-time-fg);
     }
 
     .media-time-separator,
     .media-time-duration-value {
-      color: var(--sleeve-ink-3);
+      color: var(--sleeve-time-fg-2);
     }
 
     .media-time-current-value[data-unavailable],
     .media-time-separator[data-unavailable],
     .media-time-duration-value[data-unavailable] {
-      color: var(--sleeve-ink-4);
+      color: var(--sleeve-time-fg-3);
     }
 
     /* An empty title hides media-title itself; the cell stays as an empty paper cell. */
@@ -1032,7 +1096,11 @@
     }
   }
 
-  /* Error dialog: paper panel, 2px ink border, a 44px dismiss cell. */
+  /*
+   * Error dialog: a paper sheet with a 2px ink border. Its head is a band in the danger field with an ERROR label, so
+   * the state is also a word, not only red. When the player is short the description scrolls between the head and the
+   * dismiss cell, which stay in view; below that the whole sheet scrolls.
+   */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     .media-dialog-backdrop {
       z-index: 40;
@@ -1051,17 +1119,18 @@
 
     .media-dialog-popup {
       z-index: 50;
-      max-height: calc(100% - var(--media-spacing) * 8);
-      width: calc(100% - var(--media-spacing) * 8);
+      box-sizing: border-box;
+      max-height: calc(100% - var(--media-spacing) * 4);
+      width: calc(100% - var(--media-spacing) * 4);
       max-width: calc(var(--media-spacing) * 80);
-      gap: calc(var(--media-spacing) * 3);
       background-color: var(--sleeve-paper);
-      padding: calc(var(--media-spacing) * 5);
       color: var(--sleeve-ink);
       border: var(--sleeve-rule-width) solid var(--sleeve-ink);
       border-radius: 0;
       outline-style: none;
-      display: grid;
+      overscroll-behavior: contain;
+      display: flex;
+      flex-direction: column;
       position: absolute;
       top: 50%;
       left: 50%;
@@ -1073,42 +1142,70 @@
       display: none;
     }
 
+    /* Paper ring outside the border: the backdrop is ink, so ink would vanish there, and inside it would cross the danger head. */
     .media-dialog-popup:focus-visible {
-      outline-offset: -6px;
-      outline-width: var(--sleeve-rule-width);
-      outline-style: solid;
-      outline-color: var(--sleeve-ink);
+      outline: var(--sleeve-rule-width) solid var(--sleeve-paper);
+      outline-offset: 2px;
     }
 
     .media-dialog-popup[data-scope="document"] {
-      max-height: calc(100dvh - var(--media-spacing) * 8);
+      max-height: calc(100dvh - var(--media-spacing) * 4);
       position: fixed;
     }
 
+    .sleeve-dialog-head {
+      flex-shrink: 0;
+      padding: calc(var(--media-spacing) * 3);
+      background-color: var(--sleeve-danger);
+      color: var(--sleeve-on-danger);
+      border-bottom: var(--sleeve-rule-width) solid var(--sleeve-ink);
+    }
+
+    .sleeve-dialog-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      line-height: 1.2;
+    }
+
     .media-dialog-title {
+      display: block;
+      margin-top: var(--media-spacing);
       font-size: calc(var(--media-spacing) * 4.5);
-      line-height: calc(var(--media-spacing) * 7);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
     }
 
     .media-dialog-description {
+      display: block;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: calc(var(--media-spacing) * 3);
       font-size: calc(var(--media-spacing) * 3.5);
+      line-height: 1.4;
       font-weight: 500;
       font-stretch: 100%;
       letter-spacing: 0;
       text-transform: none;
+      overflow-wrap: anywhere;
     }
 
+    /* The dismiss cell: the library's own localized word (read from the player, not typed here), 44px high, ink border. */
     .media-dialog-close {
       width: auto;
       min-width: var(--sleeve-cell);
       height: var(--sleeve-cell);
+      margin: 0 calc(var(--media-spacing) * 3) calc(var(--media-spacing) * 3);
       padding-inline: calc(var(--media-spacing) * 4);
       border: var(--sleeve-rule-width) solid var(--sleeve-ink);
-      justify-self: flex-end;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      align-self: flex-end;
     }
   }
 
-  /* On-screen indicators and the buffering plate: square paper plates, ink text. */
+  /* On-screen indicators: square paper plates, ink text. The buffering shell is here too. */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     .media-indicator {
       pointer-events: none;
@@ -1219,40 +1316,189 @@
       }
     }
 
+    /*
+     * The role=status shell stays rendered (a clipped 1px box) so the live region exists before "Buffering" appears in
+     * it; only its word is removed while hidden. The picture of buffering is drawn elsewhere: the ring round the play
+     * disc and the word in the time cell, both from the shell's data-visible (see the play cell and the time cell).
+     */
     .media-buffering-indicator {
+      clip-path: inset(50%);
+      width: 1px;
+      height: 1px;
       pointer-events: none;
-      place-items: center;
-      display: grid;
+      position: absolute;
+      overflow: hidden;
+    }
+
+    .media-buffering-indicator:not([data-visible]) .sleeve-sr-only {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      /* A still dotted ring: the turning is the only thing taken away, the cue stays. */
+      .sleeve-play::after {
+        animation: none;
+        border-style: dotted;
+      }
+    }
+  }
+
+  /*
+   * The cover: a field panel on the left of the picture, before the first play and at the end. It is decoration for
+   * the eye (aria-hidden, nothing focusable, clicks pass through to the player's own gesture); the strip carries the
+   * same facts for everyone else. It is its own container, so its type scales with the panel's width and height (a short player shrinks it, never spills it).
+   */
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    .sleeve-cover {
+      container: sleeve-cover / size;
+      inset-block: 0 var(--sleeve-strip-h);
+      inset-inline-start: 0;
+      z-index: 11;
+      width: clamp(200px, 34cqi, 360px);
+      box-sizing: border-box;
+      padding: calc(var(--media-spacing) * 4) calc(var(--media-spacing) * 5);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      row-gap: calc(var(--media-spacing) * 3);
+      background-color: var(--sleeve-field);
+      color: var(--sleeve-on-field);
+      border-inline-end: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      pointer-events: none;
+      display: none;
+      position: absolute;
+    }
+
+    /* Two px of field over the strip's top rule, above the play cell only, so the cover and the play cell read as one field. */
+    .sleeve-cover::after {
+      content: "";
+      inset-inline-start: 0;
+      bottom: calc(var(--sleeve-rule-width) * -1);
+      width: var(--sleeve-play-cell);
+      height: var(--sleeve-rule-width);
+      background-color: var(--sleeve-field);
+      position: absolute;
+    }
+
+    .sleeve-cover-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      line-height: 1.2;
+    }
+
+    .sleeve-cover-ended,
+    :scope:has(media-play-button[data-ended]) .sleeve-cover-ready {
+      display: none;
+    }
+
+    :scope:has(media-play-button[data-ended]) .sleeve-cover-ended {
+      display: inline;
+    }
+
+    /*
+     * Heavy, narrow capitals; the size follows the panel's width and height and is capped. Four lines, then cut.
+     * It keeps its own height (align-self), or the clamp would stretch with the row and show a fifth line.
+     */
+    .sleeve-cover-title {
+      align-self: start;
+      max-height: 100%;
+      font-size: min(3.5rem, 100cqi / 5, 100cqb / 8);
+      font-stretch: 62%;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.95;
+      min-width: 0;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+    }
+
+    /* media-title sets the native hidden attribute while there is no title; the display above would override it. */
+    .sleeve-cover-title[hidden],
+    .sleeve-cover-time[data-unavailable] {
+      display: none;
+    }
+
+    .sleeve-cover-time {
+      grid-row: 3;
+      font-size: min(5.25rem, 100cqi / 3.2, 100cqb / 5);
+      font-stretch: 62%;
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 0.85;
+      text-transform: none;
+      white-space: nowrap;
+      display: block;
+    }
+
+    /* Before the first play and at the end; not while scrubbing, not under the error dialog, and not on narrow players, where the play/restart glyph and the Block carry the state. */
+    @container media-root (width >= 30rem) {
+      :scope:is(:has(media-play-button:not([data-started])), :has(media-play-button[data-ended])):not(:has(media-time-slider[data-dragging])):not(:has(media-dialog-popup[data-open])) .sleeve-cover {
+        display: grid;
+      }
+    }
+  }
+
+  /*
+   * The spine: while playing with the strip away, a progress line stays on the bottom edge. A second, disabled time
+   * slider (docs/spikes.md s3) with only a track and a fill: no thumb, so no role and no tab stop. The track is
+   * on-field and the fill the field colour, so the fill always has the token contract's contrast, on any footage.
+   */
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    .sleeve-spine {
+      z-index: 10;
+      inset-inline: 0;
+      bottom: 0;
+      height: calc(var(--sleeve-rule-width) + 4px);
+      box-sizing: border-box;
+      background-color: var(--sleeve-on-field);
+      border-top: var(--sleeve-rule-width) solid var(--sleeve-on-field);
+      pointer-events: none;
+      display: none;
+      position: absolute;
+    }
+
+    .sleeve-spine-track {
+      background-color: var(--sleeve-on-field);
       position: absolute;
       inset: 0;
     }
 
-    /* The role=status shell stays rendered so the live region exists before "Buffering" appears in it. */
-    .media-buffering-indicator:not([data-visible]) {
-      --media-spinner-animation: none;
+    .sleeve-spine-fill {
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: var(--media-slider-fill, 0%);
+      background-color: var(--sleeve-field);
+      position: absolute;
     }
 
-    .media-buffering-indicator:not([data-visible]) .sleeve-buffering-plate {
-      display: none;
+    /* The same condition that fades the strip (see the strip), plus playing. */
+    :scope:has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not(:has(media-controls :focus-visible)):not(:has(media-controls [aria-expanded="true"])) .sleeve-spine {
+      display: block;
+    }
+  }
+
+  /* Buffering word: it replaces the time readout in the Block. The readout stays in the layout and the accessibility tree, only unpainted. Hidden under 21rem, where the cell is too small for it; the ring stays. */
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    @container media-root (width >= 21rem) {
+      :scope:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .sleeve-buffering-word {
+        display: flex;
+      }
+
+      :scope:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .media-time-group {
+        opacity: 0;
+      }
     }
 
-    .sleeve-buffering-plate {
-      display: grid;
-      place-items: center;
-      padding: calc(var(--media-spacing) * 3);
-      background-color: var(--sleeve-paper);
-      color: var(--sleeve-ink);
-      border: var(--sleeve-rule-width) solid var(--sleeve-ink);
-    }
-
-    .media-buffering-indicator-spinner-icon {
-      width: calc(var(--media-spacing) * 7);
-      height: calc(var(--media-spacing) * 7);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .media-buffering-indicator {
-        --media-spinner-animation: none;
+    /* Under 30rem there is no cover, so the end is the Block alone: the time cell floods like it does when paused. */
+    @container media-root (width < 30rem) {
+      :scope:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging])) .sleeve-time-cell {
+        --sleeve-time-bg: var(--sleeve-field);
+        --sleeve-time-fg: var(--sleeve-on-field);
+        --sleeve-time-fg-2: var(--sleeve-on-field);
+        --sleeve-time-fg-3: var(--sleeve-on-field);
       }
     }
   }
@@ -1308,6 +1554,25 @@
       .sleeve-strip {
         --sleeve-play-cell: 56px;
       }
+
+      /* A phone-sized player is about 150px high: the error sheet tightens so head, one line and the dismiss cell fit. */
+      .media-dialog-popup {
+        max-height: calc(100% - var(--media-spacing) * 2);
+        width: calc(100% - var(--media-spacing) * 2);
+      }
+
+      .sleeve-dialog-head,
+      .media-dialog-description {
+        padding: calc(var(--media-spacing) * 2);
+      }
+
+      .media-dialog-title {
+        font-size: calc(var(--media-spacing) * 4);
+      }
+
+      .media-dialog-close {
+        margin: 0 calc(var(--media-spacing) * 2) calc(var(--media-spacing) * 2);
+      }
     }
 
     /* Under 300px even the current time does not fit beside the required cells: mute takes the room, icon centred. */
@@ -1346,6 +1611,50 @@
       .media-airplay-button {
         display: none;
       }
+    }
+  }
+
+  /*
+   * Speed values and captions. Rates are numbers, so the label and the parent row's hint use tabular numerals and the
+   * column of rows stays aligned. Captions sit on an opaque paper plate in ink: square, no shadow, no outline.
+   * The cue plate has to be styled through the video part, because the <video> lives in the media element's shadow
+   * root. The plate rests above the strip while the strip shows and just above the spine while it is hidden; the
+   * offset is a hard cut (no transition).
+   */
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    .media-menu-radio-item [data-part="label"],
+    .media-menu-hint-label {
+      font-variant-numeric: tabular-nums;
+    }
+
+    :scope {
+      --media-caption-track-duration: 0s;
+      --media-caption-track-delay: 0s;
+      --sleeve-caption-gap: 8px;
+      --media-caption-track-y: calc(-1 * (var(--sleeve-rule-width) + 4px + var(--sleeve-caption-gap)));
+    }
+
+    :scope:is(
+        [data-controls-visible],
+        :has(media-buffering-indicator[data-visible]),
+        :has(media-controls :focus-visible),
+        :has(media-controls [aria-expanded="true"])
+      ) {
+      --media-caption-track-y: calc(-1 * (var(--sleeve-strip-h) + var(--sleeve-caption-gap)));
+    }
+
+    mux-video::part(video)::cue {
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      font-family: var(--sleeve-font);
+      font-size: clamp(14px, 2.6cqw, 26px);
+      font-weight: 500;
+      font-stretch: 100%;
+      line-height: 1.3;
+      text-transform: none;
+      letter-spacing: 0;
+      text-shadow: none;
+      -webkit-text-stroke: 0;
     }
   }
 
@@ -1410,6 +1719,12 @@
 
       .sleeve-play::before {
         background-color: CanvasText;
+        border-color: CanvasText;
+      }
+
+      /* forced-color-adjust: none above reaches the ring too, so it names its colour. */
+      .sleeve-play::after {
+        border-color: CanvasText;
       }
 
       /* The ring is system colours on both parts: Highlight round the cell, Canvas inside the CanvasText disc. */
@@ -1444,9 +1759,34 @@
 
       .media-tooltip-popup,
       .media-popup.media-menu-popup,
-      .media-indicator,
-      .sleeve-buffering-plate {
+      .media-indicator {
         outline: 1px solid CanvasText;
+      }
+
+      /* The field colours go; the cover stays a panel set off by its rule, the spine a CanvasText track with a Highlight fill. */
+      .sleeve-cover {
+        background-color: Canvas;
+        color: CanvasText;
+        border-inline-end-color: CanvasText;
+      }
+
+      .sleeve-cover::after {
+        background-color: Canvas;
+      }
+
+      .sleeve-spine {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+        border-top-color: CanvasText;
+      }
+
+      .sleeve-spine-track {
+        background-color: CanvasText;
+      }
+
+      /* Canvas on a CanvasText track: a guaranteed pair, where Highlight is only defined against Canvas. */
+      .sleeve-spine-fill {
+        background-color: Canvas;
       }
 
       .media-menu-item,
@@ -1466,6 +1806,31 @@
 
       .media-dialog-backdrop {
         background-color: transparent;
+      }
+
+      .media-dialog-popup {
+        background-color: Canvas;
+        border-color: CanvasText;
+      }
+
+      .sleeve-dialog-head {
+        background-color: Canvas;
+        color: CanvasText;
+        border-bottom-color: CanvasText;
+      }
+
+      .media-dialog-close {
+        border-color: CanvasText;
+      }
+
+      .media-dialog-popup:focus-visible,
+      .media-dialog-close:focus-visible {
+        outline-color: Highlight;
+      }
+
+      mux-video::part(video)::cue {
+        background-color: Canvas;
+        color: CanvasText;
       }
     }
   }

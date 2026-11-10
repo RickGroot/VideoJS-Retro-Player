@@ -139,3 +139,9 @@ Confirmed. media-time-slider reads player context only (PlayerController selecto
 **Evidence:** html/dist/default/ui/time-slider/element.js 100-215; core/dist/default/dom/ui/slider/slider.js 40-85, 192-200; core/ui/slider/core.js 17, 66-67; html/ui/slider/thumb.js 32-35; time-slider.md 465.
 
 **Check:** Inspect the spine slider: style attribute shows --media-slider-fill changing during playback; no role/tabindex in its subtree; Tab never lands on it; spine stays visible after controls idle out; Accessibility panel shows no slider for it.
+
+## captions cue styling (confirmed in source, not yet in a browser)
+
+The docs only say to style cues with `::cue` (guides/captions.md:105). The video sits in the shadow root of `<mux-video>`, so a document-level `::cue` does not reach it. custom-media-element.js:229 (`@videojs/media` 10.3.0) sets `part` to the tag name on the inner element, so `mux-video::part(video)::cue` is the selector the skin uses (src/video/skin.css, captions block). The `video` part name is library source, not documented.
+
+**Check:** with a subtitle track showing, cues paint on the paper plate. If they do not, the part name or the `::cue`-after-`::part()` form is not accepted in that browser; the cue falls back to the browser default and stays readable.

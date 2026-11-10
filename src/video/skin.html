@@ -7,21 +7,29 @@
 <media-dialog-backdrop class="media-dialog-backdrop">
 </media-dialog-backdrop>
 <media-dialog-popup class="media-dialog-popup">
+<div class="sleeve-dialog-head">
+<span class="sleeve-dialog-label">Error</span>
 <media-dialog-title class="media-dialog-title">
 </media-dialog-title>
+</div>
 <media-dialog-description class="media-dialog-description">
 </media-dialog-description>
-<media-dialog-close class="media-button media-dialog-close">
-</media-dialog-close>
+<media-dialog-close class="media-button media-dialog-close"></media-dialog-close>
 </media-dialog-popup>
 </media-error-dialog>
 <media-buffering-indicator class="media-buffering-indicator" role="status">
-<div class="sleeve-buffering-plate">
-<media-icon family="sleeve" name="spinner" class="media-buffering-indicator-spinner-icon" aria-hidden="true">
-</media-icon>
 <span class="sleeve-sr-only">Buffering</span>
-</div>
 </media-buffering-indicator>
+<div class="sleeve-cover" aria-hidden="true">
+<span class="sleeve-cover-label">
+<span class="sleeve-cover-ready">Ready</span>
+<span class="sleeve-cover-ended">Ended</span>
+</span>
+<media-title class="sleeve-cover-title">
+</media-title>
+<media-time class="sleeve-cover-time" type="duration">
+</media-time>
+</div>
 <media-controls>
 <media-controls-content class="sleeve-strip">
 <media-tooltip-group>
@@ -82,6 +90,7 @@
 <media-time class="media-time-duration-value" type="duration">
 </media-time>
 </media-time-group>
+<span class="sleeve-buffering-word" aria-hidden="true">Buffering</span>
 </div>
 <div class="sleeve-cell sleeve-title-cell">
 <media-title class="media-title">
@@ -321,6 +330,12 @@
 </media-tooltip-group>
 </media-controls-content>
 </media-controls>
+<media-time-slider class="sleeve-spine" disabled aria-hidden="true">
+<media-slider-track class="sleeve-spine-track">
+<media-slider-fill class="sleeve-spine-fill">
+</media-slider-fill>
+</media-slider-track>
+</media-time-slider>
 <media-hotkey keys="Space" action="togglePaused">
 </media-hotkey>
 <media-hotkey keys="k" action="togglePaused">
