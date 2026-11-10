@@ -1871,11 +1871,15 @@
      * Under 30rem the settings menu is a sheet: as wide as the player, flush with its edges (no boundary offset), and
      * no taller than the room above the button inside the player (the menu is bound to the player container in the
      * markup, so --media-menu-available-height is measured from the player's top). Its rows scroll inside it.
+     * A phone player is about 200px high, so the sheet takes all the room there is: it stands on the row of cells
+     * (no side offset), covers the seek bar while it is open, and stops beside the play cell so the disc stays whole.
      */
     @container media-root (width < 30rem) {
       .media-popup.media-menu-popup {
         --media-popover-boundary-offset: 0px;
-        width: var(--media-menu-available-width, 100%);
+        --media-popover-side-offset: 0px;
+        --media-popup-side-offset: 0px;
+        width: calc(var(--media-menu-available-width, 100%) - var(--sleeve-play-cell));
         min-width: 0;
         max-width: none;
       }

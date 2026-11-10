@@ -107,8 +107,10 @@ class SleeveTracklist extends UIElement {
 
     if (!sheet) return;
 
-    const cues: MediaTextCue[] = this.#tracks.value?.chaptersCues ?? [];
     const duration = this.#time.value?.duration ?? 0;
+    // A chapters track outlives its media: when the source fails or is swapped, the cues are still reported while the
+    // duration is back to 0. Without a duration there is nothing to seek in, so the list is empty and the opener goes.
+    const cues: MediaTextCue[] = duration > 0 ? (this.#tracks.value?.chaptersCues ?? []) : [];
     const signature = `${duration}|${cues.map((cue) => `${cue.startTime}-${cue.endTime}-${cue.text}`).join('|')}`;
 
     if (signature !== this.#signature) {
