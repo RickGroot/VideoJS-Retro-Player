@@ -1,3 +1,13 @@
+/*
+ * Host colour mode (video skin). A page can set two custom properties on the player:
+ *   --media-accent-color  pins the field (play cell, flooded time cell, cover, progress line) to one colour in every
+ *                         state. The error head stays danger red.
+ *   --sleeve-on-accent    the text and glyph colour on the field. Left unset, it is contrast-color() of the pin where
+ *                         the browser has it (black or white, never below 4.5:1 on any colour), and the fixed ink of
+ *                         the scheme where it does not. Without contrast-color(), a dark brand colour needs this set
+ *                         (to a light colour), or the glyphs on it are unreadable.
+ */
+
 /* Archivo, self-hosted (SIL OFL 1.1, see fonts/archivo.NOTICE.md). Top level: @font-face is not valid inside @scope. */
 @font-face {
   font-family: "Sleeve Archivo";
@@ -38,8 +48,9 @@
     --sleeve-letterbox: #000000;
 
     /*
-     * The field is the colour of the current state (see the state rules below); --sleeve-pigment holds it. A custom
-     * --media-accent-color pins the field instead and must keep 4.5:1 with --sleeve-on-pigment, which is fixed.
+     * The field is the colour of the current state (see the state rules below); --sleeve-pigment holds it. A host's
+     * --media-accent-color pins the field instead, in every state; the video skin then picks the text colour on it
+     * (see the host colour block below).
      */
     --sleeve-pigment: var(--sleeve-dominant);
     --sleeve-field: var(--media-accent-color, var(--sleeve-pigment));
@@ -47,6 +58,7 @@
 
     --sleeve-font: "Sleeve Archivo", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     --sleeve-rule-width: 2px;
+    --sleeve-focus-width: var(--sleeve-rule-width);
     --sleeve-cell: 44px;
     --sleeve-play-cell: 72px;
     --sleeve-disc: 44px;
@@ -81,6 +93,31 @@
       --sleeve-on-pigment: light-dark(#0e0e0f, #1a1713);
       --sleeve-on-danger: light-dark(#ffffff, #1a1713);
     }
+  }
+
+  /*
+   * Host colour mode, video skin: the text on the field is the host's --sleeve-on-accent if set, else contrast-color()
+   * of the pinned colour, else the scheme's fixed on-pigment. The second token is invalid while no pin is set, so
+   * the state pigments keep their own on-pigment. contrast-color() sits behind @supports so other browsers skip it.
+   */
+  .media-skin[data-theme="sleeve"][data-preset="video"] {
+    --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pigment));
+  }
+
+  @supports (color: contrast-color(red)) {
+    .media-skin[data-theme="sleeve"][data-preset="video"] {
+      --sleeve-on-pin: contrast-color(var(--media-accent-color));
+      --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pin, var(--sleeve-on-pigment)));
+    }
+  }
+
+  /*
+   * Error: the field is danger red, so the text on it is on-danger (white in light, dark ink in dark), not the
+   * ink on the other pigments. A host pin or --sleeve-on-accent still wins. Without contrast-color(), a pin plus an
+   * error shows on-danger on the pin; set --sleeve-on-accent there.
+   */
+  .media-skin[data-theme="sleeve"][data-preset="video"]:where(:has(media-error-dialog media-dialog-popup[data-open])) {
+    --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pin, var(--sleeve-on-danger)));
   }
 
   /*
@@ -162,6 +199,29 @@
     .media-skin[data-theme="sleeve"][data-preset] {
       --media-background: var(--sleeve-paper);
       --media-scrollbar-thumb-color: var(--sleeve-ink);
+    }
+
+    /*
+     * Video skin: rules and muted tones become ink, the disabled tone steps up to ink-2 (both 7:1 or better on paper),
+     * the focus ring grows to 3px, and the state pigments move to ones that hold 7:1 with their text (the light
+     * values below are for browsers without light-dark()).
+     */
+    .media-skin[data-theme="sleeve"][data-preset="video"] {
+      --sleeve-rule: var(--sleeve-ink);
+      --sleeve-ink-3: var(--sleeve-ink);
+      --sleeve-ink-4: var(--sleeve-ink-2);
+      --sleeve-focus-width: 3px;
+      --sleeve-minor: #8aa4ff;
+      --sleeve-dominant: #ff7a3d;
+      --sleeve-danger: #a80c22;
+    }
+
+    @supports (color: light-dark(red, red)) {
+      .media-skin[data-theme="sleeve"][data-preset="video"] {
+        --sleeve-minor: light-dark(#8aa4ff, #8aa3f5);
+        --sleeve-dominant: light-dark(#ff7a3d, #f78d5c);
+        --sleeve-danger: light-dark(#a80c22, #ff7b6b);
+      }
     }
   }
 

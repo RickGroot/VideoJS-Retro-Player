@@ -44,9 +44,9 @@
       inset: 0;
       z-index: 60;
       pointer-events: none;
-      border: var(--sleeve-rule-width) solid var(--sleeve-ink);
-      outline: var(--sleeve-rule-width) solid var(--sleeve-ground);
-      outline-offset: calc(-2 * var(--sleeve-rule-width));
+      border: var(--sleeve-focus-width) solid var(--sleeve-ink);
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ground);
+      outline-offset: calc(-2 * var(--sleeve-focus-width));
     }
 
     /* Letterbox behind the picture stays black in both colour schemes (--sleeve-letterbox). */
@@ -160,9 +160,14 @@
       pointer-events: none;
     }
 
+    /* No fades on the strip, menus, tooltips or indicators when asked. */
     @media (prefers-reduced-motion: reduce) {
-      .sleeve-strip {
+      .sleeve-strip,
+      .media-popup,
+      .media-menu-content,
+      .media-indicator {
         transition: none;
+        animation: none;
       }
     }
   }
@@ -247,7 +252,7 @@
 
     /* Inset focus ring in the glyph colour: ink on paper cells, ground on ink cells. */
     .media-button:focus-visible {
-      outline: var(--sleeve-rule-width) solid var(--sleeve-cell-fg);
+      outline: var(--sleeve-focus-width) solid var(--sleeve-cell-fg);
       outline-offset: -4px;
     }
 
@@ -338,7 +343,7 @@
     }
 
     .sleeve-play:focus-visible::before {
-      outline: var(--sleeve-rule-width) solid var(--sleeve-disc-fg);
+      outline: var(--sleeve-focus-width) solid var(--sleeve-disc-fg);
       outline-offset: -4px;
     }
 
@@ -487,7 +492,7 @@
     .media-time-slider-thumb:focus-visible {
       width: 10px;
       height: 24px;
-      outline: var(--sleeve-rule-width) solid var(--sleeve-ground);
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ground);
       outline-offset: -4px;
     }
 
@@ -575,7 +580,7 @@
       --sleeve-time-bg: var(--sleeve-paper);
       --sleeve-time-fg: var(--sleeve-ink);
       --sleeve-time-fg-2: var(--sleeve-ink-3);
-      --sleeve-time-fg-3: var(--sleeve-ink-4);
+      --sleeve-time-fg-3: var(--sleeve-ink-3);
       flex: none;
       padding-inline: calc(var(--media-spacing) * 3);
       background-color: var(--sleeve-time-bg);
@@ -704,7 +709,7 @@
     .media-volume-slider-thumb:focus-visible {
       width: 10px;
       height: 24px;
-      outline: var(--sleeve-rule-width) solid var(--sleeve-ground);
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ground);
       outline-offset: -4px;
     }
   }
@@ -999,6 +1004,15 @@
       justify-content: space-between;
     }
 
+    /* Touch: menu rows are 48px high. */
+    @media (pointer: coarse) {
+      .media-menu-item,
+      .media-menu-back-item,
+      .media-menu-radio-item {
+        min-height: 48px;
+      }
+    }
+
     .media-menu-item[data-availability="unavailable"],
     .media-menu-item[data-availability="unsupported"] {
       display: none;
@@ -1019,7 +1033,7 @@
     .media-menu-item:focus-visible,
     .media-menu-back-item:focus-visible,
     .media-menu-radio-item:focus-visible {
-      outline: var(--sleeve-rule-width) solid currentColor;
+      outline: var(--sleeve-focus-width) solid currentColor;
       outline-offset: -4px;
     }
 
@@ -1113,6 +1127,13 @@
       display: none;
     }
 
+    /* No see-through surfaces when asked: the backdrop becomes solid ink. */
+    @media (prefers-reduced-transparency: reduce) {
+      .media-dialog-backdrop {
+        background-color: var(--sleeve-ink);
+      }
+    }
+
     .media-dialog-backdrop[data-scope="document"] {
       position: fixed;
     }
@@ -1144,7 +1165,7 @@
 
     /* Paper ring outside the border: the backdrop is ink, so ink would vanish there, and inside it would cross the danger head. */
     .media-dialog-popup:focus-visible {
-      outline: var(--sleeve-rule-width) solid var(--sleeve-paper);
+      outline: var(--sleeve-focus-width) solid var(--sleeve-paper);
       outline-offset: 2px;
     }
 
@@ -1512,18 +1533,21 @@
   }
 
   /*
-   * Narrow players: drop optional cells before the row can overflow, never shrink one below 44px. Widths in px at 16px
-   * per rem: the play cell and its gap take 74; the time cell is budgeted at 120; the mute, captions, settings and
-   * fullscreen cells (44 each) always stay, so captions and the quality/speed menu stay reachable at any width; each
-   * extra cell costs 46 with its gap. Under 32rem the title and the inline volume slider are hidden (volume stays on
-   * the mute button, the arrow-key hotkeys and, on touch devices, the system volume). From 32rem they take 144 + 24
-   * more, so the optional cells come back later: pip, cast and airplay hide in turn, in that order of priority.
-   *   narrow (no title, no slider): 378 + 46 per optional cell -> 24rem base, pip 27rem, cast 30rem, airplay 33rem
-   *   wide (title and slider):      506 + 46 per optional cell -> pip 35rem, cast 38rem, airplay 46rem
-   *   (from 40rem the slider is 96px, so airplay waits until the title keeps room for text)
+   * Size bands, by the player's width (container queries on media-root). Hidden cells are display:none, so they leave
+   * the tab order and the accessibility tree. Widths in px at 16px per rem: the play cell and its gap take 74; the
+   * time cell is budgeted at 120; each cell costs 46 with its gap.
+   *   40rem and up (640px): everything: time, title, mute with its slider, captions, settings, pip, fullscreen.
+   *   30rem to 40rem (480px): no title, no volume slider (volume stays on the mute button, the arrow-key hotkeys and,
+   *     on touch devices, the system volume).
+   *   under 30rem: the compact strip; the settings menu opens as a sheet across the player (see the sheet below).
+   *   under 18.75rem (300px): only play, the time slider, mute and fullscreen.
+   * Optional cells come back in this order of priority as the room grows:
+   *   narrow (no title, no slider): 378 + 46 per optional cell -> 24rem base, pip 27rem, cast 30rem
+   *   wide (title and slider):      about 496 + 46 per optional cell -> pip 35rem, cast 44rem, airplay 46rem
+   *   (cast waits for 44rem so the title keeps room for text at 640px)
    */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
-    @container media-root (width < 32rem) {
+    @container media-root (width < 40rem) {
       .sleeve-title-cell,
       .media-volume-slider {
         display: none;
@@ -1575,9 +1599,11 @@
       }
     }
 
-    /* Under 300px even the current time does not fit beside the required cells: mute takes the room, icon centred. */
+    /* Under 300px only play, the time slider, mute and fullscreen stay (all 44px or more): the time readout, captions and settings go, and mute takes the room, icon centred. */
     @container media-root (width < 18.75rem) {
-      .sleeve-time-cell {
+      .sleeve-time-cell,
+      .media-captions-button,
+      .sleeve-settings-button {
         display: none;
       }
 
@@ -1595,13 +1621,13 @@
       }
     }
 
-    @container media-root (width < 27rem) or ((width >= 32rem) and (width < 35rem)) {
+    @container media-root (width < 27rem) {
       .media-pip-button {
         display: none;
       }
     }
 
-    @container media-root (width < 30rem) or ((width >= 32rem) and (width < 38rem)) {
+    @container media-root (width < 30rem) or ((width >= 40rem) and (width < 44rem)) {
       .media-cast-button {
         display: none;
       }
@@ -1610,6 +1636,20 @@
     @container media-root (width < 46rem) {
       .media-airplay-button {
         display: none;
+      }
+    }
+
+    /*
+     * Under 30rem the settings menu is a sheet: as wide as the player, flush with its edges (no boundary offset), and
+     * no taller than the room above the button inside the player (the menu is bound to the player container in the
+     * markup, so --media-menu-available-height is measured from the player's top). Its rows scroll inside it.
+     */
+    @container media-root (width < 30rem) {
+      .media-popup.media-menu-popup {
+        --media-popover-boundary-offset: 0px;
+        width: var(--media-menu-available-width, 100%);
+        min-width: 0;
+        max-width: none;
       }
     }
   }
@@ -1674,7 +1714,17 @@
       }
 
       .media-button:focus-visible {
-        outline: var(--sleeve-rule-width) solid Highlight;
+        outline: var(--sleeve-focus-width) solid Highlight;
+      }
+
+      /* Disabled cells: GrayText glyph and strike (the strike's own colour would be forced to Canvas and vanish). */
+      .media-button:is([disabled], [data-disabled], [aria-disabled="true"]) {
+        color: GrayText;
+      }
+
+      .media-button:is([disabled], [data-disabled], [aria-disabled="true"])::after {
+        forced-color-adjust: none;
+        background-color: GrayText;
       }
 
       .media-captions-button[data-active],
@@ -1802,6 +1852,14 @@
         forced-color-adjust: none;
         background-color: Highlight;
         color: HighlightText;
+      }
+
+      /* The hint has its own grey; on a Highlight row it follows the row's text colour. */
+      .media-menu-item[data-highlighted] .media-menu-hint,
+      .media-menu-back-item[data-highlighted] .media-menu-hint,
+      .media-menu-radio-item[data-highlighted] .media-menu-hint,
+      .media-menu-radio-item[aria-checked="true"] .media-menu-hint {
+        color: inherit;
       }
 
       .media-dialog-backdrop {
