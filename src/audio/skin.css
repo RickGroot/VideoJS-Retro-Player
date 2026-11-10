@@ -81,7 +81,7 @@
 
     /* The cover row: the type panel (filled with the field colour) and the square artwork. */
     .sleeve-cover {
-      --sleeve-art: clamp(192px, 30cqi, 240px);
+      --sleeve-art: clamp(112px, 34cqi, 256px);
       display: grid;
       grid-template-columns: minmax(0, 1fr) var(--sleeve-art);
       height: var(--sleeve-art);
@@ -112,7 +112,7 @@
      */
     .sleeve-side {
       flex: none;
-      font-size: 11px;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       line-height: 1.3;
       white-space: nowrap;
@@ -212,6 +212,19 @@
       visibility: hidden;
     }
 
+    /* Before the first play the numeral shows the length; once playback has started it counts down. */
+    .sleeve-numeral-left {
+      display: none;
+    }
+
+    :scope:where(:has(media-play-button[data-started])) :where(.sleeve-numeral-total) {
+      display: none;
+    }
+
+    :scope:where(:has(media-play-button[data-started])) :where(.sleeve-numeral-left) {
+      display: inline;
+    }
+
     /* The artwork: light print stock (fixed in both schemes, so the multiplied flood stays visible), the default print, the poster, the flood. */
     .sleeve-art {
       position: relative;
@@ -294,6 +307,8 @@
       width: var(--sleeve-rule-width);
       left: clamp(0px, calc(var(--media-slider-fill, 0%) - var(--sleeve-rule-width) / 2), calc(100% - var(--sleeve-rule-width)));
       background-color: var(--sleeve-print-ink);
+      /* A paper edge on the unflooded side keeps the needle visible on near-black artwork. */
+      box-shadow: var(--sleeve-rule-width) 0 0 var(--sleeve-print-paper);
     }
 
     /* The strip: play cell on the left spanning both rows, slider row above the cells row. */
@@ -464,7 +479,7 @@
       align-items: center;
       justify-content: center;
       gap: 1px;
-      font-size: 10px;
+      font-size: 0.75rem;
       line-height: 1;
       letter-spacing: 0.04em;
     }
@@ -1095,7 +1110,7 @@
 
     .sleeve-dialog-label {
       display: block;
-      font-size: 11px;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       line-height: 1.2;
     }
@@ -1138,10 +1153,7 @@
 
     /* Size bands, by the player's width (container queries on media-root). Base rules are the wide band (640px and up). */
     @container media-root (width < 40rem) {
-      /* Medium: 144px cover, no inline volume slider, 44px speed cell. */
-      .sleeve-cover {
-        --sleeve-art: 144px;
-      }
+      /* Medium: the cover keeps scaling with the player; no inline volume slider, 44px speed cell. */
 
       .sleeve-type {
         gap: calc(var(--media-spacing) * 1.5);
@@ -1166,12 +1178,8 @@
       }
     }
 
-    /* Narrow: a 72px cover, state word and two-line title, no numeral. */
+    /* Narrow: state word and two-line title, a smaller numeral. */
     @container media-root (width < 30rem) {
-      .sleeve-cover {
-        --sleeve-art: 72px;
-      }
-
       .sleeve-type {
         gap: 2px;
         padding: calc(var(--media-spacing) * 2);
@@ -1183,7 +1191,7 @@
       }
 
       .sleeve-numeral {
-        display: none;
+        font-size: 2rem;
       }
 
       .sleeve-time-cell {
@@ -1255,6 +1263,10 @@
         display: none;
       }
 
+      .sleeve-numeral {
+        display: none;
+      }
+
       .sleeve-type {
         justify-content: center;
         border-inline-end: 0;
@@ -1262,7 +1274,7 @@
       }
 
       .sleeve-side {
-        font-size: 10px;
+        font-size: 0.75rem;
         line-height: 1.2;
       }
 

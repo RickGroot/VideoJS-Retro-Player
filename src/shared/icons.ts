@@ -56,9 +56,9 @@ export const fullscreenExitIcon = solid(
   'M7 2H5v3H2v2h5zM11 2h2v3h3v2h-5zM7 16H5v-3H2v-2h5zM11 16h2v-3h3v-2h-5z',
 );
 
-// Captions: solid with two knocked-out lines when on, an empty frame when off.
+// Captions: the caption box is solid with two knocked-out text bars when on; when off it is an outlined box with the two bars inside.
 export const captionsOnIcon = knockout('M2 3h14v12H2zM4 6h10v2H4zM4 10h7v2H4z');
-export const captionsOffIcon = knockout('M2 3h14v12H2zM4 5v8h10V5z');
+export const captionsOffIcon = knockout('M2 3h14v12H2zM4 5v8h10V5zM6 6.5h6V8H6zM6 10h4v1.5H6z');
 
 // Picture in picture: frame with a solid inset block; on exit the frame is solid with a hole.
 export const pipEnterIcon = knockout('M2 3h14v12H2zM4 5v8h10V5zM8 8h5v4H8z');

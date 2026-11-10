@@ -66,6 +66,16 @@
       display: none;
     }
 
+    /*
+     * At the end the poster comes back as an end card: the footage may finish on black, and a black picture beside the
+     * field reads as broken. Video.js sets the poster's data-visible only before playback (docs: media-poster), so the
+     * skin shows it again from the play button's data-ended; not while scrubbing (the frame under the thumb matters
+     * then) and only once the image has loaded. Audio mode keeps its own poster rules (below).
+     */
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging])) .media-poster[data-loaded] {
+      display: block;
+    }
+
     .media-poster-image {
       object-fit: var(--media-object-fit, contain);
       object-position: var(--media-object-position, center);
@@ -197,6 +207,15 @@
       display: none;
     }
 
+    /*
+     * Cast, AirPlay and picture in picture report data-availability: "available", "unavailable" (the platform can,
+     * nothing is reachable) or "unsupported". Only an available one gets a cell; the others leave the strip
+     * (display:none, so also the tab order), and it closes up with no empty cell and no doubled rule.
+     */
+    :is(.media-cast-button, .media-airplay-button, .media-pip-button):is([data-availability="unavailable"], [data-availability="unsupported"]) {
+      display: none;
+    }
+
     .media-button-icon,
     .media-button-icon-base {
       width: calc(var(--media-spacing) * 5);
@@ -263,7 +282,7 @@
       align-items: center;
       justify-content: center;
       gap: 1px;
-      font-size: 10px;
+      font-size: 0.75rem;
       line-height: 1;
       letter-spacing: 0.04em;
       font-variant-numeric: tabular-nums;
@@ -1256,7 +1275,7 @@
 
     .sleeve-dialog-label {
       display: block;
-      font-size: 11px;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       line-height: 1.2;
     }
@@ -1472,7 +1491,7 @@
     }
 
     .sleeve-cover-label {
-      font-size: 11px;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
       line-height: 1.2;
     }
@@ -1544,6 +1563,121 @@
     /* Before the first play and at the end; not while scrubbing, not under the error dialog, and not on narrow players, where the play/restart glyph and the Block carry the state. */
     @container media-root (width >= 30rem) {
       :scope:is(:has(media-play-button:not([data-started])), :has(media-play-button[data-ended])):not(:has(media-time-slider[data-dragging])):not(:has(media-dialog-popup[data-open])) .sleeve-cover {
+        display: grid;
+      }
+    }
+  }
+
+  /*
+   * The band: under 30rem there is no room for the cover panel, so the same cover element becomes a field-coloured
+   * band across the top of the picture (state word, title on one line, time), so the sleeve idea survives on phones.
+   * Shown while ready, paused or ended (not while playing, scrubbing, buffering, with the menu open or under the error
+   * dialog), as a hard cut. It is the same aria-hidden element as the cover, and clicks pass through it. The cover is
+   * still the full picture area (a size container, no background): only the first row and its ::before are painted,
+   * and under 7rem of picture the band is not drawn at all. It is not drawn over captions either: while paused with
+   * captions on, the cue plate sits at the bottom, but the host's cue positions may also use the top. Audio mode
+   * keeps its own cover.
+   */
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    @container media-root (width < 30rem) {
+      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))) {
+        .sleeve-cover {
+          --sleeve-band-h: 32px;
+          width: 100%;
+          padding: 0;
+          row-gap: 0;
+          column-gap: calc(var(--media-spacing) * 3);
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          grid-template-rows: var(--sleeve-band-h) minmax(0, 1fr);
+          background-color: transparent;
+          border-inline-end: 0;
+        }
+
+        /* The play cell is not under the band, so the field notch over the strip's rule goes. */
+        .sleeve-cover::after {
+          display: none;
+        }
+
+        .sleeve-cover::before {
+          content: "";
+          inset-block-start: 0;
+          inset-inline: 0;
+          height: var(--sleeve-band-h);
+          box-sizing: border-box;
+          background-color: var(--sleeve-field);
+          border-bottom: var(--sleeve-rule-width) solid var(--sleeve-ink);
+          z-index: -1;
+          position: absolute;
+        }
+
+        .sleeve-cover > * {
+          grid-row: 1;
+          align-self: center;
+          padding-inline: 0;
+        }
+
+        .sleeve-cover-label {
+          grid-column: 1;
+          margin-inline-start: calc(var(--media-spacing) * 3);
+          white-space: nowrap;
+        }
+
+        .sleeve-cover-title {
+          grid-column: 2;
+          max-height: none;
+          font-size: 0.875rem;
+          line-height: 1.2;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: block;
+          -webkit-line-clamp: unset;
+          line-clamp: unset;
+        }
+
+        .sleeve-cover-title[hidden] {
+          display: none;
+        }
+
+        .sleeve-cover-time {
+          grid-column: 3;
+          margin-inline-end: calc(var(--media-spacing) * 3);
+          font-size: 0.875rem;
+          line-height: 1.2;
+        }
+
+        /* Paused: the word and the time left (the strip's Block shows the elapsed time). Ready and ended keep the label and the duration. */
+        &:has(media-play-button[data-started][data-paused]:not([data-ended])) {
+          .sleeve-cover-ready {
+            display: none;
+          }
+
+          .sleeve-cover-paused {
+            display: inline;
+          }
+
+          .sleeve-cover-time[type="duration"] {
+            display: none;
+          }
+
+          .sleeve-cover-time[type="remaining"]:not([data-unavailable]) {
+            display: block;
+          }
+        }
+
+        @container sleeve-cover (height < 7rem) {
+          .sleeve-cover-label,
+          .sleeve-cover-title,
+          .sleeve-cover-time {
+            visibility: hidden;
+          }
+
+          .sleeve-cover::before {
+            display: none;
+          }
+        }
+      }
+
+      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):is(:has(media-play-button[data-paused]), :has(media-play-button[data-ended])):not(:has(media-time-slider[data-dragging])):not(:has(media-dialog-popup[data-open])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls [aria-expanded="true"])):not(:has(media-play-button[data-started][data-paused]:not([data-ended])):has(.media-captions-button[data-active])) .sleeve-cover {
         display: grid;
       }
     }
@@ -1644,9 +1778,21 @@
    */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     @container media-root (width < 40rem) {
-      .sleeve-title-cell,
       .media-volume-slider {
         display: none;
+      }
+
+      /* No room for the title cell, but the title stays in the accessibility tree (the cover and its band are aria-hidden). */
+      .sleeve-title-cell {
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border-width: 0;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        position: absolute;
+        overflow: hidden;
       }
 
       .sleeve-time-cell {
@@ -1821,6 +1967,41 @@
 
     :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover-time[type="remaining"]:not([data-unavailable]) {
       display: block;
+    }
+
+    /* Before the first play there is nothing to count down yet: the numeral is the duration, and it counts down from the first play on. */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):has(media-play-button:not([data-started])) .sleeve-cover-time[type="duration"]:not([data-unavailable]) {
+      display: block;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):has(media-play-button:not([data-started])) .sleeve-cover-time[type="remaining"] {
+      display: none;
+    }
+
+    /*
+     * The cover prints the title, so the strip's title cell is not drawn. The text stays in the accessibility tree
+     * (clipped, not display:none), so one title is still exposed (the cover and the print are aria-hidden). The volume
+     * cell takes the room the title cell had.
+     */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-title-cell {
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border-width: 0;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      position: absolute;
+      overflow: hidden;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-volume-cell {
+      flex: 1 1 0;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-volume-cell .media-volume-slider {
+      flex: 1 1 auto;
+      max-width: 20rem;
     }
 
     /*
