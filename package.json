@@ -2,16 +2,18 @@
   "name": "sleeve",
   "version": "0.0.0",
   "private": true,
+  "description": "Sleeve: a Video.js v10 skin for video and audio, printed like a record cover.",
+  "license": "Apache-2.0",
   "type": "module",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "deploy": "node apps/preview/deploy.mjs",
-    "deploy:vercel": "pnpm dlx vercel@64 build && pnpm dlx vercel@64 deploy --prebuilt",
-    "deploy:netlify": "pnpm dlx netlify-cli@27 deploy --build",
-    "deploy:cloudflare": "pnpm run build && pnpm dlx wrangler@4 pages deploy dist --project-name sleeve"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@videojs/html": "10.3.0"
@@ -22,6 +24,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@videojs/mux-audio": "10.3.0",
     "@videojs/mux-video": "10.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "class-variance-authority": "^0.7.1",

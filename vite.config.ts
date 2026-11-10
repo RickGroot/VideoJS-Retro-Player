@@ -25,8 +25,12 @@ export default defineConfig({
     outDir: path('./dist'),
     emptyOutDir: true,
     rolldownOptions: {
-      // The workbench shell, and the preview page it frames.
-      input: { workbench: path('./apps/preview/index.html'), preview: path('./apps/preview/preview.html') },
+      // The workbench shell, the video preview it frames, and the audio skin's own preview page.
+      input: {
+        workbench: path('./apps/preview/index.html'),
+        preview: path('./apps/preview/preview.html'),
+        audio: path('./apps/preview/audio.html'),
+      },
     },
   },
 });

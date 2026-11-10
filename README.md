@@ -1,37 +1,59 @@
 # Sleeve
 
-A Video.js video skin for HTML, styled with CSS. It started from the Scaffold skin.
+A [Video.js](https://videojs.org) v10 skin for video and audio, for HTML, styled with plain CSS. An entry for the Video.js Skins Design Challenge.
+
+The idea: the video is the photograph on a record cover and the player is printed on it. Ink on paper, square corners, condensed capitals, and one flat block of colour that changes size with how much the player needs you. With no picture, the cover itself is the player ("Side B").
+
+> Work in progress. Today both skins are still the Scaffold skin they started from; the design lands over the coming days.
 
 ## Develop
+
+Needs Node 22.22 or newer and pnpm.
+
+```sh
+pnpm install --ignore-scripts
+```
 
 ```sh
 pnpm dev
 ```
 
-The workbench opens your skin in a slimmed-down version of the Video.js sandbox. It plays NASA's Cosmic Dawn trailer from Mux, with chapters; change the media in `apps/preview/src/frame/player`. The options panel sets the player's width and aspect ratio, the color scheme, text direction, and language, and playback options such as autoplay, muted, loop, and preload. The arrow button opens the preview on its own. The settings live in the URL, so a link such as `/?width=384&ratio=9:16&dir=rtl&locale=ar` opens the workbench in that state, and `/preview.html#width=384&ratio=9:16` opens the preview alone.
+The workbench opens the video skin in a slimmed-down version of the Video.js sandbox. It plays NASA's Cosmic Dawn trailer from Mux, with chapters. The options panel sets the player's width and aspect ratio, the colour scheme, text direction and language, and playback options such as autoplay, muted, loop and preload. The settings live in the URL, so `/?width=384&ratio=9:16&dir=rtl&locale=ar` opens the workbench in that state.
+
+- `/preview.html#width=384&ratio=9:16` opens the video preview on its own.
+- `/audio.html#width=576` opens the audio skin on its own. It takes the same settings, except the aspect ratio.
+
+Change the media in `apps/preview/src/frame/player.ts` (video) and `audio-player.ts` (audio).
+
+```sh
+pnpm typecheck
+```
+
+```sh
+pnpm build
+```
 
 ## Deploy
 
-```sh
-pnpm run deploy
-```
-
-It asks where to deploy the workbench: Vercel, Netlify, or Cloudflare Pages. Name one to skip the question, such as `pnpm run deploy vercel`. The first time, the host's CLI signs you in and creates the project, then every run prints the URL. Vercel and Netlify deploy to a preview URL you can share; to deploy to production instead, add `--prod` to the `deploy:netlify` script, or to both commands in `deploy:vercel`.
-
-To deploy on every push instead, put the project on GitHub and import it on Vercel or Netlify; `vercel.json` and `netlify.toml` already describe the build. The build uses relative URLs, so `dist/` also works on any static host, including in a subfolder.
+A push to `main` builds the workbench and publishes `dist/` to GitHub Pages through `.github/workflows/deploy.yml`. The repository needs Settings → Pages → Source set to "GitHub Actions". The build uses relative URLs, so it works in the `/sleeve/` subfolder.
 
 ## Where things live
 
-- `src/`: your skin, and only your skin. Keep, rewrite, or delete any of it.
-  - `src/video/`: the skin component and its parts.
-  - `src/styles/`: theme tokens and shared styles the skin imports, when it started from a packaged skin.
-  - `src/skin.css`: global styles for the skin.
-- `apps/preview/`: the workbench that previews the skin. You don't need to change it.
-  - `src/shell/`: the Shadcn shell.
-  - `src/frame/`: the page the shell frames. `player` mounts your skin in a player and sets the media it plays.
+- `src/`: the skins, and only the skins.
+  - `src/video/`: the video skin (template, styles, element imports).
+  - `src/audio/`: the audio skin.
+  - `src/styles/`: tokens, themes and base styles both skins share, plus a per-preset layer in `video/` and `audio/`.
+  - `src/skin.css`: global styles, loaded only in the preview.
+- `apps/preview/`: the workbench.
+  - `src/shell/`: the workbench shell.
+  - `src/frame/`: the pages the shell frames; `player` and `audio-player` mount a skin in a player and set its media.
   - `public/`: files the preview serves, such as the chapters track.
-- `vercel.json`, `netlify.toml`: how those hosts build the workbench.
-- `skin.json`: what this skin is built from. Keep it; it records the Video.js version the skin was created with.
+- `skin.json`: what the video skin was created from, including the Video.js version. The audio skin comes from the same command with `--preset audio`.
+- `AGENTS.md`: rules for coding agents working on this project.
+
+## Licence
+
+Apache-2.0, see [LICENSE](LICENSE) and [NOTICE](NOTICE). The skins start from the Video.js Scaffold skin (Apache-2.0, Video.js contributors).
 
 ## Learn more
 

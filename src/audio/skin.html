@@ -1,0 +1,191 @@
+<media-container class="media-skin media-container media-audio" data-theme="sleeve" data-preset="audio">
+<!-- Add a compatible media component here. -->
+<media-error-dialog>
+<media-dialog-backdrop class="media-dialog-backdrop">
+</media-dialog-backdrop>
+<media-dialog-popup class="media-dialog-popup">
+<media-dialog-title class="media-dialog-title">
+</media-dialog-title>
+<media-dialog-description class="media-dialog-description">
+</media-dialog-description>
+<media-dialog-close class="media-button media-dialog-close">
+</media-dialog-close>
+</media-dialog-popup>
+</media-error-dialog>
+<media-controls visibility="always">
+<media-controls-content class="video-controls-content audio-controls-content">
+<media-tooltip-group>
+<div class="video-controls-bottom audio-controls-bottom">
+<div class="video-controls-slider-row">
+<media-time-slider class="media-time-slider" thumb-alignment="edge">
+<media-time-slider-chapters class="media-time-slider-chapters">
+<template>
+<div class="media-time-slider-chapter">
+<media-slider-track class="media-time-slider-track media-time-slider-audio-track">
+<media-slider-buffer class="media-time-slider-buffer media-time-slider-audio-buffer">
+</media-slider-buffer>
+<media-slider-fill class="media-time-slider-fill">
+</media-slider-fill>
+</media-slider-track>
+</div>
+</template>
+</media-time-slider-chapters>
+<media-slider-thumb class="media-time-slider-thumb">
+</media-slider-thumb>
+<media-slider-preview class="media-time-slider-preview">
+<media-slider-thumbnail class="media-slider-thumbnail">
+<img alt="" aria-hidden="true" decoding="async" class="media-slider-thumbnail-image">
+</media-slider-thumbnail>
+<div class="media-time-slider-preview-meta media-time-slider-audio-preview-meta">
+<div class="media-time-slider-preview-label">
+<media-slider-value class="media-time-slider-value" type="pointer">
+</media-slider-value>
+<media-time-slider-chapter-title class="media-time-slider-chapter-title">
+</media-time-slider-chapter-title>
+</div>
+</div>
+</media-slider-preview>
+</media-time-slider>
+</div>
+<media-controls-group class="video-controls-row">
+<media-controls-group class="video-controls-group video-controls-start">
+<div class="media-play-button-audio">
+<media-play-button class="media-button media-play-button" id="vjs-Rnkyep49-0-trigger">
+<media-icon family="scaffold" name="restart" class="media-button-icon-base media-play-button-restart-icon">
+</media-icon>
+<media-icon family="scaffold" name="play" class="media-button-icon-base media-play-button-play-icon">
+</media-icon>
+<media-icon family="scaffold" name="pause" class="media-button-icon-base media-play-button-pause-icon">
+</media-icon>
+</media-play-button>
+<media-tooltip trigger="vjs-Rnkyep49-0-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-buffering-indicator class="media-buffering-indicator media-play-button-buffering">
+<media-icon family="scaffold" name="spinner" class="media-buffering-indicator-spinner-icon">
+</media-icon>
+</media-buffering-indicator>
+</div>
+<media-seek-button seconds="-10" class="media-button media-seek-button-audio" id="vjs-Rnkyep49-0-2-trigger">
+<div class="media-seek-button-content">
+<media-icon family="scaffold" name="seek" class="media-button-icon media-seek-button-backward-icon">
+</media-icon>
+<span class="media-seek-button-label media-seek-button-backward-label">10</span>
+</div>
+</media-seek-button>
+<media-tooltip trigger="vjs-Rnkyep49-0-2-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-seek-button seconds="10" class="media-button media-seek-button-audio" id="vjs-Rnkyep49-0-3-trigger">
+<div class="media-seek-button-content">
+<media-icon family="scaffold" name="seek" class="media-button-icon">
+</media-icon>
+<span class="media-seek-button-label media-seek-button-forward-label">10</span>
+</div>
+</media-seek-button>
+<media-tooltip trigger="vjs-Rnkyep49-0-3-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-time-group class="media-time-group">
+<media-time class="media-time-toggle" type="current" toggle>
+</media-time>
+<media-time class="media-time-current-value" type="current">
+</media-time>
+<media-time-separator class="media-time-separator">
+</media-time-separator>
+<media-time class="media-time-duration-value" type="duration">
+</media-time>
+</media-time-group>
+</media-controls-group>
+<media-controls-group class="video-controls-group">
+<media-playback-rate-button commandfor="vjs-LUAS-MeU-0-popup" class="media-button media-playback-rate-button" id="vjs-Rnkyep49-0-4-trigger">
+<span data-part="value" class="media-playback-rate-button-label">
+</span>
+</media-playback-rate-button>
+<media-tooltip trigger="vjs-Rnkyep49-0-4-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-text token="menu.speed">Speed</media-text>
+</media-tooltip>
+<media-menu side="top" align="center" boundary="viewport" class="media-popup media-popup-safe-area media-menu-popup media-menu-rate-popup" id="vjs-LUAS-MeU-0-popup">
+<media-menu-content class="media-menu-content">
+<media-playback-rate-radio-group class="media-menu-radio-group">
+<template>
+<media-menu-radio-item class="media-menu-radio-item">
+<span data-part="label">
+</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="scaffold" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+</template>
+</media-playback-rate-radio-group>
+</media-menu-content>
+</media-menu>
+<media-mute-button commandfor="vjs--9CSH12E-0-popup" class="media-button media-mute-button" id="vjs-Rnkyep49-0-5-trigger">
+<media-icon family="scaffold" name="volume-off" class="media-button-icon media-mute-button-off-icon">
+</media-icon>
+<media-icon family="scaffold" name="volume-high" class="media-button-icon media-mute-button-high-icon">
+</media-icon>
+</media-mute-button>
+<media-tooltip trigger="vjs-Rnkyep49-0-5-trigger" delay="0" disabled side="top" sticky class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-volume-popover open-on-hover delay="200" close-delay="100" side="top" class="media-popup media-popup-safe-area media-volume-popover-popup" id="vjs--9CSH12E-0-popup">
+<media-volume-slider class="media-volume-slider" orientation="vertical" thumb-alignment="edge">
+<media-slider-track class="media-volume-slider-track">
+<media-slider-fill class="media-volume-slider-fill">
+</media-slider-fill>
+</media-slider-track>
+<media-slider-thumb class="media-volume-slider-thumb">
+</media-slider-thumb>
+</media-volume-slider>
+</media-volume-popover>
+</media-controls-group>
+</media-controls-group>
+</div>
+</media-tooltip-group>
+</media-controls-content>
+</media-controls>
+<media-hotkey keys="Space" action="togglePaused">
+</media-hotkey>
+<media-hotkey keys="k" action="togglePaused">
+</media-hotkey>
+<media-hotkey keys="m" action="toggleMuted">
+</media-hotkey>
+<media-hotkey keys="ArrowRight" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="ArrowLeft" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="l" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="j" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="ArrowUp" action="volumeStep">
+</media-hotkey>
+<media-hotkey keys="ArrowDown" action="volumeStep">
+</media-hotkey>
+<media-hotkey keys="0-9" action="seekToPercent">
+</media-hotkey>
+<media-hotkey keys="Home" action="seekToPercent" value="0">
+</media-hotkey>
+<media-hotkey keys="End" action="seekToPercent" value="100">
+</media-hotkey>
+<media-hotkey keys=">" action="speedUp">
+</media-hotkey>
+<media-hotkey keys="<" action="speedDown">
+</media-hotkey>
+<media-status-announcer class="media-status-announcer">
+</media-status-announcer>
+</media-container>
