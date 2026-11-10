@@ -68,7 +68,7 @@ Not yet checked: Safari, Firefox, real devices (touch, phones), and screen reade
   - `src/video/`: the video skin (template, styles, element imports).
   - `src/audio/`: the audio skin.
   - `src/styles/`: tokens, themes and base styles both skins share, plus a per-preset layer in `video/` and `audio/`.
-  - `src/shared/`: code both skins share, such as the icons and `uniqueIds`.
+  - `src/shared/`: code both skins share, such as the icons, `uniqueIds` and `<sleeve-state>`, the helper element that tells the video skin's CSS whether the media has a picture.
   - `src/skin.css`: global styles, loaded only in the preview.
 - `apps/preview/`: the pages.
   - `src/demo/`: the demo page and its design note.
