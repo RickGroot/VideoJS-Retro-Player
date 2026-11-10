@@ -4,53 +4,48 @@
 <media-dialog-backdrop class="media-dialog-backdrop">
 </media-dialog-backdrop>
 <media-dialog-popup class="media-dialog-popup">
+<div class="sleeve-dialog-head">
+<span class="sleeve-dialog-label">Error</span>
 <media-dialog-title class="media-dialog-title">
 </media-dialog-title>
+</div>
 <media-dialog-description class="media-dialog-description">
 </media-dialog-description>
-<media-dialog-close class="media-button media-dialog-close">
-</media-dialog-close>
+<media-dialog-close class="media-button media-dialog-close"></media-dialog-close>
 </media-dialog-popup>
 </media-error-dialog>
-<media-controls visibility="always">
-<media-controls-content class="video-controls-content audio-controls-content">
-<media-tooltip-group>
-<div class="video-controls-bottom audio-controls-bottom">
-<div class="video-controls-slider-row">
-<media-time-slider class="media-time-slider" thumb-alignment="edge">
-<media-time-slider-chapters class="media-time-slider-chapters">
-<template>
-<div class="media-time-slider-chapter">
-<media-slider-track class="media-time-slider-track media-time-slider-audio-track">
-<media-slider-buffer class="media-time-slider-buffer media-time-slider-audio-buffer">
-</media-slider-buffer>
-<media-slider-fill class="media-time-slider-fill">
+<media-buffering-indicator class="media-buffering-indicator" role="status">
+<span class="sleeve-sr-only">Buffering</span>
+</media-buffering-indicator>
+<div class="sleeve-cover">
+<div class="sleeve-type">
+<span class="sleeve-side" aria-hidden="true"></span>
+<media-title class="sleeve-title">
+</media-title>
+<span class="sleeve-numeral" aria-hidden="true">
+<media-time type="remaining">
+</media-time>
+</span>
+</div>
+<div class="sleeve-art" aria-hidden="true">
+<media-title class="sleeve-print">
+</media-title>
+<media-poster class="media-poster">
+<img alt="" decoding="async" class="media-poster-image">
+</media-poster>
+<media-time-slider class="sleeve-spine" disabled inert>
+<media-slider-track class="sleeve-spine-track">
+<media-slider-fill class="sleeve-spine-fill">
 </media-slider-fill>
 </media-slider-track>
-</div>
-</template>
-</media-time-slider-chapters>
-<media-slider-thumb class="media-time-slider-thumb">
-</media-slider-thumb>
-<media-slider-preview class="media-time-slider-preview">
-<media-slider-thumbnail class="media-slider-thumbnail">
-<img alt="" aria-hidden="true" decoding="async" class="media-slider-thumbnail-image">
-</media-slider-thumbnail>
-<div class="media-time-slider-preview-meta media-time-slider-audio-preview-meta">
-<div class="media-time-slider-preview-label">
-<media-slider-value class="media-time-slider-value" type="pointer">
-</media-slider-value>
-<media-time-slider-chapter-title class="media-time-slider-chapter-title">
-</media-time-slider-chapter-title>
-</div>
-</div>
-</media-slider-preview>
 </media-time-slider>
 </div>
-<media-controls-group class="video-controls-row">
-<media-controls-group class="video-controls-group video-controls-start">
-<div class="media-play-button-audio">
-<media-play-button class="media-button media-play-button" id="sleeve-play-trigger">
+</div>
+<media-controls visibility="always">
+<media-controls-content class="sleeve-strip">
+<media-tooltip-group>
+<div class="sleeve-play-cell">
+<media-play-button class="media-play-button sleeve-play" id="sleeve-play-trigger">
 <media-icon family="sleeve" name="restart" class="media-button-icon-base media-play-button-restart-icon">
 </media-icon>
 <media-icon family="sleeve" name="play" class="media-button-icon-base media-play-button-play-icon">
@@ -64,17 +59,40 @@
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
-<media-buffering-indicator class="media-buffering-indicator media-play-button-buffering">
-<media-icon family="sleeve" name="spinner" class="media-buffering-indicator-spinner-icon">
-</media-icon>
-</media-buffering-indicator>
 </div>
-<media-seek-button seconds="-10" class="media-button media-seek-button-audio" id="sleeve-seek-back-trigger">
-<div class="media-seek-button-content">
-<media-icon family="sleeve" name="seek" class="media-button-icon media-seek-button-backward-icon">
-</media-icon>
-<span class="media-seek-button-label media-seek-button-backward-label">10</span>
+<div class="sleeve-slider-row">
+<media-time-slider class="media-time-slider" thumb-alignment="edge">
+<media-time-slider-chapters class="media-time-slider-chapters">
+<template>
+<div class="media-time-slider-chapter">
+<media-slider-track class="media-time-slider-track">
+<media-slider-buffer class="media-time-slider-buffer">
+</media-slider-buffer>
+<media-slider-fill class="media-time-slider-fill">
+</media-slider-fill>
+</media-slider-track>
 </div>
+</template>
+</media-time-slider-chapters>
+<media-slider-thumb class="media-time-slider-thumb">
+</media-slider-thumb>
+<media-slider-preview class="media-time-slider-preview">
+<div class="media-time-slider-preview-meta">
+<div class="media-time-slider-preview-label">
+<media-slider-value class="media-time-slider-value" type="pointer">
+</media-slider-value>
+<media-time-slider-chapter-title class="media-time-slider-chapter-title">
+</media-time-slider-chapter-title>
+</div>
+</div>
+</media-slider-preview>
+</media-time-slider>
+</div>
+<div class="sleeve-cells">
+<media-seek-button seconds="-10" class="media-button sleeve-seek-button" id="sleeve-seek-back-trigger">
+<media-icon family="sleeve" name="seek" class="media-button-icon sleeve-seek-icon">
+</media-icon>
+<span class="sleeve-seek-value">10</span>
 </media-seek-button>
 <media-tooltip trigger="sleeve-seek-back-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
@@ -82,22 +100,19 @@
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
-<media-seek-button seconds="10" class="media-button media-seek-button-audio" id="sleeve-seek-forward-trigger">
-<div class="media-seek-button-content">
-<media-icon family="sleeve" name="seek" class="media-button-icon">
+<media-seek-button seconds="10" class="media-button sleeve-seek-button" id="sleeve-seek-fwd-trigger">
+<media-icon family="sleeve" name="seek" class="media-button-icon sleeve-seek-icon">
 </media-icon>
-<span class="media-seek-button-label media-seek-button-forward-label">10</span>
-</div>
+<span class="sleeve-seek-value">10</span>
 </media-seek-button>
-<media-tooltip trigger="sleeve-seek-forward-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-seek-fwd-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
 </media-tooltip-label>
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
+<div class="sleeve-cell sleeve-time-cell">
 <media-time-group class="media-time-group">
-<media-time class="media-time-toggle" type="current" toggle>
-</media-time>
 <media-time class="media-time-current-value" type="current">
 </media-time>
 <media-time-separator class="media-time-separator">
@@ -105,45 +120,21 @@
 <media-time class="media-time-duration-value" type="duration">
 </media-time>
 </media-time-group>
-</media-controls-group>
-<media-controls-group class="video-controls-group">
-<media-playback-rate-button commandfor="sleeve-rate-menu" class="media-button media-playback-rate-button" id="sleeve-rate-trigger">
-<span data-part="value" class="media-playback-rate-button-label">
-</span>
-</media-playback-rate-button>
-<media-tooltip trigger="sleeve-rate-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
-<media-text token="menu.speed">Speed</media-text>
-</media-tooltip>
-<media-menu side="top" align="center" boundary="viewport" class="media-popup media-popup-safe-area media-menu-popup media-menu-rate-popup" id="sleeve-rate-menu">
-<media-menu-content class="media-menu-content">
-<media-playback-rate-radio-group class="media-menu-radio-group">
-<template>
-<media-menu-radio-item class="media-menu-radio-item">
-<span data-part="label">
-</span>
-<media-menu-item-indicator force-mount class="media-menu-indicator">
-<media-icon family="sleeve" name="check" class="media-menu-radio-icon">
-</media-icon>
-</media-menu-item-indicator>
-</media-menu-radio-item>
-</template>
-</media-playback-rate-radio-group>
-</media-menu-content>
-</media-menu>
-<media-mute-button commandfor="sleeve-volume-popover" class="media-button media-mute-button" id="sleeve-mute-trigger">
+</div>
+<div class="sleeve-cell sleeve-volume-cell">
+<media-mute-button class="media-button media-mute-button" id="sleeve-mute-trigger">
 <media-icon family="sleeve" name="volume-off" class="media-button-icon media-mute-button-off-icon">
 </media-icon>
 <media-icon family="sleeve" name="volume-high" class="media-button-icon media-mute-button-high-icon">
 </media-icon>
 </media-mute-button>
-<media-tooltip trigger="sleeve-mute-trigger" delay="0" disabled side="top" sticky class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-mute-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
 </media-tooltip-label>
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
-<media-volume-popover open-on-hover delay="200" close-delay="100" side="top" class="media-popup media-popup-safe-area media-volume-popover-popup" id="sleeve-volume-popover">
-<media-volume-slider class="media-volume-slider" orientation="vertical" thumb-alignment="edge">
+<media-volume-slider class="media-volume-slider" thumb-alignment="edge">
 <media-slider-track class="media-volume-slider-track">
 <media-slider-fill class="media-volume-slider-fill">
 </media-slider-fill>
@@ -151,9 +142,15 @@
 <media-slider-thumb class="media-volume-slider-thumb">
 </media-slider-thumb>
 </media-volume-slider>
-</media-volume-popover>
-</media-controls-group>
-</media-controls-group>
+</div>
+<media-playback-rate-button class="media-button sleeve-rate-button" id="sleeve-rate-trigger">
+</media-playback-rate-button>
+<media-tooltip trigger="sleeve-rate-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
 </div>
 </media-tooltip-group>
 </media-controls-content>

@@ -1,5 +1,5 @@
 /*
- * Host colour mode (video skin). A page can set two custom properties on the player:
+ * Host colour mode (video and audio skins). A page can set two custom properties on the player:
  *   --media-accent-color  pins the field (play cell, flooded time cell, cover, progress line) to one colour in every
  *                         state. The error head stays danger red.
  *   --sleeve-on-accent    the text and glyph colour on the field. Left unset, it is contrast-color() of the pin where
@@ -46,10 +46,13 @@
     /* Danger is too dark for ink text in the light scheme, so text on it is paper-white (5.4:1); in dark the pigment is light again and the dark ink works (7.1:1). */
     --sleeve-on-danger: #ffffff;
     --sleeve-letterbox: #000000;
+    /* Artwork stock for the audio skin: the progress flood multiplies onto it, so it stays light in both schemes. */
+    --sleeve-print-paper: #f0f0ed;
+    --sleeve-print-ink: #0e0e0f;
 
     /*
      * The field is the colour of the current state (see the state rules below); --sleeve-pigment holds it. A host's
-     * --media-accent-color pins the field instead, in every state; the video skin then picks the text colour on it
+     * --media-accent-color pins the field instead, in every state; the skin then picks the text colour on it
      * (see the host colour block below).
      */
     --sleeve-pigment: var(--sleeve-dominant);
@@ -96,16 +99,16 @@
   }
 
   /*
-   * Host colour mode, video skin: the text on the field is the host's --sleeve-on-accent if set, else contrast-color()
+   * Host colour mode, both skins: the text on the field is the host's --sleeve-on-accent if set, else contrast-color()
    * of the pinned colour, else the scheme's fixed on-pigment. The second token is invalid while no pin is set, so
    * the state pigments keep their own on-pigment. contrast-color() sits behind @supports so other browsers skip it.
    */
-  .media-skin[data-theme="sleeve"][data-preset="video"] {
+  .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]) {
     --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pigment));
   }
 
   @supports (color: contrast-color(red)) {
-    .media-skin[data-theme="sleeve"][data-preset="video"] {
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]) {
       --sleeve-on-pin: contrast-color(var(--media-accent-color));
       --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pin, var(--sleeve-on-pigment)));
     }
@@ -116,7 +119,7 @@
    * ink on the other pigments. A host pin or --sleeve-on-accent still wins. Without contrast-color(), a pin plus an
    * error shows on-danger on the pin; set --sleeve-on-accent there.
    */
-  .media-skin[data-theme="sleeve"][data-preset="video"]:where(:has(media-error-dialog media-dialog-popup[data-open])) {
+  .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-error-dialog media-dialog-popup[data-open])) {
     --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pin, var(--sleeve-on-danger)));
   }
 
@@ -180,15 +183,6 @@
     --media-backdrop-filter-dialog: none;
   }
 
-  /*
-   * The audio skin draws its progress fill with --media-accent on paper, so it keeps one pigment that holds 3:1 there
-   * (the state pigments are for the video skin's fields; yellow and green fall below 3:1 on light paper).
-   */
-  .media-skin[data-theme="sleeve"][data-preset="audio"] {
-    --media-accent: var(--media-accent-color, var(--sleeve-dominant));
-    --media-primary: var(--media-accent-color, var(--sleeve-dominant));
-  }
-
   /* Ink and paper are already high contrast; harden the muted tones and the rules. */
   @media (prefers-contrast: more) {
     .media-skin[data-theme="sleeve"] {
@@ -202,11 +196,11 @@
     }
 
     /*
-     * Video skin: rules and muted tones become ink, the disabled tone steps up to ink-2 (both 7:1 or better on paper),
+     * Video and audio skins: rules and muted tones become ink, the disabled tone steps up to ink-2 (both 7:1 or better on paper),
      * the focus ring grows to 3px, and the state pigments move to ones that hold 7:1 with their text (the light
      * values below are for browsers without light-dark()).
      */
-    .media-skin[data-theme="sleeve"][data-preset="video"] {
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]) {
       --sleeve-rule: var(--sleeve-ink);
       --sleeve-ink-3: var(--sleeve-ink);
       --sleeve-ink-4: var(--sleeve-ink-2);
@@ -217,7 +211,7 @@
     }
 
     @supports (color: light-dark(red, red)) {
-      .media-skin[data-theme="sleeve"][data-preset="video"] {
+      .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]) {
         --sleeve-minor: light-dark(#8aa4ff, #8aa3f5);
         --sleeve-dominant: light-dark(#ff7a3d, #f78d5c);
         --sleeve-danger: light-dark(#a80c22, #ff7b6b);

@@ -122,13 +122,13 @@ Core claims confirmed: :has() on the play button works. State is set on the butt
 
 ## s9 (confirmed)
 
-Confirmed. Audio root is media-container with data-preset="audio" (audio/skin.html:1). audioFeatures (dom/store/features/presets.js) lacks controlsFeature, fullscreenFeature, pipFeature, textTrackFeature, so container never gets data-controls-visible and no fullscreen/captions. media-controls visibility="always": selectControls returns undefined without the feature, so ControlsCore.getState takes the !media branch (visible:true, userActive:true) and ControlsElement sets data-visible and data-user-active. Docs controls.md:33 says always 'works without the controls feature'. audio/skin.html has no media-poster, fullscreen-button or controls-backdrop (grep count 0). It does include time-slider-chapters, slider-thumbnail and preview, which stay empty without text tracks.
+Confirmed. Audio root is media-container with data-preset="audio" (audio/skin.html:1). audioFeatures (dom/store/features/presets.js) lacks controlsFeature, fullscreenFeature, pipFeature, textTrackFeature, so container never gets data-controls-visible and no fullscreen/captions. media-controls visibility="always": selectControls returns undefined without the feature, so ControlsCore.getState takes the !media branch (visible:true, userActive:true) and ControlsElement sets data-visible and data-user-active. Docs controls.md:33 says always 'works without the controls feature'. audio/skin.html has no fullscreen-button or controls-backdrop. It does carry a media-poster (the artwork, s11) and a second, disabled time slider (the flood, s10); it has no slider-thumbnail. time-slider-chapters and the preview plate stay empty without text tracks.
 
-**Decision:** Share phase selectors (play-button based, buffering, seeking, error) between skins; do not rely on data-controls-visible, poster or fullscreen in audio. Treat audio controls as always visible.
+**Decision:** Share phase selectors (play-button based, buffering, seeking, error) between skins; do not rely on data-controls-visible or fullscreen in audio. Treat audio controls as always visible.
 
 **Evidence:** core/dist/default/dom/store/features/presets.js; core/ui/controls/core.js getState; html/dist/default/ui/controls/element.js update(); store core/selector.js:29 (createSelector returns noop when feature missing); src/audio/skin.html.
 
-**Check:** On the audio preview page: media-container has data-preset="audio" and no data-controls-visible; media-controls has data-visible and data-user-active permanently; document.querySelector('media-poster, media-fullscreen-button') returns null.
+**Check:** On the audio preview page: media-container has data-preset="audio" and no data-controls-visible; media-controls has data-visible and data-user-active permanently; document.querySelector('media-fullscreen-button') returns null (the audio page does hold one media-poster, in the artwork cell).
 
 ## s3 (confirmed)
 
@@ -145,3 +145,53 @@ Confirmed. media-time-slider reads player context only (PlayerController selecto
 The docs only say to style cues with `::cue` (guides/captions.md:105). The video sits in the shadow root of `<mux-video>`, so a document-level `::cue` does not reach it. custom-media-element.js:229 (`@videojs/media` 10.3.0) sets `part` to the tag name on the inner element, so `mux-video::part(video)::cue` is the selector the skin uses (src/video/skin.css, captions block). The `video` part name is library source, not documented.
 
 **Check:** with a subtitle track showing, cues paint on the paper plate. If they do not, the part name or the `::cue`-after-`::part()` form is not accepted in that browser; the cue falls back to the browser default and stays readable.
+
+## s10 (confirmed)
+
+Confirmed in source, as s3 but for a second slider. A disabled `media-time-slider` holding only `media-slider-track` and `media-slider-fill` sets `--media-slider-fill` inline on itself, so only its descendants read it. It has no thumb, so it has no role, no tab stop and no hotkey. The artwork's progress flood is that fill, growing from the left edge. No player API of our own is involved.
+
+**Decision:** The flood is `media-time-slider.sleeve-spine[disabled][inert]` inside the artwork, `aria-hidden`, with `.sleeve-spine-fill { width: var(--media-slider-fill) }` and `mix-blend-mode: multiply`, plus a 2px ink needle (`.sleeve-spine-track::after`, clamped inside the cell so it shows at 0% and 100%). The spine must not create a stacking context (no z-index), or the multiply cannot reach the poster. The artwork cell sits on fixed light print stock (`--sleeve-print-paper`, `--sleeve-print-ink`), not the scheme's paper, so the multiplied field stays visible in the dark scheme. Under forced colours the fill is dropped and only the needle shows, in CanvasText.
+
+**Evidence:** s3; src/audio/skin.html, src/audio/skin.css (`.sleeve-spine*`).
+
+**Check:** During playback the spine's style attribute shows `--media-slider-fill` changing; Tab never lands in the artwork; the accessibility tree has one slider for time, not two.
+
+## s11 (confirmed)
+
+Confirmed. `media-poster` takes its URL from the player's `poster` attribute, then from content data. A light-DOM `img.media-poster-image` child is styleable. The element never hides itself, so the skin must not rely on `:not([data-visible])`. It reports `data-loaded` on success and `data-error` for a URL that fails.
+
+**Decision:** The artwork shows the poster only while `[data-loaded]` is set (`.media-poster:not([data-loaded]) { visibility: hidden }`), so no artwork or a broken URL leaves the default print visible: a second `media-title` (`.sleeve-print`, inside the aria-hidden artwork cell) set as giant cropped ink capitals on the print stock. It is hidden while the poster has loaded and empty (hidden) with no title. The image is greyscale with a little extra contrast, so the pigment flood reads as print.
+
+**Evidence:** media-poster element and docs; src/audio/skin.css (`.media-poster*`); apps/preview/src/frame/audio-player.ts (`?art=none|broken`).
+
+**Check:** `?art=none` and `?art=broken` show the title as giant cropped letters with no broken-image icon; the default page shows the poster in greyscale under the flood.
+
+## s12 (confirmed)
+
+Confirmed. `media-playback-rate-button` cycles through `[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]`, or the player's `default-playback-rates` (space separated), and wraps. It carries the current value as `data-rate`. The speedUp and speedDown hotkeys use the player's list and do not wrap.
+
+**Decision:** Speed is one cell with no menu. CSS prints the rate from `data-rate` (`content: attr(data-rate) "\00D7"`); the button's own label and tooltip name the action.
+
+**Evidence:** playback-rate-button element and docs; src/audio/skin.css (`.sleeve-rate-button`).
+
+**Check:** Click the cell repeatedly: the printed value steps through the list and wraps; `>` and `<` change it without wrapping.
+
+## s13 (confirmed)
+
+Confirmed. `media-error-dialog` is player-scoped (`data-scope="player"`), not document-modal. While it is open, its siblings inside the container go inert, so it has to be a direct child of `media-container`, outside any `aria-hidden` element. An empty `media-dialog-close` prints the localized word. Escape or the close button dismisses it, clears the store error and returns focus.
+
+**Decision:** The dialog is a direct child of the container, covering the whole player (paper sheet, danger head, ink veil); it does not live inside the type panel, because the rest of the player goes inert while it is open. The error is the one state the host colour does not pin: the field shrinks to the play cell, in danger red, the type panel turns to paper and the flood fill is dropped.
+
+**Evidence:** error-dialog and dialog parts; src/audio/skin.html, src/audio/skin.css (`.media-dialog-*`, the `:has(media-error-dialog media-dialog-popup[data-open])` override).
+
+**Check:** Force an error (bad `src`): the dialog opens over the whole player, the strip is inert, Escape closes it and focus returns.
+
+## s14a (confirmed)
+
+Confirmed. `media-title` reads `content-title` on the player (or Mux metadata) and sets `hidden` when empty. `media-time` with `type="remaining"` prints the sign in an `aria-hidden` span (`negative-sign`), so the large numeral can be decorative without losing the strip's own time read-out.
+
+**Decision:** The cover's title and remaining-time numeral sit in a type panel; the numeral is `aria-hidden` and the strip carries the accessible time. `.sleeve-title[hidden]` must be `display: none`, because the title's own `display` would override the attribute. Never use `toggle` on the decorative copy.
+
+**Evidence:** title and time docs; src/audio/skin.html, src/audio/skin.css (`.sleeve-title`, `.sleeve-numeral`); audio-player.ts (`?title=long|none`).
+
+**Check:** `?title=none` (an empty `content-title`, which also keeps the stream metadata title out) leaves no empty gap or stray element; `?title=long` clamps to two lines then an ellipsis in every band, with no overflow.
