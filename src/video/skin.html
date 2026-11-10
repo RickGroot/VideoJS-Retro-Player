@@ -26,7 +26,10 @@
 <div class="sleeve-cover" aria-hidden="true">
 <span class="sleeve-cover-label">
 <span class="sleeve-cover-ready">Ready</span>
+<media-text class="sleeve-cover-paused" token="status.paused">Paused</media-text>
+<media-text class="sleeve-cover-playing" token="status.playing">Playing</media-text>
 <span class="sleeve-cover-ended">Ended</span>
+<span class="sleeve-cover-buffering">Buffering</span>
 </span>
 <media-title class="sleeve-cover-title">
 </media-title>
@@ -86,9 +89,31 @@
 </media-time-slider>
 </div>
 <div class="sleeve-cells">
+<media-seek-button seconds="-10" class="media-button sleeve-seek-button" id="sleeve-seek-back-trigger">
+<media-icon family="sleeve" name="seek" class="media-button-icon sleeve-seek-icon">
+</media-icon>
+<span class="sleeve-seek-value">10</span>
+</media-seek-button>
+<media-tooltip trigger="sleeve-seek-back-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-seek-button seconds="10" class="media-button sleeve-seek-button" id="sleeve-seek-fwd-trigger">
+<media-icon family="sleeve" name="seek" class="media-button-icon sleeve-seek-icon">
+</media-icon>
+<span class="sleeve-seek-value">10</span>
+</media-seek-button>
+<media-tooltip trigger="sleeve-seek-fwd-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
 <div class="sleeve-cell sleeve-time-cell">
 <media-time-group class="media-time-group">
-<media-time class="media-time-current-value" type="current">
+<media-time class="media-time-current-value" type="current" toggle>
 </media-time>
 <media-time-separator class="media-time-separator">
 </media-time-separator>

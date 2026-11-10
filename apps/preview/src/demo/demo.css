@@ -263,6 +263,50 @@ a {
   cursor: not-allowed;
 }
 
+/* The language picker: a native select, drawn like the cells beside it. */
+.picker {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The same label as a fieldset's legend. */
+.picker label {
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-stretch: 78%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.picker select {
+  min-width: 10rem;
+  min-height: var(--cell);
+  margin: 0;
+  padding: 0 14px;
+  border: var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-stretch: 78%;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.masthead .picker select {
+  background: transparent;
+  color: var(--on-field);
+  border-color: var(--on-field);
+}
+
+.picker select option {
+  background: var(--paper);
+  color: var(--ink);
+}
+
 /* Buttons. */
 .actions button {
   min-width: var(--cell);

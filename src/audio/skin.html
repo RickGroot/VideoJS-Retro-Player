@@ -19,7 +19,14 @@
 </media-buffering-indicator>
 <div class="sleeve-cover">
 <div class="sleeve-type">
-<span class="sleeve-side" aria-hidden="true"></span>
+<span class="sleeve-side" aria-hidden="true">
+<span class="sleeve-word-ready">Ready</span>
+<media-text class="sleeve-word-paused" token="status.paused">Paused</media-text>
+<media-text class="sleeve-word-playing" token="status.playing">Playing</media-text>
+<span class="sleeve-word-ended">Ended</span>
+<span class="sleeve-word-buffering">Buffering</span>
+<span class="sleeve-word-error">Error</span>
+</span>
 <media-title class="sleeve-title">
 </media-title>
 <span class="sleeve-numeral" aria-hidden="true">
@@ -113,7 +120,7 @@
 </media-tooltip>
 <div class="sleeve-cell sleeve-time-cell">
 <media-time-group class="media-time-group">
-<media-time class="media-time-current-value" type="current">
+<media-time class="media-time-current-value" type="current" toggle>
 </media-time>
 <media-time-separator class="media-time-separator">
 </media-time-separator>

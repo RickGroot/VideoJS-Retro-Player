@@ -37,6 +37,7 @@ import '@videojs/html/ui/volume-slider';
 import '@videojs/html/ui/time-group';
 import '@videojs/html/ui/time';
 import '@videojs/html/ui/time-separator';
+import '@videojs/html/ui/seek-button';
 import '@videojs/html/ui/captions-button';
 import '@videojs/html/ui/menu';
 import '@videojs/html/ui/menu-content';

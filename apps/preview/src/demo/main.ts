@@ -3,6 +3,10 @@ import '@videojs/html/audio/player';
 import '@videojs/html/media/mux-video';
 import '@videojs/html/media/mux-audio';
 import '@videojs/html/i18n';
+// The picker's languages, registered up front so a switch does not flash English while a pack loads.
+import '@videojs/html/i18n/locales/de/register';
+import '@videojs/html/i18n/locales/ja/register';
+import '@videojs/html/i18n/locales/ar/register';
 import '@/video/skin';
 import '@/audio/skin';
 import videoTemplate from '@/video/skin.html?raw';
@@ -74,11 +78,27 @@ function createPlayer(spec: PlayerSpec): HTMLElement {
   return player;
 }
 
-/** Put a player on the page inside its own i18n provider, which follows the page's `lang`. */
+/** The language the players speak. Set on each provider, so the page's own English text keeps `lang="en"`. */
+let playerLanguage = 'en';
+
+/** The picker's right-to-left languages. */
+const RIGHT_TO_LEFT = new Set(['ar']);
+
+/**
+ * Give a provider the players' language and its direction. `lang` alone leaves the CSS direction at ltr (checked in
+ * Chromium), and the skin mirrors on the CSS direction, so `dir` is set too.
+ */
+function speak(i18n: Element): void {
+  i18n.setAttribute('lang', playerLanguage);
+  i18n.setAttribute('dir', RIGHT_TO_LEFT.has(playerLanguage) ? 'rtl' : 'ltr');
+}
+
+/** Put a player on the page inside its own i18n provider. */
 function mount(id: string, host: HTMLElement | undefined, spec: PlayerSpec): HTMLElement {
   const wrapper = element('div', 'demo-player');
   const i18n = document.createElement('media-i18n');
 
+  speak(i18n);
   i18n.append(createPlayer(spec));
   wrapper.append(i18n);
   host?.append(wrapper);
@@ -205,6 +225,19 @@ document.querySelector('[data-control="scheme"]')?.addEventListener('change', ap
 document.querySelector('[data-control="field"]')?.addEventListener('change', applyField);
 colour.addEventListener('input', applyField);
 document.querySelector('[data-control="size"]')?.addEventListener('change', applySize);
+
+// The providers follow a change of their `lang` without a remount.
+const language = document.getElementById('player-language') as HTMLSelectElement;
+
+language.addEventListener('change', () => {
+  playerLanguage = language.value;
+
+  for (const { wrapper } of mounted.values()) {
+    const i18n = wrapper.querySelector('media-i18n');
+
+    if (i18n) speak(i18n);
+  }
+});
 
 document.addEventListener('click', (event) => {
   const button = (event.target as Element).closest<HTMLButtonElement>('button[data-action]');

@@ -104,7 +104,12 @@
       border-inline-end: var(--sleeve-rule-width) solid var(--sleeve-ink);
     }
 
-    /* The state, printed as a capital word: the colour never carries it alone. */
+    /*
+     * The state, printed as a capital word: the colour never carries it alone. Each word is its own element, so the
+     * ones Video.js has a translation for (Paused, Playing) follow the language; the others stay English (Video.js
+     * documents no way to add keys). One word shows at a time. Every rule below has the same specificity (the :where()
+     * parts count for nothing), so the order decides: the last match wins and the error is last.
+     */
     .sleeve-side {
       flex: none;
       font-size: 11px;
@@ -113,29 +118,57 @@
       white-space: nowrap;
     }
 
-    .sleeve-side::after {
-      content: "Ready";
+    /* Joined Arabic letters must not be spaced apart. */
+    .sleeve-side:where(:dir(rtl)) {
+      letter-spacing: 0;
     }
 
-    /* Same specificity throughout, so the order decides: the last match wins and the error is last. */
-    :scope:where(:has(media-play-button[data-started][data-paused]:not([data-ended]))) .sleeve-side::after {
-      content: "Paused";
+    :where(.sleeve-side > *) {
+      display: none;
     }
 
-    :scope:where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) .sleeve-side::after {
-      content: "Playing";
+    :where(.sleeve-side > .sleeve-word-ready) {
+      display: inline;
     }
 
-    :scope:where(:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging]))) .sleeve-side::after {
-      content: "Ended";
+    :scope:where(:has(media-play-button[data-started][data-paused]:not([data-ended]))) :where(.sleeve-side > *) {
+      display: none;
     }
 
-    :scope:where(:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging]))) .sleeve-side::after {
-      content: "Buffering";
+    :scope:where(:has(media-play-button[data-started][data-paused]:not([data-ended]))) :where(.sleeve-side > .sleeve-word-paused) {
+      display: inline;
     }
 
-    :scope:where(:has(media-error-dialog media-dialog-popup[data-open])) .sleeve-side::after {
-      content: "Error";
+    :scope:where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) :where(.sleeve-side > *) {
+      display: none;
+    }
+
+    :scope:where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) :where(.sleeve-side > .sleeve-word-playing) {
+      display: inline;
+    }
+
+    :scope:where(:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging]))) :where(.sleeve-side > *) {
+      display: none;
+    }
+
+    :scope:where(:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging]))) :where(.sleeve-side > .sleeve-word-ended) {
+      display: inline;
+    }
+
+    :scope:where(:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging]))) :where(.sleeve-side > *) {
+      display: none;
+    }
+
+    :scope:where(:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging]))) :where(.sleeve-side > .sleeve-word-buffering) {
+      display: inline;
+    }
+
+    :scope:where(:has(media-error-dialog media-dialog-popup[data-open])) :where(.sleeve-side > *) {
+      display: none;
+    }
+
+    :scope:where(:has(media-error-dialog media-dialog-popup[data-open])) :where(.sleeve-side > .sleeve-word-error) {
+      display: inline;
     }
 
     /* An empty title sets the native hidden attribute on media-title; the display below would override it. Two lines, then an ellipsis. */
@@ -789,6 +822,47 @@
     .media-time-separator[data-unavailable],
     .media-time-duration-value[data-unavailable] {
       color: var(--sleeve-ink-3);
+    }
+
+    .media-time-current-value[data-disabled] {
+      color: var(--sleeve-ink-3);
+    }
+
+    /*
+     * The current time is the toggle (media-time with `toggle`: Enter or Space, or a click, switches elapsed and
+     * remaining; remaining carries a minus sign, so the state is never colour alone). It is part of the paper cell, with
+     * no border of its own: it stretches to the cell's full 44px height, hover underlines it, and the focus ring is drawn
+     * inset round the whole cell. The cover numeral keeps counting down whichever way the readout is set.
+     */
+    .sleeve-time-cell .media-time-group {
+      align-self: stretch;
+    }
+
+    .media-time-current-value[role="button"] {
+      align-self: stretch;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--sleeve-cell);
+      display: flex;
+      cursor: pointer;
+      outline-style: none;
+    }
+
+    .media-time-current-value[role="button"][data-disabled] {
+      cursor: not-allowed;
+    }
+
+    @media (hover: hover) {
+      .media-time-current-value[role="button"]:hover:not([data-disabled]) {
+        text-decoration: underline;
+        text-decoration-thickness: var(--sleeve-rule-width);
+        text-underline-offset: 4px;
+      }
+    }
+
+    .sleeve-time-cell:has(.media-time-current-value[role="button"]:focus-visible) {
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ink);
+      outline-offset: -4px;
     }
 
     .sleeve-volume-cell {

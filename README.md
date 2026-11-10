@@ -19,7 +19,7 @@ Previews show how the two pieces fit: `apps/preview/src/frame/player.ts` (video)
 
 ## Pages
 
-- `/` is the demo page.
+- `/` is the demo page: every player on one page, with a colour scheme, field colour and width picker and a language select (English, Deutsch, 日本語, العربية) that sets the language, and for Arabic the direction, of all the players.
 - `/workbench.html` is the workbench: a player in a frame with an options panel for width, aspect ratio, colour scheme, text direction, language and playback options. The settings live in the URL, so `/workbench.html?width=384&ratio=9:16&dir=rtl&locale=ar` opens it in that state.
 - `/preview.html` is the video skin on its own.
 - `/audio.html` is the audio skin on its own.
@@ -57,6 +57,8 @@ A push to `main` builds the pages and publishes `dist/` to GitHub Pages through 
 ## Status
 
 A design-challenge entry and a proof of concept. It is not published to npm and has no automated tests. It has been checked by hand in Chromium, in light and dark, at several widths.
+
+Language: the menu labels, Paused and Playing use Video.js's own translation keys and follow the language of the player's `media-i18n`. Ready, Ended, Buffering and the Error label stay English: Video.js has no key for them, and its docs describe no way to add keys of our own, so the skin does not build a translation layer. The seek button labels, tooltips and error text come from Video.js and follow the language.
 
 Not yet checked: Safari, Firefox, real devices (touch, phones), and screen readers.
 
