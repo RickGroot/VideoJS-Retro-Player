@@ -1,0 +1,319 @@
+/*
+ * The two sheets, Tracks (the back of the sleeve) and Keys, and their openers. Both skins.
+ *
+ * A sheet is a paper plate over the whole player: opaque paper, a 2px ink border, condensed capitals, a head with the
+ * name and a 44px close cell. It is a Video.js <media-dialog>, so the library keeps the rest of the player inert,
+ * closes it on Escape and moves focus in and back. It opens and closes as a hard cut: no slide, no fade (there is
+ * nothing here to turn off for reduced motion). It sits above the cover band, the strip and the menus, so none of them
+ * shows over it; the cover and the spine are also switched off while a dialog is open, in each skin's own CSS.
+ *
+ * Opening it: the strip has a labelled TRACKS cell where there is room (container 52rem and up); below that, and for
+ * Keys everywhere, an item in the settings menu. With no chapters neither Tracks opener is shown (display:none).
+ */
+@layer components {
+  @scope (.media-skin[data-theme="sleeve"]) {
+    media-dialog:has(> .sleeve-sheet) {
+      display: contents;
+    }
+
+    .sleeve-sheet {
+      z-index: 70;
+      box-sizing: border-box;
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      border: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      border-radius: 0;
+      outline-style: none;
+      overflow: hidden;
+    }
+
+    .sleeve-sheet:not([data-open]) {
+      display: none;
+    }
+
+    /* The sheet itself takes focus when nothing inside is the better place (Keys): a ring inside the border. */
+    .sleeve-sheet:focus-visible {
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ink);
+      outline-offset: calc(var(--sleeve-focus-width) * -2);
+    }
+
+    .sleeve-sheet-head {
+      display: flex;
+      align-items: stretch;
+      min-height: var(--sleeve-cell);
+      border-bottom: var(--sleeve-rule-width) solid var(--sleeve-ink);
+    }
+
+    .sleeve-sheet-title {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      padding-inline: calc(var(--media-spacing) * 3);
+      font-size: calc(var(--media-spacing) * 5);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.06em;
+    }
+
+    /* The close cell: a word, not a glyph, so it needs no legend. 44px high, ink rule on its inline start. */
+    .sleeve-sheet-close {
+      box-sizing: border-box;
+      min-width: var(--sleeve-cell);
+      height: var(--sleeve-cell);
+      padding-inline: calc(var(--media-spacing) * 4);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      border-inline-start: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      line-height: 1;
+      cursor: pointer;
+      outline-style: none;
+    }
+
+    @media (hover: hover) {
+      .sleeve-sheet-close:hover {
+        background-color: var(--sleeve-wash);
+      }
+    }
+
+    .sleeve-sheet-close:active {
+      background-color: var(--sleeve-ink);
+      color: var(--sleeve-ground);
+    }
+
+    .sleeve-sheet-close:focus-visible {
+      outline: var(--sleeve-focus-width) solid currentColor;
+      outline-offset: -4px;
+    }
+
+    .sleeve-tracklist,
+    sleeve-keys {
+      display: block;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    sleeve-keys:focus-visible {
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ink);
+      outline-offset: calc(var(--sleeve-focus-width) * -1);
+    }
+
+    .sleeve-tracklist-list,
+    .sleeve-keys-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Tracks: one real button per chapter. The number, the title (one line, ellipsis; the full text is in the name and the tooltip), the length. */
+    .sleeve-track {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: var(--sleeve-cell);
+      display: flex;
+      align-items: center;
+      gap: calc(var(--media-spacing) * 3);
+      padding-block: calc(var(--media-spacing) * 1.5);
+      padding-inline: calc(var(--media-spacing) * 3);
+      border: 0;
+      border-bottom: var(--sleeve-rule-width) solid var(--sleeve-rule);
+      /* The marker's lane: transparent on every row so the numbers stay in one column, ink on the current one. */
+      border-inline-start: calc(var(--media-spacing) * 2) solid transparent;
+      border-radius: 0;
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      text-align: start;
+      cursor: pointer;
+      outline-style: none;
+    }
+
+    .sleeve-track-number {
+      flex-shrink: 0;
+      min-width: 2ch;
+      font-size: calc(var(--media-spacing) * 4.5);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .sleeve-track-title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: calc(var(--media-spacing) * 3.75);
+      line-height: 1.2;
+    }
+
+    .sleeve-track-now {
+      display: none;
+      flex-shrink: 0;
+      padding: calc(var(--media-spacing) * 0.75) calc(var(--media-spacing) * 1.5);
+      border: var(--sleeve-rule-width) solid currentColor;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      line-height: 1;
+    }
+
+    .sleeve-track-length {
+      flex-shrink: 0;
+      font-size: calc(var(--media-spacing) * 3.5);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    /* The current row is a field block with a heavy ink marker on its inline start and the word NOW: never colour alone. */
+    .sleeve-track[aria-current] {
+      background-color: var(--sleeve-field);
+      color: var(--sleeve-on-field);
+      border-inline-start-color: var(--sleeve-ink);
+    }
+
+    .sleeve-track[aria-current] .sleeve-track-now {
+      display: block;
+    }
+
+    @media (hover: hover) {
+      .sleeve-track:not([aria-current]):hover {
+        background-color: var(--sleeve-wash);
+      }
+    }
+
+    .sleeve-track:active {
+      background-color: var(--sleeve-ink);
+      color: var(--sleeve-ground);
+    }
+
+    .sleeve-track:focus-visible {
+      outline: var(--sleeve-focus-width) solid currentColor;
+      outline-offset: -5px;
+    }
+
+    /* Keys: the caps in one lane, the action in condensed capitals beside them. */
+    .sleeve-keys-list li {
+      min-height: var(--sleeve-cell);
+      display: grid;
+      grid-template-columns: minmax(7.5rem, 42%) minmax(0, 1fr);
+      align-items: center;
+      gap: calc(var(--media-spacing) * 3);
+      padding-block: calc(var(--media-spacing) * 1.5);
+      padding-inline: calc(var(--media-spacing) * 3);
+      border-bottom: var(--sleeve-rule-width) solid var(--sleeve-rule);
+    }
+
+    .sleeve-keys-caps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: calc(var(--media-spacing) * 1);
+    }
+
+    .sleeve-keycap {
+      box-sizing: border-box;
+      min-width: calc(var(--media-spacing) * 7);
+      height: calc(var(--media-spacing) * 7);
+      display: inline-grid;
+      place-items: center;
+      padding-inline: calc(var(--media-spacing) * 1.5);
+      border: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      /* A thicker foot: a key you can read as a key without a gradient or a shadow. */
+      border-bottom-width: calc(var(--sleeve-rule-width) * 2);
+      border-radius: 0;
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      font: inherit;
+      font-size: calc(var(--media-spacing) * 3.5);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .sleeve-keys-join {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+    }
+
+    .sleeve-keys-action {
+      font-size: calc(var(--media-spacing) * 3.5);
+      letter-spacing: 0.06em;
+      line-height: 1.2;
+    }
+
+    .sleeve-sheet-sr {
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border-width: 0;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      position: absolute;
+      overflow: hidden;
+    }
+
+    /*
+     * Openers. The strip cell and the Tracks menu item are shown only while the media has chapters (the helper sets
+     * data-sleeve-chapters on the root), and only one of them at a time: the cell from 52rem, the menu item below.
+     */
+    .media-button.sleeve-tracks-button,
+    .media-menu-item.sleeve-menu-tracks {
+      display: none;
+    }
+
+    .media-button.sleeve-tracks-button {
+      width: auto;
+      gap: calc(var(--media-spacing) * 2);
+      padding-inline: calc(var(--media-spacing) * 3);
+      grid-auto-flow: column;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      line-height: 1;
+    }
+
+    .sleeve-tracks-button .media-button-icon {
+      grid-area: auto;
+    }
+
+    .sleeve-tracks-button[aria-expanded="true"] {
+      --sleeve-cell-bg: var(--sleeve-ink);
+      --sleeve-cell-fg: var(--sleeve-ground);
+    }
+
+    @container media-root (width >= 52rem) {
+      :scope[data-sleeve-chapters] .media-button.sleeve-tracks-button {
+        display: grid;
+      }
+    }
+
+    @container media-root (width < 52rem) {
+      :scope[data-sleeve-chapters] .media-menu-item.sleeve-menu-tracks {
+        display: flex;
+      }
+    }
+
+    /* Forced colours: the field and the paper go, so the current row is the system highlight and the marker stays a border. */
+    @media (forced-colors: active) {
+      .sleeve-track[aria-current] {
+        forced-color-adjust: none;
+        background-color: Highlight;
+        color: HighlightText;
+        border-inline-start-color: HighlightText;
+      }
+    }
+  }
+}

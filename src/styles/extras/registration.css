@@ -1,0 +1,80 @@
+/*
+ * The buffering mark: a printed registration target (a circle with cross hairs) drawn twice, in ink and in the colour
+ * of the text on the field, so that the two plates can sit out of register while the player waits. Both skins.
+ *
+ * It replaces the ring round the play disc and takes the same place: the ring keeps its outer size
+ * (disc + 8px) and the mark is centred on the disc; the cross hairs reach 6px beyond the ring, inside the play cell.
+ * The back copy is the play cell's ::before, the front copy the play button's ::after. Both are decorative: no text, no
+ * pointer events, and the word BUFFERING and the role=status element carry the state. It shows while
+ * media-buffering-indicator is visible (its data-visible), unless the time slider is being dragged.
+ *
+ * The front copy steps between two offsets with steps(). With prefers-reduced-motion: reduce it holds the first offset,
+ * so the plates sit out of register and still: the cue is the doubled shape, not the motion.
+ */
+@layer components {
+  .media-skin[data-theme="sleeve"] .sleeve-play::after,
+  .media-skin[data-theme="sleeve"] .sleeve-play-cell::before {
+    --sleeve-reg-box: min(64px, var(--sleeve-play-cell));
+    --sleeve-reg-r: calc(var(--sleeve-disc) / 2 + 4px);
+    --sleeve-reg-w: var(--sleeve-rule-width);
+    --sleeve-reg-arm: max(0px, calc(var(--sleeve-reg-box) / 2 - var(--sleeve-reg-r) + var(--sleeve-reg-w)));
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: var(--sleeve-reg-box);
+    height: var(--sleeve-reg-box);
+    box-sizing: border-box;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--sleeve-reg-c), var(--sleeve-reg-c)) 0 50% / var(--sleeve-reg-arm) var(--sleeve-reg-w) no-repeat,
+      linear-gradient(var(--sleeve-reg-c), var(--sleeve-reg-c)) 100% 50% / var(--sleeve-reg-arm) var(--sleeve-reg-w) no-repeat,
+      linear-gradient(var(--sleeve-reg-c), var(--sleeve-reg-c)) 50% 0 / var(--sleeve-reg-w) var(--sleeve-reg-arm) no-repeat,
+      linear-gradient(var(--sleeve-reg-c), var(--sleeve-reg-c)) 50% 100% / var(--sleeve-reg-w) var(--sleeve-reg-arm) no-repeat,
+      radial-gradient(
+        circle closest-side,
+        transparent calc(var(--sleeve-reg-r) - var(--sleeve-reg-w)),
+        var(--sleeve-reg-c) calc(var(--sleeve-reg-r) - var(--sleeve-reg-w)) var(--sleeve-reg-r),
+        transparent var(--sleeve-reg-r)
+      );
+  }
+
+  .media-skin[data-theme="sleeve"] .sleeve-play-cell::before {
+    --sleeve-reg-c: var(--sleeve-ink);
+    display: none;
+  }
+
+  .media-skin[data-theme="sleeve"] .sleeve-play::after {
+    --sleeve-reg-c: var(--sleeve-on-field);
+    /* Out of register by 3px across and 2px down; reduced motion keeps this. */
+    translate: 3px 2px;
+  }
+
+  .media-skin[data-theme="sleeve"]:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .sleeve-play-cell::before {
+    display: block;
+  }
+
+  @keyframes sleeve-reg-front {
+    0% {
+      translate: 3px 2px;
+    }
+    50% {
+      translate: -2px -3px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .media-skin[data-theme="sleeve"] .sleeve-play::after {
+      animation: sleeve-reg-front 1.6s steps(1, end) infinite;
+    }
+  }
+
+  /* Forced colours: system colours, and the same shape. */
+  @media (forced-colors: active) {
+    .media-skin[data-theme="sleeve"] .sleeve-play::after,
+    .media-skin[data-theme="sleeve"] .sleeve-play-cell::before {
+      forced-color-adjust: none;
+      --sleeve-reg-c: CanvasText;
+    }
+  }
+}

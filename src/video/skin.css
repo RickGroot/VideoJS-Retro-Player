@@ -4,12 +4,6 @@
  * Cells sit on an ink ground and are separated by 2px gaps, so the gaps read as ink rules.
  */
 @layer components {
-  @keyframes sleeve-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   /* The player, its poster and the shared type treatment. */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     .media-container,
@@ -354,18 +348,11 @@
       border: var(--sleeve-rule-width) solid var(--sleeve-on-field);
     }
 
-    /* The buffering ring: dashed, round the disc, turning. Drawn in on-field, which has 4.5:1 or better on every pigment. */
+    /* The buffering mark: a printed registration target. Drawn in styles/extras/registration.css (this pseudo-element is its front copy, the play cell's ::before the back one). */
     .sleeve-play::after {
       content: "";
-      grid-area: 1 / 1;
-      box-sizing: border-box;
-      width: calc(var(--sleeve-disc) + 8px);
-      height: calc(var(--sleeve-disc) + 8px);
-      border: var(--sleeve-rule-width) dashed var(--sleeve-on-field);
-      border-radius: 50%;
       display: none;
       pointer-events: none;
-      animation: sleeve-spin 1.4s linear infinite;
     }
 
     :scope:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .sleeve-play::after {
@@ -1446,13 +1433,6 @@
       display: none;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      /* A still dotted ring: the turning is the only thing taken away, the cue stays. */
-      .sleeve-play::after {
-        animation: none;
-        border-style: dotted;
-      }
-    }
   }
 
   /*

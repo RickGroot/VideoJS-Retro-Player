@@ -8,12 +8,6 @@
  * the tokens and the look, not the selectors, because each is scoped to its own preset. See docs/spikes.md s10-s13.
  */
 @layer components {
-  @keyframes sleeve-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   @scope (.media-skin[data-theme="sleeve"][data-preset="audio"]) {
     /* The player: the container is the ink ground, its children sit 2px in, so the margins are the frame. */
     :scope.media-container {
@@ -543,18 +537,11 @@
       border: var(--sleeve-rule-width) solid var(--sleeve-on-field);
     }
 
-    /* The buffering ring: dashed, round the disc, turning. */
+    /* The buffering mark: a printed registration target. Drawn in styles/extras/registration.css (this pseudo-element is its front copy, the play cell's ::before the back one). */
     .sleeve-play::after {
       content: "";
-      grid-area: 1 / 1;
-      box-sizing: border-box;
-      width: calc(var(--sleeve-disc) + 8px);
-      height: calc(var(--sleeve-disc) + 8px);
-      border: var(--sleeve-rule-width) dashed var(--sleeve-on-field);
-      border-radius: 50%;
       display: none;
       pointer-events: none;
-      animation: sleeve-spin 1.4s linear infinite;
     }
 
     :scope:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging])) .sleeve-play::after {
@@ -1290,13 +1277,7 @@
       }
     }
 
-    /* A still dotted ring: the turning is the only thing taken away, the cue stays. */
     @media (prefers-reduced-motion: reduce) {
-      .sleeve-play::after {
-        animation: none;
-        border-style: dotted;
-      }
-
       .media-popup {
         transition: none;
         animation: none;

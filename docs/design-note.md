@@ -29,6 +29,20 @@ State is never colour alone. Each state has a word (Ready, Playing, Paused, Ende
 - The error dialog names the problem and can be dismissed.
 - The skin responds to reduced motion, more contrast, forced colours, and light and dark.
 
+### Extras
+
+Each extra is optional, English only, and written as a helper element or CSS, never as a player API of our own.
+
+- **Tracks sheet.** A paper sheet over the picture lists the chapters, with the current one marked by a word and a rule, not colour. Pressing a row seeks the media to that chapter; this is the one place the skin moves playback itself, and the owner approved it. A paused player stays paused.
+- **Keys sheet.** The same sheet shape, listing the shortcuts that are live in this player. It reads the player's own hotkey elements, so what it shows is what works.
+- **The Press.** Changes of state print onto the field as a short stepped inset, like ink pressed on paper. It steps, so it never fades, and reduced motion removes it.
+- **Registration mark.** While buffering, the play disc gets the crosshair of a print registration mark.
+- **Media Session.** The skin sets the browser's Media Session (title, artwork, play, pause, seek) so a lock screen or media key can drive the player. It is a feature-checked helper and does nothing where the API is missing.
+- **Caption styles.** Four looks for captions (default, large, white on black, yellow on black), set from the settings menu.
+- **The tour.** The demo page walks through the five states by driving the media element, then puts it back as it was.
+
+Seen in headless Chromium only. Not seen: Safari, Firefox, real devices, screen readers, the real lock screen, or forced colours.
+
 ### Using it on your site
 
 It is built from Video.js v10 custom elements, a light-DOM template and plain CSS (`:has()`, container queries, `light-dark()`). The only runtime dependency is `@videojs/html`, and the skin adds no player API of its own.

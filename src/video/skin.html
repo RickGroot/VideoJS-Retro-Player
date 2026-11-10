@@ -1,6 +1,8 @@
 <media-container class="media-skin media-container media-video" data-theme="sleeve" data-preset="video">
 <!-- Add a compatible media component here. -->
 <sleeve-state></sleeve-state>
+<sleeve-session></sleeve-session>
+<sleeve-caption-style></sleeve-caption-style>
 <media-poster class="media-poster">
 <img alt="" decoding="async" class="media-poster-image">
 </media-poster>
@@ -20,6 +22,24 @@
 <media-dialog-close class="media-button media-dialog-close"></media-dialog-close>
 </media-dialog-popup>
 </media-error-dialog>
+<media-dialog id="sleeve-tracks-sheet">
+<media-dialog-popup class="sleeve-sheet" aria-label="Tracks">
+<div class="sleeve-sheet-head">
+<media-dialog-title class="sleeve-sheet-title">TRACKS</media-dialog-title>
+<media-dialog-close class="sleeve-sheet-close">CLOSE</media-dialog-close>
+</div>
+<sleeve-tracklist class="sleeve-tracklist"></sleeve-tracklist>
+</media-dialog-popup>
+</media-dialog>
+<media-dialog id="sleeve-keys-sheet">
+<media-dialog-popup class="sleeve-sheet" aria-label="Keys">
+<div class="sleeve-sheet-head">
+<media-dialog-title class="sleeve-sheet-title">KEYS</media-dialog-title>
+<media-dialog-close class="sleeve-sheet-close">CLOSE</media-dialog-close>
+</div>
+<sleeve-keys></sleeve-keys>
+</media-dialog-popup>
+</media-dialog>
 <media-buffering-indicator class="media-buffering-indicator" role="status">
 <span class="sleeve-sr-only">Buffering</span>
 </media-buffering-indicator>
@@ -160,6 +180,11 @@
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
+<button type="button" commandfor="sleeve-tracks-sheet" class="media-button sleeve-tracks-button" aria-keyshortcuts="T">
+<media-icon family="sleeve" name="tracks" class="media-button-icon">
+</media-icon>
+<span>TRACKS</span>
+</button>
 <button type="button" commandfor="sleeve-settings-menu" class="media-button sleeve-settings-button" id="sleeve-settings-trigger">
 <media-icon family="sleeve" name="gear" class="media-button-icon">
 </media-icon>
@@ -306,6 +331,70 @@
 </template>
 </media-captions-radio-group>
 </media-menu-content>
+<media-menu-item commandfor="sleeve-menu-caption-style" class="media-menu-item" data-sleeve-caption-style-item data-unavailable>
+<media-icon family="sleeve" name="captions-on" class="media-menu-trigger-icon">
+</media-icon>
+<span>Caption style</span>
+<span class="media-menu-hint">
+<span data-sleeve-caption-hint class="media-menu-hint-label">
+</span>
+<media-icon family="sleeve" name="chevron" class="media-menu-forward-chevron">
+</media-icon>
+</span>
+</media-menu-item>
+<media-menu-content class="media-menu-content" id="sleeve-menu-caption-style">
+<media-menu-item class="media-menu-back-item">
+<media-icon family="sleeve" name="chevron" class="media-menu-back-chevron">
+</media-icon>
+<span>Caption style</span>
+</media-menu-item>
+<media-menu-separator class="media-menu-separator">
+</media-menu-separator>
+<media-menu-radio-group class="media-menu-radio-group" value="default" data-sleeve-caption-style-group>
+<media-menu-radio-item value="default" class="media-menu-radio-item">
+<span data-part="label">Default</span>
+<span class="sleeve-caption-proof" data-proof="default" aria-hidden="true">Aa Sample</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="sleeve" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+<media-menu-radio-item value="large" class="media-menu-radio-item">
+<span data-part="label">Large</span>
+<span class="sleeve-caption-proof" data-proof="large" aria-hidden="true">Aa Sample</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="sleeve" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+<media-menu-radio-item value="white-on-black" class="media-menu-radio-item">
+<span data-part="label">White on black</span>
+<span class="sleeve-caption-proof" data-proof="white-on-black" aria-hidden="true">Aa Sample</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="sleeve" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+<media-menu-radio-item value="yellow-on-black" class="media-menu-radio-item">
+<span data-part="label">Yellow on black</span>
+<span class="sleeve-caption-proof" data-proof="yellow-on-black" aria-hidden="true">Aa Sample</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="sleeve" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+</media-menu-radio-group>
+</media-menu-content>
+<media-menu-item class="media-menu-item sleeve-menu-tracks" data-sleeve-opens="sleeve-tracks-sheet">
+<media-icon family="sleeve" name="tracks" class="media-menu-trigger-icon">
+</media-icon>
+<span>Tracks</span>
+</media-menu-item>
+<media-menu-item class="media-menu-item sleeve-menu-keys" data-sleeve-opens="sleeve-keys-sheet">
+<media-icon family="sleeve" name="keys" class="media-menu-trigger-icon">
+</media-icon>
+<span>Keys</span>
+</media-menu-item>
 </media-menu-content>
 </media-menu>
 <media-pip-button class="media-button media-pip-button" id="sleeve-pip-trigger">

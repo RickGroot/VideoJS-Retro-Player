@@ -37,3 +37,6 @@ import '@videojs/html/ui/volume-slider';
 import '@videojs/html/ui/hotkey';
 import '@videojs/html/ui/status-announcer';
 import '../shared/icons';
+import '../shared/sleeve-session';
+import '../styles/extras/press.css';
+import '../styles/extras/registration.css';

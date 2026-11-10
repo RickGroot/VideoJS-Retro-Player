@@ -15,6 +15,14 @@ A skin is a light-DOM template plus CSS. Today a host uses it directly from this
 5. Give the video player a shape: the skin fills its parent, so set a width and an `aspect-ratio` (or a height) on the element around it. In the audio look, without a height from the host, the player takes a 5:2 cover.
 6. Two custom properties set on the player colour it for a brand: `--media-accent-color` pins the field to one colour in every state, and `--sleeve-on-accent` sets the text and glyphs on it. Without the second, the skin picks black or white where the browser has `contrast-color()`.
 
+7. The extras are optional and sit in `src/shared/` and `src/styles/extras/`; the video skin imports all of them, the audio skin only the Press, the registration mark and `<sleeve-session>`. Each is a helper element that writes `data-*` attributes for the CSS or opens a dialog, and none has an API of its own:
+   - **Tracks** and **Keys** sheets, two dialogs opened from the settings menu or from a cell in the strip. The tracklist lists the media's chapters and a row seeks the media to that chapter (it uses the time feature's `seek()`, with the owner's approval). `T` opens it while focus is in the player; the Keys sheet lists the player's live hotkeys.
+   - **The Press**: state changes print as a short stepped inset on the field, not a fade.
+   - **Registration mark**: the crosshair around the play disc while buffering.
+   - **Media Session**: `<sleeve-session>` sets the browser's `navigator.mediaSession` (title, artwork, play, pause, seek) so lock screens and media keys can drive the player. It is the one place the skin talks to a browser API outside Video.js.
+   - **Caption styles**: a choice in the settings menu (default, large, white on black, yellow on black) that sets `data-caption-style` for `::cue`.
+   - **The tour** on the demo page: five steps through Ready, Playing, Paused, Ended and Error. It is page code in `apps/preview/src/demo/` and drives the media element only.
+
 Previews show how the two pieces fit: `apps/preview/src/frame/player.ts` (video) and `audio-player.ts` (audio).
 
 ## Pages
@@ -60,7 +68,9 @@ A design-challenge entry and a proof of concept. It is not published to npm and 
 
 Language: the menu labels, Paused and Playing use Video.js's own translation keys and follow the language of the player's `media-i18n`. Ready, Ended, Buffering and the Error label stay English: Video.js has no key for them, and its docs describe no way to add keys of our own, so the skin does not build a translation layer. The seek button labels, tooltips and error text come from Video.js and follow the language.
 
-Not yet checked: Safari, Firefox, real devices (touch, phones), and screen readers.
+The extras add English-only words: the Tracks and Keys sheet titles, key names and actions, the caption style names and the tour copy. They do not follow `media-i18n`.
+
+Not yet checked: Safari, Firefox, real devices (touch, phones), screen readers, the real lock screen for Media Session, and forced-colours rendering of the extras. The Tracks sheet was checked on the video skin only: the audio skin has no tracklist.
 
 ## Where things live
 
@@ -69,9 +79,11 @@ Not yet checked: Safari, Firefox, real devices (touch, phones), and screen reade
   - `src/audio/`: the audio skin.
   - `src/styles/`: tokens, themes and base styles both skins share, plus a per-preset layer in `video/` and `audio/`.
   - `src/shared/`: code both skins share, such as the icons, `uniqueIds` and `<sleeve-state>`, the helper element that tells the video skin's CSS whether the media has a picture.
+  - `src/shared/sleeve-sheet.ts`, `sleeve-tracklist.ts`, `sleeve-keys.ts`, `sleeve-session.ts` and `sleeve-caption-style.ts`: the extras above.
+  - `src/styles/extras/`: `sheet.css`, `press.css`, `registration.css` and `captions.css`.
   - `src/skin.css`: global styles, loaded only in the preview.
 - `apps/preview/`: the pages.
-  - `src/demo/`: the demo page and its design note.
+  - `src/demo/`: the demo page, its design note and the tour (`tour.ts`, `tour.css`).
   - `src/shell/`: the workbench shell.
   - `src/frame/`: the pages the shell frames; `player` and `audio-player` mount a skin in a player and set its media.
   - `public/`: files the preview serves, such as the chapters track.

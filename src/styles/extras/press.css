@@ -1,0 +1,102 @@
+/*
+ * The press: on every state change the field's colour plate lands a few pixels out of register with its ink rules for
+ * 120ms, in two hard steps, then sits in register, like a print run. Both skins.
+ *
+ * What moves is the plate only: a paper sliver along two edges of the field panel (an inset shadow) and a spill of the
+ * field colour past the other two (an outset shadow). Box shadows take no space, sit under the content and never move
+ * a control, a label or a focus ring. Nothing changes size.
+ *
+ * Which state it is comes from the data attributes Video.js sets on the play button and the error dialog, the same
+ * ones the field colour follows. Each state names its own keyframes: a CSS animation only restarts when its name
+ * changes, so playing to paused and back to playing replays, and anything that does not change the state (scrubbing,
+ * time updates, a menu or sheet opening) leaves the name alone and plays nothing. The ready state has no press.
+ *
+ * Off under prefers-reduced-motion: reduce and under forced-colors.
+ */
+@layer components {
+  @keyframes sleeve-press-playing {
+    0% {
+      box-shadow: inset 3px 3px 0 0 var(--sleeve-paper), 3px 3px 0 0 var(--sleeve-field);
+    }
+    50% {
+      box-shadow: inset 1px 1px 0 0 var(--sleeve-paper), 1px 1px 0 0 var(--sleeve-field);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+  /* The same steps under three more names, so that a change of state restarts the run (see above). */
+  @keyframes sleeve-press-paused {
+    0% {
+      box-shadow: inset 3px 3px 0 0 var(--sleeve-paper), 3px 3px 0 0 var(--sleeve-field);
+    }
+    50% {
+      box-shadow: inset 1px 1px 0 0 var(--sleeve-paper), 1px 1px 0 0 var(--sleeve-field);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+  @keyframes sleeve-press-ended {
+    0% {
+      box-shadow: inset 3px 3px 0 0 var(--sleeve-paper), 3px 3px 0 0 var(--sleeve-field);
+    }
+    50% {
+      box-shadow: inset 1px 1px 0 0 var(--sleeve-paper), 1px 1px 0 0 var(--sleeve-field);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+  @keyframes sleeve-press-error {
+    0% {
+      box-shadow: inset 3px 3px 0 0 var(--sleeve-paper), 3px 3px 0 0 var(--sleeve-field);
+    }
+    50% {
+      box-shadow: inset 1px 1px 0 0 var(--sleeve-paper), 1px 1px 0 0 var(--sleeve-field);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+    /* The state's keyframe name. :where() keeps the specificity equal, so the last match wins and the error is last. */
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) {
+      --sleeve-press: sleeve-press-playing;
+    }
+
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-started][data-paused]:not([data-ended]))) {
+      --sleeve-press: sleeve-press-paused;
+    }
+
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-ended])) {
+      --sleeve-press: sleeve-press-ended;
+    }
+
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-error-dialog media-dialog-popup[data-open])) {
+      --sleeve-press: sleeve-press-error;
+    }
+
+    /* Every field surface: the play cell, the audio skin's type panel, and the video cover when it is a panel. */
+    .media-skin[data-theme="sleeve"] :is(.sleeve-play-cell, .sleeve-type) {
+      animation: var(--sleeve-press, none) 120ms steps(1, end) 1;
+    }
+
+    @container media-root (width >= 30rem) {
+      .media-skin[data-theme="sleeve"][data-preset="video"] .sleeve-cover {
+        animation: var(--sleeve-press, none) 120ms steps(1, end) 1;
+      }
+    }
+
+    /* Under 30rem the cover is the band: only its painted plate moves, not the (transparent) cover. */
+    @container media-root (width < 30rem) {
+      .media-skin[data-theme="sleeve"][data-preset="video"] .sleeve-cover::before {
+        animation: var(--sleeve-press, none) 120ms steps(1, end) 1;
+      }
+    }
+  }
+}

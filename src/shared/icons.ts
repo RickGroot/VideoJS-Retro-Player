@@ -74,6 +74,9 @@ const airplayFrame = 'M2 3h14v10h-3v-2h1V5H4v6h1v2H2z';
 export const airPlayEnterIcon = solid(`${airplayFrame}M9 10l4.5 6h-9z`);
 export const airPlayExitIcon = solid(`${airplayFrame}M9 10l4.5 6h-9zM6 7h6v2H6z`);
 
+export const tracksIcon = solid('M2 3h3v2H2zM7 3h9v2H7zM2 8h3v2H2zM7 8h9v2H7zM2 13h3v2H2zM7 13h9v2H7z');
+export const keysIcon = knockout('M1 4h16v10H1zM3 6h2v2H3zM7 6h2v2H7zM11 6h2v2h-2zM3 10h2v2H3zM7 10h8v2H7z');
+
 export const sleeveIcons = {
   'airplay-enter': airPlayEnterIcon,
   'airplay-exit': airPlayExitIcon,
@@ -86,6 +89,7 @@ export const sleeveIcons = {
   'fullscreen-enter': fullscreenEnterIcon,
   'fullscreen-exit': fullscreenExitIcon,
   gear: gearIcon,
+  keys: keysIcon,
   pause: pauseIcon,
   'pip-enter': pipEnterIcon,
   'pip-exit': pipExitIcon,
@@ -96,6 +100,7 @@ export const sleeveIcons = {
   speed: speedIcon,
   spinner: spinnerIcon,
   switches: switchesIcon,
+  tracks: tracksIcon,
   'volume-high': volumeHighIcon,
   'volume-low': volumeLowIcon,
   'volume-off': volumeOffIcon,
