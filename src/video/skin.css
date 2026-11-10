@@ -24,12 +24,21 @@
       container: media-root / inline-size;
     }
 
+    /* Two-tone ring (ink outside, ground inside): one of the two always contrasts with whatever frame is playing. */
     .media-container:focus-visible,
     :scope.media-container:focus-visible {
-      outline-offset: -2px;
-      outline-width: var(--sleeve-rule-width);
-      outline-style: solid;
-      outline-color: var(--sleeve-ground);
+      outline: none;
+    }
+
+    :scope.media-container:focus-visible::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 60;
+      pointer-events: none;
+      border: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      outline: var(--sleeve-rule-width) solid var(--sleeve-ground);
+      outline-offset: calc(-2 * var(--sleeve-rule-width));
     }
 
     /* Letterbox behind the picture stays black in both colour schemes (--sleeve-letterbox). */
@@ -494,9 +503,11 @@
       border: var(--sleeve-rule-width) solid var(--sleeve-ink);
     }
 
+    /* Time on its own line, the chapter title under it (up to two lines) so it stays readable in the 156px plate. */
     .media-time-slider-preview-label {
-      align-items: center;
-      gap: calc(var(--media-spacing) * 2);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
       min-width: 0;
       max-width: 100%;
       display: flex;
@@ -508,10 +519,13 @@
     }
 
     .media-time-slider-chapter-title {
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
       min-width: 0;
       overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
 
     .media-time-slider-chapter-title:empty {
@@ -576,8 +590,10 @@
       padding-inline-end: calc(var(--media-spacing) * 3);
     }
 
+    /* Its parts are absolutely positioned, so it has no intrinsic width: give it a definite one or the cell sizes it to the minimum. */
     .media-volume-slider {
-      flex: 0 1 calc(var(--media-spacing) * 24);
+      width: calc(var(--media-spacing) * 10);
+      flex: 0 1 auto;
       min-width: calc(var(--media-spacing) * 10);
       height: var(--sleeve-cell);
       cursor: pointer;
@@ -779,6 +795,11 @@
       top: 100%;
     }
 
+    /* Tooltips are not hoverable, so their bridge must not catch the pointer on its way to the slider. */
+    .media-tooltip-popup:before {
+      pointer-events: none;
+    }
+
     /* Tooltips: solid ink plates with ground text. */
     .media-tooltip-popup {
       pointer-events: none;
@@ -792,6 +813,11 @@
       --media-tooltip-side-offset: calc(var(--media-spacing) * 9);
       border-radius: 0;
       box-shadow: none;
+    }
+
+    /* The play button spans both rows, so its trigger edge is the strip edge: a shorter offset matches the others. */
+    media-tooltip[trigger="sleeve-play-trigger"] {
+      --media-tooltip-side-offset: calc(var(--media-spacing) * 3);
     }
 
     .media-tooltip-popup[data-open] {
@@ -819,12 +845,13 @@
     /* Menu: paper, 2px ink border, ink text. Rows are separated by the ink ground showing through the gaps. */
     .media-popup.media-menu-popup {
       z-index: 20;
-      height: var(--media-menu-height);
+      /* The library sizes the popup to its content plus padding, not the border: add the 2px rules back (border-box). */
+      height: calc(var(--media-menu-height) + var(--sleeve-rule-width) * 2);
       max-height: min(
         var(--media-menu-available-height, calc(var(--media-spacing) * 70)),
         calc(var(--media-spacing) * 70)
       );
-      width: var(--media-menu-width);
+      width: calc(var(--media-menu-width) + var(--sleeve-rule-width) * 2);
       max-width: var(--media-menu-available-width);
       min-width: calc(var(--media-spacing) * 48);
       overscroll-behavior: none;
@@ -1200,8 +1227,12 @@
       inset: 0;
     }
 
+    /* The role=status shell stays rendered so the live region exists before "Buffering" appears in it. */
     .media-buffering-indicator:not([data-visible]) {
       --media-spinner-animation: none;
+    }
+
+    .media-buffering-indicator:not([data-visible]) .sleeve-buffering-plate {
       display: none;
     }
 
@@ -1226,6 +1257,14 @@
     }
   }
 
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    @container media-root (width >= 40rem) {
+      .media-volume-slider {
+        width: calc(var(--media-spacing) * 24);
+      }
+    }
+  }
+
   /*
    * Narrow players: drop optional cells before the row can overflow, never shrink one below 44px. Widths in px at 16px
    * per rem: the play cell and its gap take 74; the time cell is budgeted at 120; the mute, captions, settings and
@@ -1234,7 +1273,8 @@
    * the mute button, the arrow-key hotkeys and, on touch devices, the system volume). From 32rem they take 144 + 24
    * more, so the optional cells come back later: pip, cast and airplay hide in turn, in that order of priority.
    *   narrow (no title, no slider): 378 + 46 per optional cell -> 24rem base, pip 27rem, cast 30rem, airplay 33rem
-   *   wide (title and slider):      506 + 46 per optional cell -> pip 35rem, cast 38rem, airplay 41rem
+   *   wide (title and slider):      506 + 46 per optional cell -> pip 35rem, cast 38rem, airplay 46rem
+   *   (from 40rem the slider is 96px, so airplay waits until the title keeps room for text)
    */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
     @container media-root (width < 32rem) {
@@ -1253,13 +1293,40 @@
       }
     }
 
+    /* Phones: only the current time fits next to four 44px cells, so the duration drops and mute stays a plain cell. */
     @container media-root (width < 24rem) {
+      .sleeve-time-cell {
+        padding-inline: calc(var(--media-spacing) * 2);
+        min-width: 0;
+      }
+
+      .media-time-separator,
+      .media-time-duration-value {
+        display: none;
+      }
+
+      .sleeve-strip {
+        --sleeve-play-cell: 56px;
+      }
+    }
+
+    /* Under 300px even the current time does not fit beside the required cells: mute takes the room, icon centred. */
+    @container media-root (width < 18.75rem) {
       .sleeve-time-cell {
         display: none;
       }
 
       .sleeve-volume-cell {
         flex: 1;
+        justify-content: center;
+      }
+    }
+
+    /* The plate is up to about 142px (thumbnail 85 + meta 57 with a two-line chapter title), plus a 12px
+       gap and the 72px strip. A 16:9 player needs about 224px height (400px width) to hold it. */
+    @container media-root (width < 25rem) {
+      .media-slider-thumbnail {
+        display: none;
       }
     }
 
@@ -1275,7 +1342,7 @@
       }
     }
 
-    @container media-root (width < 41rem) {
+    @container media-root (width < 46rem) {
       .media-airplay-button {
         display: none;
       }
@@ -1311,6 +1378,29 @@
         forced-color-adjust: none;
         background-color: Highlight;
         color: HighlightText;
+      }
+
+      /* Highlight ring on a Highlight cell would vanish. */
+      :is(
+          .media-captions-button[data-active],
+          .media-mute-button[data-muted],
+          .media-fullscreen-button[data-fullscreen],
+          .media-pip-button[data-pip],
+          .media-cast-button[data-cast-state="connected"],
+          .media-airplay-button[data-airplay-state="connected"],
+          .sleeve-settings-button[aria-expanded="true"]
+        ):focus-visible {
+        outline-color: HighlightText;
+      }
+
+      :scope.media-container:focus-visible::after {
+        border-color: CanvasText;
+        outline-color: Canvas;
+      }
+
+      .media-time-slider-thumb:focus-visible,
+      .media-volume-slider-thumb:focus-visible {
+        outline-color: Canvas;
       }
 
       .sleeve-play {
