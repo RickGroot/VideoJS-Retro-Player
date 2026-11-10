@@ -195,3 +195,13 @@ Confirmed. `media-title` reads `content-title` on the player (or Mux metadata) a
 **Evidence:** title and time docs; src/audio/skin.html, src/audio/skin.css (`.sleeve-title`, `.sleeve-numeral`); audio-player.ts (`?title=long|none`).
 
 **Check:** `?title=none` (an empty `content-title`, which also keeps the stream metadata title out) leaves no empty gap or stray element; `?title=long` clamps to two lines then an ellipsis in every band, with no overflow.
+
+## s14 (confirmed)
+
+Confirmed in the browser with `mux-video`. A video skin can tell that media has no picture from the media element alone: `videoWidth` is 0 once metadata is known. On a source change the events arrive as `loadstart`, `emptied`, `resize`, `loadedmetadata`, so a state that resets on `loadstart` and `emptied` and settles on `loadedmetadata` is never stale. `resize` fires again if a picture appears later, so a width above 0 upgrades to video and a width of 0 never downgrades. `mux-video` plays only HLS: a WAV fails with "no EXTM3U delimiter", so the audio-only test source is an HLS playlist blob that points at a blob of silent MP3 frames.
+
+**Decision:** A helper element, `<sleeve-state>`, listens on the media element and writes only `data-media="pending|audio|video"` on `.media-skin`. The host's `data-mode="audio|video"` on the same root wins in the CSS; absent means automatic. The CSS treats the player as audio when `[data-mode="audio"]` or `[data-media="audio"]:not([data-mode="video"])`. `pending` looks like video, so a normal video never flashes the audio layout. A source change keeps the last value until the new metadata settles it, so a playlist of audio files does not flash the video layout. The element has no API, no methods and no events.
+
+**Evidence:** src/shared/sleeve-state.ts; src/video/skin.html (`<sleeve-state>`, `.sleeve-print`); src/video/skin.css (the "Audio mode" block); media element events as listed above.
+
+**Check:** With a video source `data-media` ends as `video` and the skin is unchanged. With the silent-audio HLS source it goes `video`, `pending`, `audio` and shows the cover, the poster beside it and a strip that never fades. `data-mode="audio"` forces the layout on a video source, `data-mode="video"` forces it off. Ready, playing, paused and ended read correctly at 640 and 400 wide.

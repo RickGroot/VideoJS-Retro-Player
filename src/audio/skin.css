@@ -907,7 +907,7 @@
     }
 
     /* The play button spans both rows, so its trigger edge is the strip edge: a shorter offset matches the others. */
-    media-tooltip[trigger="sleeve-play-trigger"] {
+    media-tooltip[trigger^="sleeve-play-trigger"] {
       --media-tooltip-side-offset: calc(var(--media-spacing) * 3);
     }
 

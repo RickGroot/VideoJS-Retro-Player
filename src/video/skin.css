@@ -155,7 +155,7 @@
      * Hidden but still reachable with Tab: no display:none, no visibility:hidden. Anything inside showing a focus ring,
      * an open menu, or buffering keeps the strip up (the Block and the buffering word live in it).
      */
-    :scope:not(:has(media-buffering-indicator[data-visible])) media-controls:not([data-visible]):not(:has(:focus-visible)):not(:has([aria-expanded="true"])) .sleeve-strip {
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):not(:has(media-buffering-indicator[data-visible])) media-controls:not([data-visible]):not(:has(:focus-visible)):not(:has([aria-expanded="true"])) .sleeve-strip {
       opacity: 0;
       pointer-events: none;
     }
@@ -885,7 +885,7 @@
     }
 
     /* The play button spans both rows, so its trigger edge is the strip edge: a shorter offset matches the others. */
-    media-tooltip[trigger="sleeve-play-trigger"] {
+    media-tooltip[trigger^="sleeve-play-trigger"] {
       --media-tooltip-side-offset: calc(var(--media-spacing) * 3);
     }
 
@@ -1495,8 +1495,8 @@
       position: absolute;
     }
 
-    /* The same condition that fades the strip (see the strip), plus playing. */
-    :scope:has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not(:has(media-controls :focus-visible)):not(:has(media-controls [aria-expanded="true"])) .sleeve-spine {
+    /* The same condition that fades the strip (see the strip), plus playing. Not in audio mode, where the strip never fades. */
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not(:has(media-controls :focus-visible)):not(:has(media-controls [aria-expanded="true"])) .sleeve-spine {
       display: block;
     }
   }
@@ -1651,6 +1651,129 @@
         min-width: 0;
         max-width: none;
       }
+    }
+  }
+
+  /*
+   * Audio mode, for media without a picture. <sleeve-state> (src/shared/sleeve-state.ts) writes data-media on the root
+   * (pending, audio or video); a host can force it with data-mode="audio" or "video". Audio mode is
+   * [data-mode="audio"], or [data-media="audio"] unless the host said data-mode="video". Pending matches nothing
+   * here, so it keeps whatever the player shows before first play and nothing moves when it settles on video.
+   * What changes: the cover stays up in every state (its label is the state as a word), the strip never hides,
+   * the poster stays and narrows to the area beside the cover, a default print fills that area when there is no
+   * poster, and the controls that need a picture are removed (display:none, so they leave the tab order too).
+   * Not done in CSS: the f, c and i hotkeys and the double-tap gesture stay registered.
+   */
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    :scope {
+      --sleeve-cover-w: clamp(160px, 34cqi, 360px);
+    }
+
+    /* The default print is an audio-mode part only. */
+    .sleeve-print {
+      display: none;
+    }
+
+    /*
+     * Media without a picture has no height of its own. Where the host sets none, the player takes a flat cover
+     * ratio and is never shorter than a 120px cover on the strip.
+     */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) {
+      aspect-ratio: 5 / 2;
+      min-height: calc(120px + var(--sleeve-strip-h));
+      /* An ink frame, as on the audio skin: the paper strip has no edge of its own on a paper-coloured page. */
+      box-shadow: 0 0 0 var(--sleeve-rule-width) var(--sleeve-ink);
+    }
+
+    /* Print stock behind the picture area instead of the black letterbox. */
+    :scope.media-video:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) {
+      background-color: var(--sleeve-print-paper);
+    }
+
+    /* The cover is up at every width and in every state except under the error dialog. Not hidden while scrubbing. */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):not(:has(media-dialog-popup[data-open])) .sleeve-cover {
+      display: grid;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover {
+      width: var(--sleeve-cover-w);
+    }
+
+    /* The label: the state as a word, same order as the audio skin's (the last match wins; Buffering is last). */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover-label > span {
+      display: none;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover-label::after {
+      content: "Ready";
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):where(:has(media-play-button[data-started][data-paused]:not([data-ended]))) .sleeve-cover-label::after {
+      content: "Paused";
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) .sleeve-cover-label::after {
+      content: "Playing";
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):where(:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging]))) .sleeve-cover-label::after {
+      content: "Ended";
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):where(:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging]))) .sleeve-cover-label::after {
+      content: "Buffering";
+    }
+
+    /* The picture area: beside the cover, above the strip. The poster never hides itself (docs/spikes.md s11): it shows only once loaded. */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .media-poster {
+      display: block;
+      width: auto;
+      height: auto;
+      inset-block: 0 var(--sleeve-strip-h);
+      inset-inline: var(--sleeve-cover-w) 0;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .media-poster:not([data-loaded]) {
+      visibility: hidden;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .media-poster-image {
+      object-fit: cover;
+    }
+
+    /* Default print: the title as giant cropped ink letters on the print stock; gone once a poster has loaded, and empty (hidden by media-title) with no title. */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-print:not([hidden]) {
+      display: block;
+      position: absolute;
+      inset-block: 0 var(--sleeve-strip-h);
+      inset-inline: var(--sleeve-cover-w) 0;
+      overflow: hidden;
+      padding: 2px 0 0 4px;
+      background-color: var(--sleeve-print-paper);
+      color: var(--sleeve-print-ink);
+      font-size: calc((100cqi - var(--sleeve-cover-w)) * 0.5);
+      font-family: var(--sleeve-font);
+      font-stretch: 62%;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.78;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+      pointer-events: none;
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):has(.media-poster[data-loaded]) .sleeve-print {
+      display: none;
+    }
+
+    /* The helper element has no box. */
+    sleeve-state {
+      display: none;
+    }
+
+    /* No picture, so no fullscreen, picture-in-picture, captions or quality. */
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) :is(.media-fullscreen-button, .media-pip-button, .media-captions-button, media-menu-item[commandfor^="sleeve-menu-quality"], media-menu-item[commandfor^="sleeve-menu-captions"]) {
+      display: none;
     }
   }
 

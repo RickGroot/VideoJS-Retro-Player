@@ -59,3 +59,4 @@ import '@videojs/html/ui/status-indicator-value';
 import '@videojs/html/ui/seek-indicator';
 import '@videojs/html/ui/seek-indicator-value';
 import '../shared/icons';
+import '../shared/sleeve-state';
