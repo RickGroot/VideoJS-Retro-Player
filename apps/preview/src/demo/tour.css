@@ -1,0 +1,144 @@
+/*
+ * The five-state tour. The caption block takes the colour of the state being shown, by hard cut, the way the player's
+ * own field does. The colours are the skin's pigments for each state (light, dark).
+ */
+.tour {
+  --tour-field: var(--wash);
+  --tour-on: var(--ink);
+  margin-top: 16px;
+  scroll-margin-top: 12px;
+}
+
+.tour[data-state="ready"] {
+  --tour-field: light-dark(#ff5c1c, #f0703a);
+  --tour-on: light-dark(#0e0e0f, #1a1713);
+}
+
+.tour[data-state="playing"] {
+  --tour-field: light-dark(#ffbd1a, #f0b43a);
+  --tour-on: light-dark(#0e0e0f, #1a1713);
+}
+
+.tour[data-state="paused"] {
+  --tour-field: light-dark(#4f7dff, #6a8ef0);
+  --tour-on: light-dark(#0e0e0f, #1a1713);
+}
+
+.tour[data-state="ended"] {
+  --tour-field: light-dark(#19c17a, #3db87f);
+  --tour-on: light-dark(#0e0e0f, #1a1713);
+}
+
+.tour[data-state="error"] {
+  --tour-field: light-dark(#d4102c, #ff7b6b);
+  --tour-on: light-dark(#ffffff, #1a1713);
+}
+
+.tour h3 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-stretch: 78%;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tour .actions {
+  margin-bottom: 12px;
+}
+
+.tour .actions button[aria-busy="true"] {
+  cursor: progress;
+}
+
+.tour-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tour-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font-stretch: 78%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* The state's colour as a square chip, so the row reads as the palette too. */
+.tour-steps li::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--ink);
+  background: var(--chip);
+}
+
+.tour-steps li[data-state="ready"] { --chip: light-dark(#ff5c1c, #f0703a); }
+.tour-steps li[data-state="playing"] { --chip: light-dark(#ffbd1a, #f0b43a); }
+.tour-steps li[data-state="paused"] { --chip: light-dark(#4f7dff, #6a8ef0); }
+.tour-steps li[data-state="ended"] { --chip: light-dark(#19c17a, #3db87f); }
+.tour-steps li[data-state="error"] { --chip: light-dark(#d4102c, #ff7b6b); }
+
+.tour-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.tour-num::after {
+  content: ".";
+}
+
+/* The current step: ink block, heavier type and an arrow. More than colour, and it survives forced colours. */
+.tour-steps li[aria-current="step"] {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 900;
+}
+
+.tour-steps li[aria-current="step"]::before {
+  border-color: var(--paper);
+}
+
+.tour-steps li[aria-current="step"] .tour-name::before {
+  content: "\25B6\00a0";
+}
+
+.tour-caption {
+  margin: 8px 0 0;
+  padding: 10px 14px;
+  min-height: 4.75rem;
+  border: var(--rule);
+  background: var(--tour-field);
+  color: var(--tour-on);
+  font-size: 1.0625rem;
+  font-stretch: 78%;
+  font-weight: 700;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (min-width: 40rem) {
+  .tour-caption {
+    min-height: 3.25rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .tour-steps li[aria-current="step"] {
+    outline: 4px solid Highlight;
+    outline-offset: 2px;
+  }
+}

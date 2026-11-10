@@ -14,6 +14,7 @@ import audioTemplate from '@/audio/skin.html?raw';
 import { uniqueIds } from '@/shared/unique-ids';
 import designNote from './design-note.html?raw';
 import './demo.css';
+import { initTour } from './tour';
 import {
   AUDIO_LONG_TITLE,
   AUDIO_POSTER,
@@ -255,6 +256,8 @@ document.addEventListener('click', (event) => {
 applyScheme();
 applyField();
 applySize();
+
+initTour({ wrapper: videoWrapper, reset: () => remount('video'), breakIt: () => breakPlayer('video') });
 
 // Keyboard table, read from the skins' own `media-hotkey` elements.
 function keyLabel(key: string): string {

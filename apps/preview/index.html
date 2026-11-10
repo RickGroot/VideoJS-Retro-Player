@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
     <title>Sleeve: a Video.js v10 skin</title>
     <meta
       name="description"
@@ -51,7 +52,24 @@
     <main id="main" class="wrap">
       <section aria-labelledby="video-heading" class="block">
         <h2 id="video-heading">Video</h2>
-        <p class="note">One player, 16:9, with chapters on the time slider. Pick a width to see the size bands.</p>
+        <p class="note">One player, 16:9, with chapters on the time slider. Pick a width under it to see the size bands.</p>
+        <div class="tour" id="tour" role="group" aria-labelledby="tour-heading">
+          <h3 id="tour-heading">The five states</h3>
+          <div class="actions">
+            <button type="button" id="tour-start">Play the tour</button>
+            <button type="button" id="tour-stop" hidden>Stop</button>
+          </div>
+          <ol class="tour-steps">
+            <li data-state="ready"><span class="tour-num">1</span><span class="tour-name">Ready</span></li>
+            <li data-state="playing"><span class="tour-num">2</span><span class="tour-name">Playing</span></li>
+            <li data-state="paused"><span class="tour-num">3</span><span class="tour-name">Paused</span></li>
+            <li data-state="ended"><span class="tour-num">4</span><span class="tour-name">Ended</span></li>
+            <li data-state="error"><span class="tour-num">5</span><span class="tour-name">Error</span></li>
+          </ol>
+          <p class="tour-caption" id="tour-caption"></p>
+          <p class="visually-hidden" id="tour-live" role="status" aria-live="polite"></p>
+        </div>
+        <div id="video-stage" class="stage"></div>
         <div class="toolbar">
           <fieldset class="choice" data-control="size">
             <legend>Width</legend>
@@ -65,7 +83,6 @@
             <button type="button" data-action="reset" data-slot="video">Reset</button>
           </div>
         </div>
-        <div id="video-stage" class="stage"></div>
       </section>
 
       <section aria-labelledby="audio-heading" class="block">
