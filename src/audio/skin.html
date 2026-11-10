@@ -50,46 +50,46 @@
 <media-controls-group class="video-controls-row">
 <media-controls-group class="video-controls-group video-controls-start">
 <div class="media-play-button-audio">
-<media-play-button class="media-button media-play-button" id="vjs-Rnkyep49-0-trigger">
-<media-icon family="scaffold" name="restart" class="media-button-icon-base media-play-button-restart-icon">
+<media-play-button class="media-button media-play-button" id="sleeve-play-trigger">
+<media-icon family="sleeve" name="restart" class="media-button-icon-base media-play-button-restart-icon">
 </media-icon>
-<media-icon family="scaffold" name="play" class="media-button-icon-base media-play-button-play-icon">
+<media-icon family="sleeve" name="play" class="media-button-icon-base media-play-button-play-icon">
 </media-icon>
-<media-icon family="scaffold" name="pause" class="media-button-icon-base media-play-button-pause-icon">
+<media-icon family="sleeve" name="pause" class="media-button-icon-base media-play-button-pause-icon">
 </media-icon>
 </media-play-button>
-<media-tooltip trigger="vjs-Rnkyep49-0-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-play-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
 </media-tooltip-label>
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
 <media-buffering-indicator class="media-buffering-indicator media-play-button-buffering">
-<media-icon family="scaffold" name="spinner" class="media-buffering-indicator-spinner-icon">
+<media-icon family="sleeve" name="spinner" class="media-buffering-indicator-spinner-icon">
 </media-icon>
 </media-buffering-indicator>
 </div>
-<media-seek-button seconds="-10" class="media-button media-seek-button-audio" id="vjs-Rnkyep49-0-2-trigger">
+<media-seek-button seconds="-10" class="media-button media-seek-button-audio" id="sleeve-seek-back-trigger">
 <div class="media-seek-button-content">
-<media-icon family="scaffold" name="seek" class="media-button-icon media-seek-button-backward-icon">
+<media-icon family="sleeve" name="seek" class="media-button-icon media-seek-button-backward-icon">
 </media-icon>
 <span class="media-seek-button-label media-seek-button-backward-label">10</span>
 </div>
 </media-seek-button>
-<media-tooltip trigger="vjs-Rnkyep49-0-2-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-seek-back-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
 </media-tooltip-label>
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
-<media-seek-button seconds="10" class="media-button media-seek-button-audio" id="vjs-Rnkyep49-0-3-trigger">
+<media-seek-button seconds="10" class="media-button media-seek-button-audio" id="sleeve-seek-forward-trigger">
 <div class="media-seek-button-content">
-<media-icon family="scaffold" name="seek" class="media-button-icon">
+<media-icon family="sleeve" name="seek" class="media-button-icon">
 </media-icon>
 <span class="media-seek-button-label media-seek-button-forward-label">10</span>
 </div>
 </media-seek-button>
-<media-tooltip trigger="vjs-Rnkyep49-0-3-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-seek-forward-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
 </media-tooltip-label>
 <media-tooltip-shortcut class="media-tooltip-shortcut">
@@ -107,14 +107,14 @@
 </media-time-group>
 </media-controls-group>
 <media-controls-group class="video-controls-group">
-<media-playback-rate-button commandfor="vjs-LUAS-MeU-0-popup" class="media-button media-playback-rate-button" id="vjs-Rnkyep49-0-4-trigger">
+<media-playback-rate-button commandfor="sleeve-rate-menu" class="media-button media-playback-rate-button" id="sleeve-rate-trigger">
 <span data-part="value" class="media-playback-rate-button-label">
 </span>
 </media-playback-rate-button>
-<media-tooltip trigger="vjs-Rnkyep49-0-4-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-rate-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-text token="menu.speed">Speed</media-text>
 </media-tooltip>
-<media-menu side="top" align="center" boundary="viewport" class="media-popup media-popup-safe-area media-menu-popup media-menu-rate-popup" id="vjs-LUAS-MeU-0-popup">
+<media-menu side="top" align="center" boundary="viewport" class="media-popup media-popup-safe-area media-menu-popup media-menu-rate-popup" id="sleeve-rate-menu">
 <media-menu-content class="media-menu-content">
 <media-playback-rate-radio-group class="media-menu-radio-group">
 <template>
@@ -122,7 +122,7 @@
 <span data-part="label">
 </span>
 <media-menu-item-indicator force-mount class="media-menu-indicator">
-<media-icon family="scaffold" name="check" class="media-menu-radio-icon">
+<media-icon family="sleeve" name="check" class="media-menu-radio-icon">
 </media-icon>
 </media-menu-item-indicator>
 </media-menu-radio-item>
@@ -130,19 +130,19 @@
 </media-playback-rate-radio-group>
 </media-menu-content>
 </media-menu>
-<media-mute-button commandfor="vjs--9CSH12E-0-popup" class="media-button media-mute-button" id="vjs-Rnkyep49-0-5-trigger">
-<media-icon family="scaffold" name="volume-off" class="media-button-icon media-mute-button-off-icon">
+<media-mute-button commandfor="sleeve-volume-popover" class="media-button media-mute-button" id="sleeve-mute-trigger">
+<media-icon family="sleeve" name="volume-off" class="media-button-icon media-mute-button-off-icon">
 </media-icon>
-<media-icon family="scaffold" name="volume-high" class="media-button-icon media-mute-button-high-icon">
+<media-icon family="sleeve" name="volume-high" class="media-button-icon media-mute-button-high-icon">
 </media-icon>
 </media-mute-button>
-<media-tooltip trigger="vjs-Rnkyep49-0-5-trigger" delay="0" disabled side="top" sticky class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip trigger="sleeve-mute-trigger" delay="0" disabled side="top" sticky class="media-popup media-popup-safe-area media-tooltip-popup">
 <media-tooltip-label>
 </media-tooltip-label>
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
-<media-volume-popover open-on-hover delay="200" close-delay="100" side="top" class="media-popup media-popup-safe-area media-volume-popover-popup" id="vjs--9CSH12E-0-popup">
+<media-volume-popover open-on-hover delay="200" close-delay="100" side="top" class="media-popup media-popup-safe-area media-volume-popover-popup" id="sleeve-volume-popover">
 <media-volume-slider class="media-volume-slider" orientation="vertical" thumb-alignment="edge">
 <media-slider-track class="media-volume-slider-track">
 <media-slider-fill class="media-volume-slider-fill">
@@ -164,13 +164,13 @@
 </media-hotkey>
 <media-hotkey keys="m" action="toggleMuted">
 </media-hotkey>
-<media-hotkey keys="ArrowRight" action="seekStep">
+<media-hotkey keys="ArrowRight" action="seekStep" value="10">
 </media-hotkey>
-<media-hotkey keys="ArrowLeft" action="seekStep">
+<media-hotkey keys="ArrowLeft" action="seekStep" value="-10">
 </media-hotkey>
-<media-hotkey keys="l" action="seekStep">
+<media-hotkey keys="l" action="seekStep" value="10">
 </media-hotkey>
-<media-hotkey keys="j" action="seekStep">
+<media-hotkey keys="j" action="seekStep" value="-10">
 </media-hotkey>
 <media-hotkey keys="ArrowUp" action="volumeStep">
 </media-hotkey>

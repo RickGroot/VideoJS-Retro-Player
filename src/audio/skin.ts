@@ -42,25 +42,4 @@ import '@videojs/html/ui/volume-popover';
 import '@videojs/html/ui/volume-slider';
 import '@videojs/html/ui/hotkey';
 import '@videojs/html/ui/status-announcer';
-import { registerIcons } from '@videojs/html/icons';
-import {
-  checkIcon as checkIconScaffold,
-  pauseIcon as pauseIconScaffold,
-  playIcon as playIconScaffold,
-  restartIcon as restartIconScaffold,
-  seekIcon as seekIconScaffold,
-  spinnerIcon as spinnerIconScaffold,
-  volumeHighIcon as volumeHighIconScaffold,
-  volumeOffIcon as volumeOffIconScaffold,
-} from '@videojs/html/icons/scaffold';
-
-registerIcons('scaffold', {
-  check: checkIconScaffold,
-  pause: pauseIconScaffold,
-  play: playIconScaffold,
-  restart: restartIconScaffold,
-  seek: seekIconScaffold,
-  spinner: spinnerIconScaffold,
-  'volume-high': volumeHighIconScaffold,
-  'volume-off': volumeOffIconScaffold,
-});
+import '../shared/icons';
