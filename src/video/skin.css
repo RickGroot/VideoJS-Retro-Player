@@ -164,6 +164,60 @@
       pointer-events: none;
     }
 
+    /*
+     * The Line: while the video plays and the pointer is only moving over the picture, the strip is just its top row
+     * (the play glyph and the time slider), about a third of the Block's height. The Block comes back when you reach
+     * for it: the pointer on the strip or in the band right above the Line where the Block will be drawn, keyboard
+     * focus, a press, a drag, an open menu, a pause or buffering. Mouse only: a touch tap always gets the full Block
+     * with its 44px cells, and a device with any touch screen never gets the Line. The cells stay in the tab order
+     * (no display:none, no visibility:hidden), like the hidden strip. A cell that was clicked with the mouse keeps
+     * focus while it folds away; the first key press makes that focus visible and the Block returns.
+     */
+    @media (hover: hover) and (pointer: fine) and (not (any-pointer: coarse)) {
+      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not(:has(.sleeve-strip:hover)):not(:has(media-controls :is(:focus-visible, :active, [aria-expanded="true"], [data-dragging]))) {
+        /* The captions and everything else that measures from the strip follow the Line. */
+        --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-rule-width));
+
+        .sleeve-strip {
+          grid-template-rows: var(--sleeve-slider-row) 0;
+          row-gap: 0;
+        }
+
+        /* The reach band: the part of the Block's footprint the Line leaves free. The pointer entering it draws the Block. */
+        .sleeve-strip::before {
+          content: "";
+          position: absolute;
+          inset-inline: 0;
+          bottom: 100%;
+          height: calc(var(--sleeve-cell) + var(--sleeve-rule-width) * 2);
+        }
+
+        .sleeve-cells {
+          height: 0;
+          overflow: hidden;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        /* No room for the disc in a 24px row: the glyph alone, in the disc's own colour, on the field. */
+        .sleeve-play {
+          min-height: 0;
+          color: var(--sleeve-on-field);
+        }
+
+        .sleeve-play::before {
+          display: none;
+        }
+
+        /* Without the disc the glyph sits on the cell itself, which forced colours paint Canvas. */
+        @media (forced-colors: active) {
+          .sleeve-play {
+            color: CanvasText;
+          }
+        }
+      }
+    }
+
     /* No fades on the strip, menus, tooltips or indicators when asked. */
     @media (prefers-reduced-motion: reduce) {
       .sleeve-strip,
