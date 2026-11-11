@@ -367,6 +367,28 @@ export function initOwn(host: Host): { cleared: () => void } {
         say('Your source could not be played.');
       }, 15000);
       for (const name of ['playing', 'loadedmetadata', 'error']) media.addEventListener(name, settle, { signal });
+
+      // An iframe player can drop a play request that arrives while it is still cueing the video: it reports
+      // "waiting" and stays on its poster. Ask again, a few times at most, until it plays or the visitor pauses.
+      const embed = media as HTMLMediaElement;
+      let asks = 0;
+      const nudge = setInterval(() => {
+        asks += 1;
+
+        if (mine !== turn || asks > 4 || embed.paused || embed.currentTime > 0) {
+          clearInterval(nudge);
+
+          return;
+        }
+
+        // A second play request alone is ignored in that state; a pause request first clears it.
+        embed.pause?.();
+        embed.play?.()?.catch?.(() => undefined);
+      }, 1500);
+      const calm = () => clearInterval(nudge);
+
+      signal.addEventListener('abort', calm);
+      for (const name of ['playing', 'pause', 'error']) media.addEventListener(name, calm, { signal });
     }
 
     media.addEventListener(
@@ -433,8 +455,30 @@ export function initOwn(host: Host): { cleared: () => void } {
 
     const media = host.wrapper.querySelector<HTMLMediaElement>(MEDIA_SELECTOR);
 
-    // The press was a user gesture, so sound is allowed. A refusal is not an error.
-    media?.play?.()?.catch?.(() => say('Press play.'));
+    if (!media) return;
+
+    // The press was a user gesture, so sound is allowed. An engine that is still attaching the source interrupts the
+    // request (AbortError): ask again when the source can play, a few times at most. Any other refusal is not an error.
+    let asks = 0;
+    const ask = (): void => {
+      asks += 1;
+      media.play?.()?.catch?.((reason: unknown) => {
+        if (mine !== turn) return;
+
+        if (asks < 4 && reason instanceof DOMException && reason.name === 'AbortError') {
+          media.addEventListener('canplay', () => mine === turn && media.paused && ask(), {
+            once: true,
+            signal: listeners?.signal,
+          });
+
+          return;
+        }
+
+        say('Press play.');
+      });
+    };
+
+    ask();
   }
 
   function start(pick: Playable): void {
