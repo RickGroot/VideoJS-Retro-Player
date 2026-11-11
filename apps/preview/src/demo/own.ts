@@ -137,7 +137,8 @@ function embedFor(url: URL): Playable | { error: string } | null {
   // Vimeo: vimeo.com/<id> with an optional unlisted hash segment, or player.vimeo.com/video/<id>?h=<hash>.
   const player = host === 'player.vimeo.com';
   const id = player ? (first === 'video' ? second : '') : first;
-  const hash = player ? (url.searchParams.get('h') ?? '') : second;
+  // The query form (?h=) is documented for both hosts and wins; the path segment is the vimeo.com share form.
+  const hash = url.searchParams.get('h') || (player ? '' : second);
 
   if (!/^\d{1,12}$/.test(id) || (hash && !/^[A-Za-z0-9]{6,20}$/.test(hash)) || (!player && parts.length > 2)) {
     return { error: NOT_A_VIDEO('Vimeo') };
@@ -265,6 +266,10 @@ export function initOwn(host: Host): { cleared: () => void } {
   let savedCaption = '';
   // Bumped by every start and every reset, so a slow engine load never lands on a newer choice.
   let turn = 0;
+  // Whether a visitor source was already playing before the latest press of Play, to restore if its engine fails to load.
+  let ownBefore = false;
+  // Gives up on an iframe player that never reports anything (a Vimeo video that does not exist raises no error).
+  let giveUp: ReturnType<typeof setTimeout> | undefined;
 
   const say = (text: string) => {
     status.textContent = text;
@@ -340,11 +345,29 @@ export function initOwn(host: Host): { cleared: () => void } {
   function watch(pick: Playable, mine: number, swapped: boolean): void {
     listeners?.abort();
     listeners = new AbortController();
+    clearTimeout(giveUp);
 
     const { signal } = listeners;
+    const settle = () => clearTimeout(giveUp);
+
+    signal.addEventListener('abort', settle);
+
     const media = host.wrapper.querySelector<HTMLElement>(MEDIA_SELECTOR);
 
     if (!media) return;
+
+    if (pick.embed) {
+      giveUp = setTimeout(() => {
+        if (mine !== turn) return;
+
+        play!.removeAttribute('aria-busy');
+
+        error!.textContent = pick.embed!.hint;
+        error!.hidden = false;
+        say('Your source could not be played.');
+      }, 15000);
+      for (const name of ['playing', 'loadedmetadata', 'error']) media.addEventListener(name, settle, { signal });
+    }
 
     media.addEventListener(
       'playing',
@@ -388,6 +411,9 @@ export function initOwn(host: Host): { cleared: () => void } {
         await engine.load();
       } catch {
         if (mine === turn) {
+          own = ownBefore;
+          syncTour();
+          setBusy();
           play!.removeAttribute('aria-busy');
           fail('The player for that kind of address could not be loaded. Check your connection and try again.');
           say('Your source could not be played.');
@@ -399,7 +425,7 @@ export function initOwn(host: Host): { cleared: () => void } {
 
     if (mine !== turn) return;
 
-    host.play(buildMedia(pick, swapped), { video: Boolean(pick.embed) });
+    host.play(buildMedia(pick, swapped), { video: Boolean(pick.embed) || pick.tag === 'cloudflare-video' });
     showWatch(pick.embed);
     watch(pick, mine, swapped);
     syncTour();
@@ -412,6 +438,7 @@ export function initOwn(host: Host): { cleared: () => void } {
   }
 
   function start(pick: Playable): void {
+    ownBefore = own;
     own = true;
     turn += 1;
     play!.setAttribute('aria-busy', 'true');
