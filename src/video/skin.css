@@ -2130,7 +2130,8 @@
     }
 
     /* The helper element has no box. */
-    sleeve-state {
+    sleeve-state,
+    sleeve-quality {
       display: none;
     }
 
@@ -2573,6 +2574,60 @@
 
       :scope[data-live]:has(media-live-button:not([data-live-edge], [data-disabled])) .sleeve-live-glyph {
         background-color: transparent;
+      }
+    }
+  }
+}
+
+/*
+ * Quality badge. <sleeve-quality> (src/shared/sleeve-quality.ts) prints "AUTO 1080P" or "720P" in .sleeve-quality-tag, the
+ * last thing in the slider row: a paper cell with an ink rule on its inline-start edge. It takes no cell of its own, so
+ * no size band loses a control. It is hidden (by the helper, with the hidden attribute) unless the media has more than
+ * one rendition, and under 24rem and in audio mode by the rules below; the Settings menu names the quality in every
+ * band. The text is printed, never colour. Hard cuts, no motion.
+ */
+@layer components {
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    .sleeve-quality-tag {
+      flex: none;
+      display: grid;
+      place-items: center;
+      box-sizing: border-box;
+      min-inline-size: 5ch;
+      margin-inline-start: auto;
+      padding-inline: 8px;
+      border-inline-start: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      font-size: 0.75rem;
+      font-stretch: 62%;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sleeve-quality-tag[hidden] {
+      display: none;
+    }
+
+    @container media-root (width < 24rem) {
+      .sleeve-quality-tag {
+        display: none;
+      }
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-quality-tag {
+      display: none;
+    }
+
+    @media (forced-colors: active) {
+      .sleeve-quality-tag {
+        border-inline-start-color: CanvasText;
+        background-color: Canvas;
+        color: CanvasText;
       }
     }
   }
