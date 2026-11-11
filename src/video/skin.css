@@ -2131,7 +2131,8 @@
 
     /* The helper element has no box. */
     sleeve-state,
-    sleeve-quality {
+    sleeve-quality,
+    sleeve-skip {
       display: none;
     }
 
@@ -2628,6 +2629,84 @@
         border-inline-start-color: CanvasText;
         background-color: Canvas;
         color: CanvasText;
+      }
+    }
+  }
+}
+
+/*
+ * Skip pill. <sleeve-skip> (src/shared/sleeve-skip.ts) shows .sleeve-skip, a <media-seek-button>, while the playhead is
+ * inside an intro or credits window the host gave on the skin root. A paper cell on the picture with a 2px ink rule and
+ * square corners, above the strip's right end and following --sleeve-strip-h (the Line shrinks the strip, the pill
+ * follows). The word is printed in the cell and the glyph is decoration. It is not in the strip, so the strip's
+ * hiding does not take it along. Hard cuts, no motion.
+ */
+@layer components {
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    .sleeve-skip {
+      position: absolute;
+      z-index: 12;
+      inset-inline-end: 12px;
+      inset-block-end: calc(var(--sleeve-strip-h) + 12px);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-sizing: border-box;
+      min-block-size: 44px;
+      min-inline-size: 44px;
+      padding-inline: 16px;
+      border: var(--sleeve-rule-width) solid var(--sleeve-ink);
+      border-radius: 0;
+      background-color: var(--sleeve-paper);
+      color: var(--sleeve-ink);
+      font: inherit;
+      font-size: 0.875rem;
+      font-stretch: 62%;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .sleeve-skip[hidden] {
+      display: none;
+    }
+
+    .sleeve-skip:hover {
+      background-color: var(--sleeve-field);
+      color: var(--sleeve-on-field);
+    }
+
+    .sleeve-skip:focus-visible {
+      outline: var(--sleeve-focus-width) solid var(--sleeve-ink);
+      outline-offset: -6px;
+    }
+
+    .sleeve-skip-icon {
+      flex: none;
+      width: 16px;
+      height: 16px;
+    }
+
+    .sleeve-skip-icon:dir(rtl) {
+      transform: scaleX(-1);
+    }
+
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-skip {
+      display: none;
+    }
+
+    @media (forced-colors: active) {
+      .sleeve-skip {
+        border-color: CanvasText;
+        background-color: Canvas;
+        color: CanvasText;
+      }
+
+      .sleeve-skip:focus-visible {
+        outline-color: Highlight;
       }
     }
   }

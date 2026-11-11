@@ -65,6 +65,7 @@ import '@videojs/html/ui/seek-indicator-value';
 import '../shared/icons';
 import '../shared/sleeve-state';
 import '../shared/sleeve-quality';
+import '../shared/sleeve-skip';
 import '../shared/sleeve-session';
 import '../shared/sleeve-caption-style';
 import '../shared/sleeve-tracklist';

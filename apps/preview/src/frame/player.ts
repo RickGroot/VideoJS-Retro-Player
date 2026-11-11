@@ -9,6 +9,9 @@ const POSTER = 'https://image.mux.com/83EzHOvVzVN01AsrD01BCpiH02Pj3S8mfzBOu101w2
 /** Chapters for the time slider, served from `apps/preview/public`. */
 const CHAPTERS = './cosmic-dawn-chapters.vtt';
 
+/** The intro window of the demo clip, in seconds, for the skip pill. */
+const SKIP_INTRO = '1-12';
+
 const MEDIA_PLACEHOLDER = '<!-- Add a compatible media component here. -->';
 
 /**
@@ -46,6 +49,8 @@ export function createPlayer(): HTMLElement {
     media.setAttribute('src', own);
   } else {
     player.setAttribute('poster', POSTER);
+    // The demo clip has a skippable intro, so the skip pill can be seen.
+    player.querySelector('.media-skin')?.setAttribute('data-sleeve-skip-intro', SKIP_INTRO);
     media.setAttribute('src', SRC);
 
     const chapters = document.createElement('track');

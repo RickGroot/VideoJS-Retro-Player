@@ -4,6 +4,9 @@
 export const VIDEO_SRC = 'https://stream.mux.com/83EzHOvVzVN01AsrD01BCpiH02Pj3S8mfzBOu101w2nHC5s.m3u8';
 export const VIDEO_POSTER = 'https://image.mux.com/83EzHOvVzVN01AsrD01BCpiH02Pj3S8mfzBOu101w2nHC5s/thumbnail.webp?time=69';
 
+/** The intro of the clip in seconds (start-end), so the skip pill can be seen. */
+export const VIDEO_SKIP_INTRO = '1-12';
+
 /** The audio. Placeholder: the sound of the video's stream, until a demo track is in. */
 export const AUDIO_SRC = VIDEO_SRC;
 /** Square artwork for the audio cover. */

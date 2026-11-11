@@ -23,6 +23,7 @@ import {
   BROKEN_SRC,
   CHAPTERS,
   VIDEO_POSTER,
+  VIDEO_SKIP_INTRO,
   VIDEO_SRC,
 } from './media';
 
@@ -68,6 +69,7 @@ function createPlayer(spec: PlayerSpec): HTMLElement {
 
   if (isVideo) {
     player.setAttribute('poster', VIDEO_POSTER);
+    player.querySelector('.media-skin')?.setAttribute('data-sleeve-skip-intro', VIDEO_SKIP_INTRO);
   } else {
     player.setAttribute('poster', spec.artwork === false ? '' : AUDIO_POSTER);
     // Empty on purpose when absent, so the stream's own metadata title is not used.

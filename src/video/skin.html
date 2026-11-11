@@ -2,6 +2,7 @@
 <!-- Add a compatible media component here. -->
 <sleeve-state></sleeve-state>
 <sleeve-quality></sleeve-quality>
+<sleeve-skip></sleeve-skip>
 <sleeve-session></sleeve-session>
 <sleeve-caption-style></sleeve-caption-style>
 <media-poster class="media-poster">
@@ -61,6 +62,11 @@
 </media-time>
 </div>
 <media-controls>
+<media-seek-button class="sleeve-skip" seconds="10" label="Skip intro" hidden>
+<span class="sleeve-skip-text">SKIP INTRO</span>
+<media-icon family="sleeve" name="speed" class="sleeve-skip-icon" aria-hidden="true">
+</media-icon>
+</media-seek-button>
 <media-controls-content class="sleeve-strip">
 <media-tooltip-group>
 <div class="sleeve-play-cell">
