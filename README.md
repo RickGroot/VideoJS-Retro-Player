@@ -38,6 +38,8 @@ The single-player pages read their settings from the hash: `width`, `ratio` (vid
 
 `/preview.html#live=https://example.com/stream.m3u8` plays an https source of your own in place of the demo clip (anything else in `live` is ignored). The preview uses the `<sleeve-player>` tag from `src/video/player.ts`: Video.js's video features plus its live feature, so one template plays on-demand and live media. A live source gets the LIVE cell described in the design note; `<sleeve-state>` writes `data-live` from Video.js's own live state.
 
+One limit with live DASH (`shaka-video`): while the stream is paused, Video.js does not re-read the moving seek range, so the LIVE cell can stay on after a long pause. The PLAY YOUR OWN box works around it by sending the media element a `progress` event every second while a live DASH stream is paused; a page of your own that plays live DASH needs the same.
+
 Change the media in `apps/preview/src/frame/player.ts` (video) and `audio-player.ts` (audio).
 
 ## Sources

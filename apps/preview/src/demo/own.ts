@@ -391,6 +391,21 @@ export function initOwn(host: Host): { cleared: () => void } {
       for (const name of ['playing', 'pause', 'error']) media.addEventListener(name, calm, { signal });
     }
 
+    // Shaka moves a live stream's seek range with the clock, but its element fires no event of its own as the range
+    // moves. While paused the player keeps its last reading and still says "live" after a long pause. A `progress`
+    // event only says there is new data to look at, and makes Video.js read the range again. The Mux HLS live stream
+    // did not show this when checked in Chromium, so only DASH gets the timer.
+    if (media.localName === 'shaka-video') {
+      const stream = media as HTMLMediaElement & { targetLiveWindow?: number };
+      const refresh = setInterval(() => {
+        const live = typeof stream.targetLiveWindow === 'number' && !Number.isNaN(stream.targetLiveWindow);
+
+        if (live && stream.paused) stream.dispatchEvent(new Event('progress'));
+      }, 1000);
+
+      signal.addEventListener('abort', () => clearInterval(refresh));
+    }
+
     media.addEventListener(
       'playing',
       () => {
