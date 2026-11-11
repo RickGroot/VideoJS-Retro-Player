@@ -174,7 +174,7 @@
      * focus while it folds away; the first key press makes that focus visible and the Block returns.
      */
     @media (hover: hover) and (pointer: fine) and (not (any-pointer: coarse)) {
-      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not(:has(.sleeve-strip:hover)):not(:has(media-controls :is(:focus-visible, :active, [aria-expanded="true"], [data-dragging]))) {
+      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not(:has(.sleeve-strip:hover)):not(:has(media-controls :is(:focus-visible, :active, [aria-expanded="true"], [data-dragging]))):not(:has(media-live-button[data-live]:not([data-live-edge], [data-disabled]))) {
         /* The captions and everything else that measures from the strip follow the Line. */
         --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-rule-width));
 
@@ -1751,7 +1751,7 @@
     }
 
     /* The same condition that fades the strip (see the strip), plus playing. Not in audio mode, where the strip never fades. */
-    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not(:has(media-controls :focus-visible)):not(:has(media-controls [aria-expanded="true"])) .sleeve-spine {
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not(:has(media-controls :focus-visible)):not(:has(media-controls [aria-expanded="true"])):not([data-live]) .sleeve-spine {
       display: block;
     }
   }
@@ -2402,6 +2402,177 @@
       video::cue {
         background-color: Canvas;
         color: CanvasText;
+      }
+    }
+  }
+}
+
+/*
+ * Live mode. <sleeve-state> writes data-live on the skin root from Video.js's live state. One cell says where playback
+ * is: "LIVE" with a solid square at the live edge, "TO LIVE" with a hollow square on the field colour behind it. Word,
+ * glyph and the rule above (solid, dashed) each carry it, so it never rests on colour. There is no time slider while
+ * live (a cut line of this version), so the slider row only draws that rule. Hard cuts, no motion.
+ * "Behind" is media-live-button without data-live-edge and data-disabled, as Video.js sets them.
+ */
+@layer components {
+  @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+    .sleeve-live,
+    .sleeve-live-behind-time,
+    .sleeve-cover-live {
+      display: none;
+    }
+
+    :scope[data-live] .sleeve-live {
+      --sleeve-cell-bg: var(--sleeve-paper);
+      --sleeve-cell-fg: var(--sleeve-ink);
+      display: inline-flex;
+      flex: none;
+      width: auto;
+      min-width: var(--sleeve-cell);
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding-inline: 12px;
+      border-radius: 0;
+      font-size: 0.875rem;
+      font-stretch: 62%;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* At the edge it is a label, not a button: no strike-through, no not-allowed cursor, but it stays focusable. */
+    :scope[data-live] .sleeve-live[aria-disabled="true"] {
+      cursor: default;
+    }
+
+    :scope[data-live] .sleeve-live[aria-disabled="true"]::after {
+      display: none;
+    }
+
+    .sleeve-live-glyph {
+      flex: none;
+      width: 10px;
+      height: 10px;
+      box-sizing: border-box;
+      border: var(--sleeve-rule-width) solid currentColor;
+      background-color: currentColor;
+    }
+
+    .sleeve-live-behind {
+      display: none;
+    }
+
+    :scope[data-live]:has(media-live-button:not([data-live-edge], [data-disabled])) {
+      .sleeve-live {
+        --sleeve-cell-bg: var(--sleeve-field);
+        --sleeve-cell-fg: var(--sleeve-on-field);
+        cursor: pointer;
+      }
+
+      .sleeve-live-glyph {
+        background-color: transparent;
+      }
+
+      .sleeve-live-at {
+        display: none;
+      }
+
+      .sleeve-live-behind {
+        display: inline;
+      }
+
+      /* The time cell shows only the distance behind the edge. */
+      .media-time-current-value,
+      .media-time-separator,
+      .media-time-duration-value {
+        display: none;
+      }
+
+      .sleeve-live-behind-time {
+        display: inline-flex;
+        align-items: center;
+        align-self: stretch;
+        white-space: nowrap;
+      }
+
+      .sleeve-slider-row {
+        border-block-end-style: dashed;
+      }
+    }
+
+    /* At the edge there is nothing to read in the time cell, so the LIVE cell stands alone. */
+    :scope[data-live]:not(:has(media-live-button:not([data-live-edge], [data-disabled]))) .sleeve-time-cell {
+      display: none;
+    }
+
+    /* The slider row keeps its height (the Line measures it) and draws one rule in place of the slider. */
+    :scope[data-live] {
+      .sleeve-slider-row {
+        border-block-end: var(--sleeve-rule-width) solid var(--sleeve-ink);
+        box-sizing: border-box;
+      }
+
+      .media-time-slider,
+      .sleeve-vod-only,
+      .sleeve-cover-time {
+        display: none;
+      }
+    }
+
+    /* The cover says Live where it says Ready, before the media has started. */
+    :scope[data-live]:has(media-play-button:not([data-started], [data-ended])) {
+      .sleeve-cover-ready {
+        display: none;
+      }
+
+      .sleeve-cover-live {
+        display: inline;
+      }
+    }
+
+    /* Narrow: the time cell is gone at the edge, so the LIVE cell takes the free room. */
+    @container media-root (width < 40rem) {
+      :scope[data-live] .sleeve-live {
+        flex: 1;
+      }
+    }
+
+    /* Under 30rem the words "TO LIVE" already say behind, so the distance is dropped. */
+    @container media-root (width < 30rem) {
+      :scope[data-live] .sleeve-live-behind-time {
+        display: none;
+      }
+    }
+
+    /* Under 300px the glyph goes and the word stays, in a cell at least 44px wide. */
+    @container media-root (width < 18.75rem) {
+      :scope[data-live] .sleeve-live-glyph {
+        display: none;
+      }
+
+      :scope[data-live] .sleeve-live {
+        min-width: var(--sleeve-cell);
+        padding-inline: 4px;
+      }
+    }
+
+    @media (forced-colors: active) {
+      :scope[data-live] .sleeve-live {
+        border-color: ButtonText;
+        background-color: ButtonFace;
+        color: ButtonText;
+      }
+
+      .sleeve-live-glyph {
+        background-color: ButtonText;
+        border-color: ButtonText;
+      }
+
+      :scope[data-live]:has(media-live-button:not([data-live-edge], [data-disabled])) .sleeve-live-glyph {
+        background-color: transparent;
       }
     }
   }

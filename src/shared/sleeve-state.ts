@@ -12,6 +12,9 @@
  *
  * The skin's CSS hides the element. The CSS decides the look from `data-media` and the host's `data-mode` on the same root.
  *
+ * It also writes `data-live` while the media is live, from Video.js's live feature (`targetLiveWindow` is not NaN; the
+ * feature is only there under a player that includes it, such as `<sleeve-player>`). The CSS shows the live look from it.
+ *
  * One thing the CSS cannot do: while the player is in audio mode (`data-mode="audio"`, or `data-media="audio"` unless
  * the host said `data-mode="video"`), the element sets Video.js's own `disabled` attribute on the hotkeys and gestures
  * the template marks with `data-sleeve-picture` (fullscreen, captions, picture in picture), and takes it off again
@@ -26,6 +29,7 @@ import {
   PlayerController,
   type PropertyValues,
   playerContext,
+  selectLive,
   selectSource,
   UIElement,
 } from '@videojs/html';
@@ -39,6 +43,8 @@ type Listenable = {
 const ROOT_SELECTOR = '.media-skin';
 // Input that only makes sense with a picture; the template marks it.
 const PICTURE_INPUT_SELECTOR = ':is(media-hotkey, media-gesture)[data-sleeve-picture]';
+// Hotkeys that assume a timeline with a start and a steady rate (speed, jump to a percent); the template marks them.
+const VOD_INPUT_SELECTOR = 'media-hotkey[data-sleeve-vod]';
 
 function hasPicture(media: unknown): boolean {
   return isMediaVideoDimensionsCapable(media) && media.videoWidth > 0;
@@ -49,6 +55,8 @@ class SleeveState extends UIElement {
   readonly #store = new PlayerController(this, playerContext);
   // Runs update() when the player's source changes, which is when the media may be new.
   readonly #source = new PlayerController(this, playerContext, selectSource);
+  // Runs update() when the live state changes. The value is undefined under a player without the live feature.
+  readonly #live = new PlayerController(this, playerContext, selectLive);
 
   #root: HTMLElement | null = null;
   // The media the listeners are on.
@@ -97,7 +105,11 @@ class SleeveState extends UIElement {
 
     if (root.getAttribute('data-media') !== this.#value) root.setAttribute('data-media', this.#value);
 
-    this.#syncPictureInput(root);
+    const live = this.#live.value ? !Number.isNaN(this.#live.value.targetLiveWindow) : false;
+
+    if (live !== root.hasAttribute('data-live')) root.toggleAttribute('data-live', live);
+
+    this.#syncInput(root);
   }
 
   #listen(media: Listenable | null): void {
@@ -131,14 +143,22 @@ class SleeveState extends UIElement {
     return mode !== 'video' && this.#value === 'audio';
   }
 
-  #syncPictureInput(root: HTMLElement): void {
-    if (!this.#isAudioMode(root)) return this.#restorePictureInput();
+  // One pass, so an element that is off for two reasons stays off until both are gone.
+  #syncInput(root: HTMLElement): void {
+    const audio = this.#isAudioMode(root);
+    const live = root.hasAttribute('data-live');
 
-    for (const element of root.querySelectorAll(PICTURE_INPUT_SELECTOR)) {
-      if (element.hasAttribute('disabled')) continue;
+    for (const element of root.querySelectorAll(`${PICTURE_INPUT_SELECTOR}, ${VOD_INPUT_SELECTOR}`)) {
+      const off = (audio && element.matches(PICTURE_INPUT_SELECTOR)) || (live && element.matches(VOD_INPUT_SELECTOR));
 
-      element.setAttribute('disabled', '');
-      this.#switchedOff.add(element);
+      if (off) {
+        if (element.hasAttribute('disabled')) continue;
+
+        element.setAttribute('disabled', '');
+        this.#switchedOff.add(element);
+      } else if (this.#switchedOff.delete(element)) {
+        element.removeAttribute('disabled');
+      }
     }
   }
 

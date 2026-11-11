@@ -18,6 +18,10 @@ With no picture, the cover is the player. A type panel carries the state word, t
 
 The video skin has the same cover, type panel and artwork for media without a picture. Speed stays in its menu, and the fullscreen, picture-in-picture and captions hotkeys still act although their buttons are hidden. Set `data-mode="audio"` on the skin root, or leave it unset and the skin decides.
 
+### Live
+
+A live source gets one new cell instead of a seek bar. At the live edge it reads `LIVE` with a solid square, as a label. Behind the edge it reads `TO LIVE` with a hollow square on the field colour, with the distance behind the edge next to it, and pressing it goes to the edge. The rule above the cells is solid at the edge and dashed behind it. The Spine and the Speed item are hidden, the cover says Live in place of the durations, and the speed and jump-to-percent hotkeys are switched off. There is no time slider in live in this version, also for streams with a rewind window: that is a cut line, not a bug. Both words sit inside Video.js's own labels ("Playing live", "Seek to live edge"), which Sleeve leaves alone, so the visible `LIVE` is part of the accessible name. `TO LIVE` is a small stretch of it: the label says "Seek to live edge".
+
 ### Reading it without colour
 
 State is never colour alone. Each state has a word (Ready, Playing, Paused, Ended, Error), the play button swaps its glyph, and the status announcer says it aloud. Buffering is announced as well.

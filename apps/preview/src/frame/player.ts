@@ -1,4 +1,4 @@
-import '@videojs/html/video/player';
+import '@/video/player';
 import '@videojs/html/media/mux-video';
 import '@/video/skin';
 import skinTemplate from '@/video/skin.html?raw';
@@ -11,14 +11,52 @@ const CHAPTERS = './cosmic-dawn-chapters.vtt';
 
 const MEDIA_PLACEHOLDER = '<!-- Add a compatible media component here. -->';
 
-export function createPlayer(): HTMLElement {
-  const player = document.createElement('video-player');
-  player.setAttribute('poster', POSTER);
+/**
+ * A source to try in place of the demo clip, from the page's hash: `preview.html#live=https://host/stream.m3u8`.
+ * Only an https address is accepted. Anything else is ignored and the demo clip plays. The value is never logged.
+ */
+function liveSource(): string | null {
+  const value = new URLSearchParams(window.location.hash.slice(1)).get('live');
 
-  player.innerHTML = skinTemplate.replace(
-    MEDIA_PLACEHOLDER,
-    `<mux-video src="${SRC}" playsinline crossorigin><track kind="chapters" label="English" srclang="en" src="${CHAPTERS}" default></mux-video>`
-  );
+  if (!value) return null;
+
+  try {
+    const url = new URL(value.trim());
+
+    return url.protocol === 'https:' ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+export function createPlayer(): HTMLElement {
+  const player = document.createElement('sleeve-player');
+  const own = liveSource();
+
+  // Only constants go through innerHTML. The source below is set with setAttribute.
+  player.innerHTML = skinTemplate.replace(MEDIA_PLACEHOLDER, '<mux-video playsinline crossorigin></mux-video>');
+
+  const media = player.querySelector('mux-video');
+
+  if (!media) throw new Error('The skin template has no place for the media.');
+
+  if (own) {
+    // A source of the visitor's own: no poster, no chapters, and the manifest is read early so the cover can say Live.
+    media.setAttribute('preload', 'metadata');
+    media.setAttribute('src', own);
+  } else {
+    player.setAttribute('poster', POSTER);
+    media.setAttribute('src', SRC);
+
+    const chapters = document.createElement('track');
+
+    chapters.setAttribute('kind', 'chapters');
+    chapters.setAttribute('label', 'English');
+    chapters.setAttribute('srclang', 'en');
+    chapters.setAttribute('src', CHAPTERS);
+    chapters.setAttribute('default', '');
+    media.append(chapters);
+  }
 
   return player;
 }

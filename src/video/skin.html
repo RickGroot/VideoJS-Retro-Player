@@ -46,6 +46,7 @@
 <div class="sleeve-cover" aria-hidden="true">
 <span class="sleeve-cover-label">
 <span class="sleeve-cover-ready">Ready</span>
+<span class="sleeve-cover-live">Live</span>
 <media-text class="sleeve-cover-paused" token="status.paused">Paused</media-text>
 <media-text class="sleeve-cover-playing" token="status.playing">Playing</media-text>
 <span class="sleeve-cover-ended">Ended</span>
@@ -131,6 +132,11 @@
 <media-tooltip-shortcut class="media-tooltip-shortcut">
 </media-tooltip-shortcut>
 </media-tooltip>
+<media-live-button class="media-button sleeve-live">
+<span class="sleeve-live-glyph" aria-hidden="true"></span>
+<span class="sleeve-live-at">LIVE</span>
+<span class="sleeve-live-behind">TO LIVE</span>
+</media-live-button>
 <div class="sleeve-cell sleeve-time-cell">
 <media-time-group class="media-time-group">
 <media-time class="media-time-current-value" type="current" toggle>
@@ -138,6 +144,8 @@
 <media-time-separator class="media-time-separator">
 </media-time-separator>
 <media-time class="media-time-duration-value" type="duration">
+</media-time>
+<media-time class="sleeve-live-behind-time" type="remaining">
 </media-time>
 </media-time-group>
 <span class="sleeve-buffering-word" aria-hidden="true">Buffering</span>
@@ -265,7 +273,7 @@
 </template>
 </media-audio-track-radio-group>
 </media-menu-content>
-<media-menu-item commandfor="sleeve-menu-speed" class="media-menu-item">
+<media-menu-item commandfor="sleeve-menu-speed" class="media-menu-item sleeve-vod-only">
 <media-icon family="sleeve" name="speed" class="media-menu-trigger-icon">
 </media-icon>
 <media-text token="menu.speed">Speed</media-text>
@@ -473,15 +481,15 @@
 </media-hotkey>
 <media-hotkey keys="ArrowDown" action="volumeStep">
 </media-hotkey>
-<media-hotkey keys="0-9" action="seekToPercent">
+<media-hotkey data-sleeve-vod keys="0-9" action="seekToPercent">
 </media-hotkey>
-<media-hotkey keys="Home" action="seekToPercent" value="0">
+<media-hotkey data-sleeve-vod keys="Home" action="seekToPercent" value="0">
 </media-hotkey>
 <media-hotkey keys="End" action="seekToPercent" value="100">
 </media-hotkey>
-<media-hotkey keys=">" action="speedUp">
+<media-hotkey data-sleeve-vod keys=">" action="speedUp">
 </media-hotkey>
-<media-hotkey keys="<" action="speedDown">
+<media-hotkey data-sleeve-vod keys="<" action="speedDown">
 </media-hotkey>
 <media-hotkey keys="f" action="toggleFullscreen" data-sleeve-picture>
 </media-hotkey>

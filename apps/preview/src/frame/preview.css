@@ -28,6 +28,7 @@ body {
 
 /* Player elements only provide state; the skin inside them is the box that gets sized. */
 media-i18n,
+sleeve-player,
 video-player,
 live-video-player,
 audio-player,
