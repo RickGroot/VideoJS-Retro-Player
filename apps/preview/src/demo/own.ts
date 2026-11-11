@@ -147,7 +147,7 @@ interface Host {
 const HINT =
   'It would not play. The most common reason is that the host does not allow other sites to stream it (CORS), which streaming needs. A plain MP4 or MP3 link often works.';
 const UNSUPPORTED =
-  'This page could not play that address as HLS, MP4, DASH or any other format it knows. Check the link, or try a .m3u8, .mpd or .mp4 address.';
+  'Neither the browser\'s own player nor the DASH player could play that address. Check the link, or try a .m3u8, .mpd or .mp4 address.';
 
 export function initOwn(host: Host): { cleared: () => void } {
   const form = document.getElementById('own-form') as HTMLFormElement | null;
@@ -296,8 +296,10 @@ export function initOwn(host: Host): { cleared: () => void } {
     own = true;
     turn += 1;
     play!.setAttribute('aria-busy', 'true');
-    say('Loading your source.');
-    showThird(pick.tag === 'cloudflare-video' ? 'cloudflare' : null);
+    const engine = pick.tag === 'cloudflare-video' ? 'cloudflare' : null;
+
+    say(engine && ENGINES[engine].third ? `Loading your source. ${ENGINES[engine].third}` : 'Loading your source.');
+    showThird(engine);
     void mount(pick, turn, false);
     syncTour();
     setBusy();

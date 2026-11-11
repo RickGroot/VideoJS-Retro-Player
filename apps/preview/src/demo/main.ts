@@ -132,7 +132,9 @@ function remount(id: string): void {
 
 /** Point the player's media at a source that fails, which opens the skin's error panel. */
 function breakPlayer(id: string): void {
-  const media = mounted.get(id)?.wrapper.querySelector('mux-video, mux-audio, video, audio');
+  const media = mounted.get(id)?.wrapper.querySelector(
+    'mux-video, mux-audio, shaka-video, cloudflare-video, video, audio',
+  );
 
   media?.setAttribute('src', BROKEN_SRC);
   (media as HTMLMediaElement | null)?.load?.();
