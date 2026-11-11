@@ -1,4 +1,4 @@
-import '@videojs/html/video/player';
+import '@/video/player';
 import '@videojs/html/audio/player';
 import '@videojs/html/media/mux-video';
 import '@videojs/html/media/mux-audio';
@@ -15,6 +15,7 @@ import { uniqueIds } from '@/shared/unique-ids';
 import designNote from './design-note.html?raw';
 import './demo.css';
 import { initTour } from './tour';
+import { initOwn } from './own';
 import {
   AUDIO_LONG_TITLE,
   AUDIO_POSTER,
@@ -40,6 +41,8 @@ interface PlayerSpec {
   preload: boolean;
   title?: string;
   artwork?: boolean;
+  /** A visitor's own media (from PLAY YOUR OWN) in place of the demo clip, its poster, chapters and intro window. */
+  media?: HTMLElement;
 }
 
 const wrappers: HTMLElement[] = [];
@@ -57,17 +60,24 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: stri
 function createPlayer(spec: PlayerSpec): HTMLElement {
   const suffix = String(spec.n);
   const isVideo = spec.kind === 'video';
-  const player = document.createElement(isVideo || spec.kind === 'audio-mode' ? 'video-player' : 'audio-player');
+  const player = document.createElement(isVideo || spec.kind === 'audio-mode' ? 'sleeve-player' : 'audio-player');
   const template = uniqueIds(isVideo || spec.kind === 'audio-mode' ? videoTemplate : audioTemplate, suffix);
   const preload = spec.preload ? '' : ' preload="none"';
   const track = `<track kind="chapters" label="English" srclang="en" src="${CHAPTERS}" default>`;
-  const media = isVideo
+  const own = isVideo ? spec.media : undefined;
+  const media = own
+    ? '<span data-own-slot></span>'
+    : isVideo
     ? `<mux-video src="${VIDEO_SRC}" playsinline crossorigin${preload}>${track}</mux-video>`
     : `<mux-audio src="${AUDIO_SRC}" crossorigin${preload}>${track}</mux-audio>`;
 
+  // Only constants go through innerHTML. A visitor's media is an element made with createElement.
   player.innerHTML = template.replace(MEDIA_PLACEHOLDER, media);
 
-  if (isVideo) {
+  if (own) {
+    player.querySelector('[data-own-slot]')?.replaceWith(own);
+    // No poster and no intro window: the demo clip's own details stay with the demo clip.
+  } else if (isVideo) {
     player.setAttribute('poster', VIDEO_POSTER);
     player.querySelector('.media-skin')?.setAttribute('data-sleeve-skip-intro', VIDEO_SKIP_INTRO);
   } else {
@@ -122,10 +132,20 @@ function remount(id: string): void {
 
 /** Point the player's media at a source that fails, which opens the skin's error panel. */
 function breakPlayer(id: string): void {
-  const media = mounted.get(id)?.wrapper.querySelector('mux-video, mux-audio');
+  const media = mounted.get(id)?.wrapper.querySelector('mux-video, mux-audio, video, audio');
 
   media?.setAttribute('src', BROKEN_SRC);
   (media as HTMLMediaElement | null)?.load?.();
+}
+
+/** Put the demo clip back: drops a visitor's source, and with it the visitor's field and message. */
+function resetToDemo(): void {
+  const entry = mounted.get('video');
+
+  if (entry) entry.spec = { ...entry.spec, media: undefined };
+
+  remount('video');
+  own.cleared();
 }
 
 function figure(caption: string, wrapper: HTMLElement): HTMLElement {
@@ -251,6 +271,7 @@ document.addEventListener('click', (event) => {
 
   for (const id of ids) {
     if (button.dataset.action === 'break') breakPlayer(id);
+    else if (id === 'video') resetToDemo();
     else remount(id);
   }
 });
@@ -258,6 +279,18 @@ document.addEventListener('click', (event) => {
 applyScheme();
 applyField();
 applySize();
+
+const own = initOwn({
+  wrapper: videoWrapper,
+  reset: resetToDemo,
+  play(media) {
+    const entry = mounted.get('video');
+
+    if (entry) entry.spec = { ...entry.spec, media };
+
+    remount('video');
+  },
+});
 
 initTour({ wrapper: videoWrapper, reset: () => remount('video'), breakIt: () => breakPlayer('video') });
 

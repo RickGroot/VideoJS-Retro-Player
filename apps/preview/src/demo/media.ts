@@ -22,3 +22,12 @@ export const CHAPTERS = './cosmic-dawn-chapters.vtt';
 
 /** A source that cannot play, for the "Break it" buttons: it shows the error panel. */
 export const BROKEN_SRC = 'https://stream.mux.com/this-playback-id-does-not-exist.m3u8';
+
+/** What the demo clip is called in the PLAY YOUR OWN box's messages. */
+export const DEMO_LABEL = 'the demo clip';
+
+/**
+ * One example of a live stream: Mux's live test stream, the playback ID that Video.js's own documentation uses for its
+ * live players. It is third party, may go away, and is only ever offered as a labelled example, never as a default.
+ */
+export const LIVE_SRC = 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8';

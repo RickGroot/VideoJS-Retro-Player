@@ -85,6 +85,30 @@
         </div>
       </section>
 
+      <section aria-labelledby="own-heading" class="block">
+        <h2 id="own-heading">Play your own</h2>
+        <p class="note">Paste a video, stream or audio link. https only. The link stays in this tab: it is never saved or sent to us.</p>
+        <form id="own-form" class="own" novalidate>
+          <div class="own-field">
+            <label for="own-url">Video or audio address</label>
+            <input id="own-url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="own-help own-error" placeholder="https://… or a Mux playback ID" />
+          </div>
+          <div class="own-actions">
+            <button type="submit" id="own-play">Play</button>
+            <button type="button" id="own-reset" disabled>Reset</button>
+          </div>
+          <p id="own-help" class="own-help">HLS (.m3u8), MP4, WebM, MP3, AAC, or a Mux playback ID. It plays in the player above.</p>
+          <p id="own-error" class="own-error" hidden></p>
+          <div class="own-chips" role="group" aria-label="Examples">
+            <span class="own-chips-label" aria-hidden="true">Try</span>
+            <button type="button" data-example="demo">The demo clip</button>
+            <button type="button" data-example="live">Mux's live test stream</button>
+          </div>
+          <p class="own-note">The live example is Mux's own public test stream. It is third party and may be offline.</p>
+          <p id="own-status" class="visually-hidden" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
       <section aria-labelledby="audio-heading" class="block">
         <h2 id="audio-heading">Side B</h2>
         <p class="note">The audio skin, and the video skin set to audio mode.</p>

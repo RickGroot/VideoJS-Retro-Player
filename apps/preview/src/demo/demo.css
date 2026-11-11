@@ -366,6 +366,7 @@ main {
 }
 
 media-i18n,
+sleeve-player,
 video-player,
 audio-player {
   display: contents;
@@ -416,6 +417,144 @@ figcaption {
   text-transform: none;
   letter-spacing: 0;
   font-weight: 600;
+}
+
+/* Play your own. */
+.own {
+  display: grid;
+  gap: 12px;
+  max-width: 48rem;
+  margin-top: 16px;
+}
+
+.own-field {
+  display: grid;
+  gap: 6px;
+}
+
+.own-field label {
+  font-stretch: 78%;
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.own input,
+.own button {
+  min-width: var(--cell);
+  min-height: var(--cell);
+  border: var(--rule);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.own input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 12px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.own input[aria-invalid="true"] {
+  border-width: 4px;
+  padding: 0 10px;
+}
+
+.own button {
+  padding: 0 18px;
+  background: var(--paper);
+  color: var(--ink);
+  font-stretch: 78%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.own button:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.own button:disabled {
+  border-style: dashed;
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.own-actions,
+.own-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.own-actions button {
+  flex: 1 1 8rem;
+}
+
+.own-help,
+.own-error {
+  margin: 0;
+}
+
+.own-help {
+  color: var(--ink-2);
+}
+
+.own-error {
+  padding: 8px 12px;
+  border-left: 8px solid var(--ink);
+  background: var(--wash);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.own-chips {
+  align-items: center;
+}
+
+.own-chips-label {
+  font-stretch: 78%;
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.own-note {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+}
+
+@media (min-width: 40em) {
+  .own {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+
+  .own-field {
+    grid-column: 1;
+  }
+
+  .own-actions {
+    grid-column: 2;
+  }
+
+  .own-actions button {
+    flex: 0 0 auto;
+  }
+
+  .own-help,
+  .own-error,
+  .own-chips,
+  .own-note {
+    grid-column: 1 / -1;
+  }
 }
 
 kbd {
