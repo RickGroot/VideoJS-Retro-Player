@@ -91,20 +91,23 @@
         <form id="own-form" class="own" novalidate>
           <div class="own-field">
             <label for="own-url">Video or audio address</label>
-            <input id="own-url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="own-help own-error" placeholder="https://… or a Mux playback ID" />
+            <input id="own-url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="own-help own-third own-error" placeholder="https://… or a Mux playback ID" />
           </div>
           <div class="own-actions">
             <button type="submit" id="own-play">Play</button>
             <button type="button" id="own-reset" disabled>Reset</button>
           </div>
-          <p id="own-help" class="own-help">HLS (.m3u8), MP4, WebM, MP3, AAC, or a Mux playback ID. It plays in the player above.</p>
+          <p id="own-help" class="own-help">HLS (.m3u8), DASH (.mpd), MP4, WebM, MP3, AAC, a Mux playback ID, or a Cloudflare Stream link. It plays in the player above.</p>
+          <p id="own-third" class="own-help" hidden></p>
           <p id="own-error" class="own-error" hidden></p>
           <div class="own-chips" role="group" aria-label="Examples">
             <span class="own-chips-label" aria-hidden="true">Try</span>
             <button type="button" data-example="demo">The demo clip</button>
             <button type="button" data-example="live">Mux's live test stream</button>
+            <button type="button" data-example="dash">Akamai's DASH test stream</button>
+            <button type="button" data-example="dash-live">DASH-IF's live DASH simulator</button>
           </div>
-          <p class="own-note">The live example is Mux's own public test stream. It is third party and may be offline.</p>
+          <p class="own-note">The live and DASH examples are public test streams from Mux, Akamai and the DASH Industry Forum. They are third party and may be offline.</p>
           <p id="own-status" class="visually-hidden" role="status" aria-live="polite"></p>
         </form>
       </section>

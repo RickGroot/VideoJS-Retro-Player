@@ -168,7 +168,7 @@ importers:
     dependencies:
       '@videojs/html':
         specifier: 10.3.0
-        version: 10.3.0(@videojs/hlsjs-video@10.3.0)(@videojs/mux-audio@10.3.0)(@videojs/mux-video@10.3.0)(react@19.3.1)
+        version: 10.3.0(@videojs/cloudflare-video@10.3.0)(@videojs/hlsjs-video@10.3.0)(@videojs/mux-audio@10.3.0)(@videojs/mux-video@10.3.0)(@videojs/shaka-video@10.3.0)(react@19.3.1)
     devDependencies:
       '@base-ui/react':
         specifier: ^1.6.0
@@ -185,10 +185,16 @@ importers:
       '@types/react-dom':
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
+      '@videojs/cloudflare-video':
+        specifier: 10.3.0
+        version: 10.3.0
       '@videojs/mux-audio':
         specifier: 10.3.0
         version: 10.3.0
       '@videojs/mux-video':
+        specifier: 10.3.0
+        version: 10.3.0
+      '@videojs/shaka-video':
         specifier: 10.3.0
         version: 10.3.0
       '@vitejs/plugin-react':
@@ -626,6 +632,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@videojs/cloudflare-video@10.3.0':
+    resolution: {integrity: sha512-UA95kP9TVTitS4fFGznDsiIKwVqdCFwYSsLcNa065IFbnPTrNbHXyQMFjUxLsJoSA91ZDREppX2IfGeXj3gmQw==}
+
   '@videojs/core@10.3.0':
     resolution: {integrity: sha512-JiH3Z8tjxAZdt5s+hSztgtTVMU2lI02in1cFdn2nm1n+LxbvWwwdjsRbUZSJsk1bURBNNiLctn9W7DK59JIdEQ==}
 
@@ -708,6 +717,9 @@ packages:
 
   '@videojs/native-hls-video@10.3.0':
     resolution: {integrity: sha512-5UYFBXcnpSwxBfZ2WkTCH+ehftRHCTa301y3Ks+tCiKTT1LjrTlsrqwHqrLTuKVGhaHHDXTBP8FybmgHa1xxag==}
+
+  '@videojs/shaka-video@10.3.0':
+    resolution: {integrity: sha512-Pba6tDuMnxgbo4mpiBvy3hiXVUTOJ/gjfKMqoyhHcfOMhsOccbYOwvMbq/jPRlwXIGxdK27+pwe3EoJOSJvkyw==}
 
   '@videojs/spf@10.3.0':
     resolution: {integrity: sha512-/Rde9nglitWTl5JXGUEy+P1kDv+Dth216pnWJRGhDbliYYIX/YD+dQDLKummw6IAus1I+N+X2OODK3+0L18GFw==}
@@ -906,6 +918,10 @@ packages:
 
   scheduler@0.28.0:
     resolution: {integrity: sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw==}
+
+  shaka-player@5.2.4:
+    resolution: {integrity: sha512-vf81av2EIcb03jRpeeZBhrPT3PMyggXnZA9k4sxGBxpr/H6v0iEL6b51T2Kwz5YNrQG/yDYoadgBW+oW40LeoA==}
+    engines: {node: '>=18'}
 
   signal-polyfill@0.2.2:
     resolution: {integrity: sha512-p63Y4Er5/eMQ9RHg0M0Y64NlsQKpiu6MDdhBXpyywRuWiPywhJTpKJ1iB5K2hJEbFZ0BnDS7ZkJ+0AfTuL37Rg==}
@@ -1249,6 +1265,11 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
+  '@videojs/cloudflare-video@10.3.0':
+    dependencies:
+      '@videojs/media': 10.3.0
+      '@videojs/utils': 10.3.0
+
   '@videojs/core@10.3.0(@videojs/element@10.3.0)(react@19.3.1)':
     dependencies:
       '@videojs/media': 10.3.0
@@ -1272,7 +1293,7 @@ snapshots:
       '@videojs/utils': 10.3.0
       hls.js: 1.7.3
 
-  '@videojs/html@10.3.0(@videojs/hlsjs-video@10.3.0)(@videojs/mux-audio@10.3.0)(@videojs/mux-video@10.3.0)(react@19.3.1)':
+  '@videojs/html@10.3.0(@videojs/cloudflare-video@10.3.0)(@videojs/hlsjs-video@10.3.0)(@videojs/mux-audio@10.3.0)(@videojs/mux-video@10.3.0)(@videojs/shaka-video@10.3.0)(react@19.3.1)':
     dependencies:
       '@videojs/core': 10.3.0(@videojs/element@10.3.0)(react@19.3.1)
       '@videojs/element': 10.3.0
@@ -1282,9 +1303,11 @@ snapshots:
       '@videojs/store': 10.3.0(@videojs/element@10.3.0)(react@19.3.1)
       '@videojs/utils': 10.3.0
     optionalDependencies:
+      '@videojs/cloudflare-video': 10.3.0
       '@videojs/hlsjs-video': 10.3.0
       '@videojs/mux-audio': 10.3.0
       '@videojs/mux-video': 10.3.0
+      '@videojs/shaka-video': 10.3.0
     transitivePeerDependencies:
       - react
 
@@ -1310,6 +1333,12 @@ snapshots:
       '@videojs/media': 10.3.0
       '@videojs/spf': 10.3.0
       '@videojs/utils': 10.3.0
+
+  '@videojs/shaka-video@10.3.0':
+    dependencies:
+      '@videojs/media': 10.3.0
+      '@videojs/utils': 10.3.0
+      shaka-player: 5.2.4
 
   '@videojs/spf@10.3.0':
     dependencies:
@@ -1464,6 +1493,8 @@ snapshots:
       '@rolldown/binding-win32-x64-msvc': 1.2.16
 
   scheduler@0.28.0: {}
+
+  shaka-player@5.2.4: {}
 
   signal-polyfill@0.2.2: {}
 

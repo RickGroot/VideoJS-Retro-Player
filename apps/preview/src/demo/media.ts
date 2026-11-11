@@ -31,3 +31,12 @@ export const DEMO_LABEL = 'the demo clip';
  * live players. It is third party, may go away, and is only ever offered as a labelled example, never as a default.
  */
 export const LIVE_SRC = 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8';
+
+/**
+ * DASH examples, third party and labelled as such where they are offered. On demand: Akamai's public "Big Buck Bunny"
+ * test stream (1080p at most: the 4K "Spring" stream on the shaka-video page stalled in the Browser pane). Live: the
+ * DASH Industry Forum's live simulator. Both send `access-control-allow-origin: *` for their manifest (checked); either
+ * may go offline.
+ */
+export const DASH_SRC = 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd';
+export const DASH_LIVE_SRC = 'https://livesim2.dashif.org/livesim2/testpic_2s/Manifest.mpd';

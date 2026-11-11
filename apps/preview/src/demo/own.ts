@@ -1,4 +1,4 @@
-import { DEMO_LABEL, LIVE_SRC } from './media';
+import { DASH_LIVE_SRC, DASH_SRC, DEMO_LABEL, LIVE_SRC } from './media';
 
 /**
  * PLAY YOUR OWN: a form that puts a visitor's own source in the demo page's main player. Page code only. It picks an
@@ -8,10 +8,71 @@ import { DEMO_LABEL, LIVE_SRC } from './media';
  * `setAttribute` on an element made with `createElement`, as the parsed `href`. Messages are fixed strings.
  */
 
-type Pick = { tag: 'mux-video' | 'video' | 'audio'; src: string } | { error: string };
+/** The elements a pick can play on. `mux-video` is registered with the page; the engines load on demand. */
+type Tag = 'mux-video' | 'shaka-video' | 'cloudflare-video' | 'video' | 'audio';
+type Engine = 'shaka' | 'cloudflare';
+
+interface Playable {
+  tag: Tag;
+  src: string;
+  /** Unknown address shape: play it natively first and, if that fails, try this engine once. */
+  fallback?: Engine;
+}
+
+type Pick = Playable | { error: string };
+
+/**
+ * The engines, each its own chunk: kind, dynamic import, tag name, and the documented attributes it is given
+ * (reference/components/shaka-video.md and cloudflare-video.md). Nothing here is fetched until a visitor presses Play on a
+ * source that needs it. `third` is the line shown when the engine itself brings in someone else's code.
+ */
+const ENGINES: Record<Engine, { load: () => Promise<unknown>; tag: Tag; attributes: string[]; third?: string }> = {
+  shaka: {
+    // Shaka Player ships inside the package's own file, so this loads nothing from a third party.
+    load: () => import('@videojs/html/media/shaka-video'),
+    tag: 'shaka-video',
+    attributes: ['src', 'preload', 'playsinline'],
+  },
+  cloudflare: {
+    // The element builds a Cloudflare iframe and loads Cloudflare's SDK script (read in its stream-api.js).
+    load: () => import('@videojs/html/media/cloudflare-video'),
+    tag: 'cloudflare-video',
+    attributes: ['src', 'preload'],
+    third: "This loads Cloudflare's player.",
+  },
+};
 
 const VIDEO_EXT = ['webm', 'ogv', 'mov'];
 const AUDIO_EXT = ['mp3', 'm4a', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac'];
+
+/** A Cloudflare Stream host: exactly videodelivery.net or cloudflarestream.com, or one label in front of either. */
+function isCloudflareHost(host: string): boolean {
+  return ['videodelivery.net', 'cloudflarestream.com'].some(
+    (domain) =>
+      host === domain || (host.endsWith(`.${domain}`) && /^[a-z0-9-]+$/.test(host.slice(0, -(domain.length + 1)))),
+  );
+}
+
+/**
+ * The 32-hex video UID of a Cloudflare Stream address, or null. The address is rebuilt from the UID alone, so nothing
+ * else from the pasted text (an `ad-url` pre-roll, a token, a start time) reaches the embed.
+ */
+function cloudflareUid(url: URL): string | null {
+  if (!isCloudflareHost(url.hostname)) return null;
+
+  const first = url.pathname.split('/')[1] ?? '';
+
+  return /^[0-9a-f]{32}$/i.test(first) ? first.toLowerCase() : null;
+}
+
+/** The engine a pasted text would load, found without requesting anything. Used for the "this loads" line. */
+export function engineFor(raw: string): Engine | null {
+  const pick = pickSource(raw);
+
+  if ('error' in pick) return null;
+
+  return pick.tag === 'cloudflare-video' ? 'cloudflare' : pick.tag === 'shaka-video' ? 'shaka' : null;
+}
 
 /** Decide what a pasted address plays on, or why it does not. Nothing is requested. */
 export function pickSource(raw: string): Pick {
@@ -37,26 +98,39 @@ export function pickSource(raw: string): Pick {
   if (url.protocol !== 'https:') return { error: 'That kind of address is not played here. Paste an https link.' };
   if (url.username || url.password) return { error: 'That address is not accepted.' };
 
+  const uid = cloudflareUid(url);
+
+  if (uid) return { tag: 'cloudflare-video', src: `https://watch.videodelivery.net/${uid}` };
+
   const ext = url.pathname.includes('.') ? (url.pathname.split('.').pop() ?? '').toLowerCase() : '';
 
-  if (ext === 'mpd') return { error: 'DASH needs a player we have not installed. Try HLS (.m3u8) or MP4.' };
+  if (ext === 'mpd') return { tag: 'shaka-video', src: url.href };
   if (AUDIO_EXT.includes(ext)) return { tag: 'audio', src: url.href };
   if (VIDEO_EXT.includes(ext)) return { tag: 'video', src: url.href };
 
-  // .m3u8, .mp4, Mux URLs and anything unknown: <mux-video> lets Video.js decide.
-  return { tag: 'mux-video', src: url.href };
+  // .m3u8, .mp4 and Mux addresses stay on <mux-video>. Anything else is tried there first, then on Shaka once.
+  const known = ['m3u8', 'mp4', 'm4v'].includes(ext) || url.hostname === 'stream.mux.com';
+
+  return known ? { tag: 'mux-video', src: url.href } : { tag: 'mux-video', src: url.href, fallback: 'shaka' };
 }
 
 /** The media element for a pick: no poster, no chapters, so nothing of the demo clip shows on someone else's source. */
-function buildMedia(pick: { tag: 'mux-video' | 'video' | 'audio'; src: string }): HTMLElement {
+function buildMedia(pick: Playable, dashType = false): HTMLElement {
   const media = document.createElement(pick.tag);
+  const engine = Object.values(ENGINES).find((e) => e.tag === pick.tag);
+  const allowed = engine?.attributes ?? ['src', 'preload', 'playsinline'];
 
-  media.setAttribute('src', pick.src);
-  media.setAttribute('preload', 'metadata');
+  // Only attributes the element's page documents. Audio has no picture, so no playsinline.
+  if (allowed.includes('src') && !dashType) media.setAttribute('src', pick.src);
+  if (allowed.includes('preload')) media.setAttribute('preload', 'metadata');
+  if (allowed.includes('playsinline') && pick.tag !== 'audio') media.setAttribute('playsinline', '');
 
-  if (pick.tag !== 'audio') media.setAttribute('playsinline', '');
+  // An address with no extension that native playback refused: name the type so Shaka reads it as DASH
+  // (shaka-video.md, "Load a source").
+  if (dashType) (media as HTMLElement & { source: unknown }).source = { src: pick.src, type: 'application/dash+xml' };
+
   // No crossorigin: it would make a plain MP4 load in CORS mode and fail on hosts that do not send the header. hls.js
-  // fetches playlists in CORS mode by itself.
+  // and Shaka fetch their manifests in CORS mode by themselves.
 
   return media;
 }
@@ -72,6 +146,8 @@ interface Host {
 
 const HINT =
   'It would not play. The most common reason is that the host does not allow other sites to stream it (CORS), which streaming needs. A plain MP4 or MP3 link often works.';
+const UNSUPPORTED =
+  'This page could not play that address as HLS, MP4, DASH or any other format it knows. Check the link, or try a .m3u8, .mpd or .mp4 address.';
 
 export function initOwn(host: Host): { cleared: () => void } {
   const form = document.getElementById('own-form') as HTMLFormElement | null;
@@ -83,6 +159,7 @@ export function initOwn(host: Host): { cleared: () => void } {
   const tourStart = document.getElementById('tour-start') as HTMLButtonElement | null;
   const tour = document.getElementById('tour');
   const tourCaption = document.getElementById('tour-caption');
+  const third = document.getElementById('own-third');
   const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-example]')];
 
   if (!form || !input || !play || !reset || !error || !status) return { cleared: () => {} };
@@ -90,6 +167,8 @@ export function initOwn(host: Host): { cleared: () => void } {
   let own = false;
   let listeners: AbortController | null = null;
   let savedCaption = '';
+  // Bumped by every start and every reset, so a slow engine load never lands on a newer choice.
+  let turn = 0;
 
   const say = (text: string) => {
     status.textContent = text;
@@ -130,12 +209,22 @@ export function initOwn(host: Host): { cleared: () => void } {
     reset!.disabled = running || !own;
   }
 
-  function watch(): void {
+  /** One plain line under the field when playing this would load someone else's code. */
+  function showThird(engine: Engine | null): void {
+    if (!third) return;
+
+    const text = engine ? (ENGINES[engine].third ?? '') : '';
+
+    third.textContent = text;
+    third.hidden = !text;
+  }
+
+  function watch(pick: Playable, mine: number, swapped: boolean): void {
     listeners?.abort();
     listeners = new AbortController();
 
     const { signal } = listeners;
-    const media = host.wrapper.querySelector<HTMLElement>('mux-video, video, audio');
+    const media = host.wrapper.querySelector<HTMLElement>('mux-video, shaka-video, cloudflare-video, video, audio');
 
     if (!media) return;
 
@@ -154,8 +243,17 @@ export function initOwn(host: Host): { cleared: () => void } {
     media.addEventListener(
       'error',
       () => {
+        if (mine !== turn) return;
+
+        // Unknown address: native playback refused it, so Shaka gets one go.
+        if (pick.fallback && !swapped) {
+          void mount({ ...pick, tag: ENGINES[pick.fallback].tag, fallback: undefined }, mine, true);
+
+          return;
+        }
+
         play!.removeAttribute('aria-busy');
-        error!.textContent = HINT;
+        error!.textContent = swapped ? UNSUPPORTED : HINT;
         error!.hidden = false;
         say('Your source could not be played.');
       },
@@ -163,19 +261,46 @@ export function initOwn(host: Host): { cleared: () => void } {
     );
   }
 
-  function start(pick: { tag: 'mux-video' | 'video' | 'audio'; src: string }): void {
-    own = true;
-    play!.setAttribute('aria-busy', 'true');
-    say('Loading your source.');
-    host.play(buildMedia(pick));
-    watch();
+  /** Load the engine if there is one, then put the element in the player. The tag is never defined without its import. */
+  async function mount(pick: Playable, mine: number, swapped: boolean): Promise<void> {
+    const engine = Object.values(ENGINES).find((e) => e.tag === pick.tag);
+
+    if (engine) {
+      try {
+        await engine.load();
+      } catch {
+        if (mine === turn) {
+          play!.removeAttribute('aria-busy');
+          fail('The player for that kind of address could not be loaded. Check your connection and try again.');
+          say('Your source could not be played.');
+        }
+
+        return;
+      }
+    }
+
+    if (mine !== turn) return;
+
+    host.play(buildMedia(pick, swapped));
+    watch(pick, mine, swapped);
     syncTour();
     setBusy();
 
-    const media = host.wrapper.querySelector<HTMLMediaElement>('mux-video, video, audio');
+    const media = host.wrapper.querySelector<HTMLMediaElement>('mux-video, shaka-video, cloudflare-video, video, audio');
 
     // The press was a user gesture, so sound is allowed. A refusal is not an error.
     media?.play?.()?.catch?.(() => say('Press play.'));
+  }
+
+  function start(pick: Playable): void {
+    own = true;
+    turn += 1;
+    play!.setAttribute('aria-busy', 'true');
+    say('Loading your source.');
+    showThird(pick.tag === 'cloudflare-video' ? 'cloudflare' : null);
+    void mount(pick, turn, false);
+    syncTour();
+    setBusy();
   }
 
   function submit(): void {
@@ -198,6 +323,9 @@ export function initOwn(host: Host): { cleared: () => void } {
     submit();
   });
 
+  // Say before Play what Play would load, without loading it.
+  input.addEventListener('input', () => showThird(engineFor(input.value) === 'cloudflare' ? 'cloudflare' : null));
+
   reset.addEventListener('click', () => {
     host.reset();
     input.focus();
@@ -211,8 +339,11 @@ export function initOwn(host: Host): { cleared: () => void } {
         return;
       }
 
-      if (chip.dataset.example === 'live') {
-        input.value = LIVE_SRC;
+      const sources: Record<string, string> = { live: LIVE_SRC, dash: DASH_SRC, 'dash-live': DASH_LIVE_SRC };
+      const src = sources[chip.dataset.example ?? ''];
+
+      if (src) {
+        input.value = src;
         submit();
       }
     });
@@ -226,6 +357,8 @@ export function initOwn(host: Host): { cleared: () => void } {
       const was = own;
 
       own = false;
+      turn += 1;
+      showThird(null);
       listeners?.abort();
       listeners = null;
       input.value = '';

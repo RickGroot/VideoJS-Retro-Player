@@ -62,7 +62,7 @@ pnpm build
 
 ## Deploy
 
-A push to `main` builds the pages and publishes `dist/` to GitHub Pages through `.github/workflows/deploy.yml`. The repository needs Settings → Pages → Source set to "GitHub Actions". The build uses relative URLs, so it works in the `/sleeve/` subfolder.
+A push to `main` builds the pages and publishes `dist/` to GitHub Pages through `.github/workflows/deploy.yml`. The repository needs Settings → Pages → Source set to "GitHub Actions". The build uses relative URLs, so it works under any base path.
 
 ## Status
 
