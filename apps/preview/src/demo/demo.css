@@ -59,6 +59,21 @@ body {
   padding: 0 var(--gutter);
 }
 
+/* The pages ask for viewport-fit=cover, so keep content out of a phone's notch and rounded corners. */
+@supports (padding: env(safe-area-inset-top)) {
+  .wrap {
+    padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)) max(var(--gutter), env(safe-area-inset-right, 0px));
+  }
+
+  .masthead {
+    padding-top: calc(32px + env(safe-area-inset-top, 0px));
+  }
+
+  .colophon {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -599,6 +614,11 @@ kbd {
 .prose p,
 .prose ul {
   margin: 8px 0;
+}
+
+/* Avoid a one-word last line in the note's paragraphs. */
+.prose p {
+  text-wrap: pretty;
 }
 
 .prose code {

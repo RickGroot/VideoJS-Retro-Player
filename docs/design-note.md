@@ -10,7 +10,9 @@ Nothing is drawn on bare video. Every control sits on an opaque paper cell, so i
 
 The field changes size with how much the player needs you. Before first play and at the end it is a cover panel beside the picture. While the controls show it is the play cell. While playing with the controls away it shrinks to a thin progress line on the bottom edge.
 
-It changes colour by hard cut, never a fade: orange when ready, yellow playing, blue paused, green ended, red on error.
+It changes colour by hard cut, never a fade: orange when ready, yellow playing, blue paused, green ended, red on error. On a screen that shows Display P3 the pigments are richer at the same lightness, and keep their text contrast.
+
+The cover is printed. The poster is greyscale before the first play and on the end card, so the first frame of playback is a hard cut from print to film. The cover's big numeral has a hard second plate a few pixels right and down, like the buffering mark, and it goes with more contrast.
 
 ### Side B
 

@@ -86,6 +86,16 @@
       display: block;
     }
 
+    /*
+     * Print on the cover: while the poster shows (before the first play, and as the end card) it is printed on paper in
+     * greyscale, like the audio skin's artwork, so the first frame of playback is a hard cut from print to film. The
+     * poster is hidden while the video plays, so the film is never filtered. Audio mode has its own poster rules, and an
+     * iframe player (YouTube, Vimeo, Cloudflare) draws its own poster.
+     */
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):not(:has(> :is(youtube-video, vimeo-video, cloudflare-video))) .media-poster-image {
+      filter: grayscale(1) contrast(1.1);
+    }
+
     .media-poster-image {
       object-fit: var(--media-object-fit, contain);
       object-position: var(--media-object-position, center);
@@ -2728,6 +2738,167 @@
 
       .sleeve-skip:focus-visible {
         outline-color: Highlight;
+      }
+    }
+  }
+}
+
+/*
+ * Safe areas while fullscreen. The tokens (--sleeve-inset-*, themes/sleeve.css) are zero outside fullscreen and on pages
+ * without viewport-fit=cover, so none of this moves anything there. The paper and the field still run to the screen
+ * edge: the strip grows by the bottom inset and its cells keep their 44px, the play cell takes the start inset as
+ * padding, and the cover panel and the band grow the same way. Edge-docked pieces step in by the inset. The progress
+ * line stays on the true edge. The Line (a mouse-only state, never on a touch device) is left as it is.
+ */
+@layer components {
+  @supports (padding: env(safe-area-inset-top)) {
+    @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+      :scope.media-container {
+        --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-cell) + var(--sleeve-rule-width) * 2 + var(--sleeve-inset-bottom));
+      }
+
+      .sleeve-strip {
+        grid-template-columns: calc(var(--sleeve-play-cell) + var(--sleeve-inset-start)) minmax(0, 1fr);
+        grid-template-rows: var(--sleeve-slider-row) calc(var(--sleeve-cell) + var(--sleeve-inset-bottom));
+      }
+
+      .sleeve-play-cell {
+        padding-inline-start: var(--sleeve-inset-start);
+        padding-block-end: var(--sleeve-inset-bottom);
+      }
+
+      .sleeve-slider-row {
+        padding-inline-end: var(--sleeve-inset-end);
+      }
+
+      /* Paper under and beside the cells, so the strip shows no ink slab and no picture there. */
+      .sleeve-cells {
+        height: calc(var(--sleeve-cell) + var(--sleeve-inset-bottom));
+        border-inline-end: var(--sleeve-inset-end) solid var(--sleeve-paper);
+        border-block-end: var(--sleeve-inset-bottom) solid var(--sleeve-paper);
+      }
+
+      /* The cover panel keeps its content size: it grows by the start inset, and its text steps in by it. */
+      .sleeve-cover {
+        width: calc(clamp(200px, 34cqi, 360px) + var(--sleeve-inset-start));
+        padding-block-start: calc(var(--media-spacing) * 4 + var(--sleeve-inset-top));
+        padding-inline-start: calc(var(--media-spacing) * 5 + var(--sleeve-inset-start));
+      }
+
+      .sleeve-cover::after {
+        width: calc(var(--sleeve-play-cell) + var(--sleeve-inset-start));
+      }
+
+      /* The band is taller by the top inset, and its content sits below it and inside the side insets. */
+      @container media-root (width < 30rem) {
+        :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))) {
+          .sleeve-cover {
+            --sleeve-band-h: calc(32px + var(--sleeve-inset-top));
+          }
+
+          .sleeve-cover > * {
+            margin-block-start: var(--sleeve-inset-top);
+          }
+
+          .sleeve-cover-label {
+            margin-inline-start: calc(var(--media-spacing) * 3 + var(--sleeve-inset-start));
+          }
+
+          .sleeve-cover-time {
+            margin-inline-end: calc(var(--media-spacing) * 3 + var(--sleeve-inset-end));
+          }
+        }
+      }
+
+      .sleeve-skip {
+        inset-inline-end: calc(12px + var(--sleeve-inset-end));
+      }
+
+      /* The error sheet is centred: keep it clear of the insets on both sides. */
+      .media-dialog-popup {
+        max-width: min(calc(var(--media-spacing) * 80), calc(100% - 2 * max(var(--sleeve-inset-start), var(--sleeve-inset-end))));
+        max-height: calc(100% - var(--media-spacing) * 4 - 2 * max(var(--sleeve-inset-top), var(--sleeve-inset-bottom)));
+      }
+
+      @container media-root (width < 24rem) {
+        .media-dialog-popup {
+          max-height: calc(100% - var(--media-spacing) * 2 - 2 * max(var(--sleeve-inset-top), var(--sleeve-inset-bottom)));
+        }
+      }
+
+      @media (forced-colors: active) {
+        .sleeve-cells {
+          border-color: Canvas;
+        }
+      }
+    }
+  }
+}
+
+/*
+ * Trimmed display type: the cover's label, title and time lose the empty space the font leaves above its capitals and
+ * below its baseline, so the panel's padding and gaps measure to the letters. Where the browser cannot trim, none of
+ * this applies and the layout is the untrimmed one.
+ */
+@supports (text-box: trim-both cap alphabetic) {
+  @layer components {
+    @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+      .sleeve-cover-label,
+      .sleeve-cover-time {
+        text-box: trim-both cap alphabetic;
+      }
+
+      /*
+       * The title is trimmed at the top only. It clips its overflow, and a clip at the baseline would cut commas,
+       * cedillas and Q tails; the untrimmed bottom keeps the room the font gives them. At the top the clip is padded
+       * back out for accents on capitals and the box pulled in again by the same amount.
+       */
+      .sleeve-cover-title {
+        text-box: trim-start cap alphabetic;
+        padding-block-start: 0.12em;
+        margin-block-start: -0.12em;
+      }
+
+      /* The band's title is one line beside the label and the time, so it is trimmed at both ends to sit on their baseline; no second line can show, so the clip is padded out below the baseline too. */
+      @container media-root (width < 30rem) {
+        :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))) .sleeve-cover-title {
+          text-box: trim-both cap alphabetic;
+          padding-block-end: 0.25em;
+          margin-block-end: -0.25em;
+        }
+      }
+    }
+  }
+}
+
+/* Balanced titles: a wrapped cover title breaks into even lines instead of one long line and a short tail. The band's title is one line and unaffected. */
+@supports (text-wrap: balance) {
+  @layer components {
+    @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+      .sleeve-cover-title {
+        text-wrap: balance;
+      }
+    }
+  }
+}
+
+/*
+ * Misregistration: the cover's numeral gets a second plate, a hard copy 0.04em across and 0.03em down (3px and 2px at
+ * most), the same direction as the buffering mark, in the opposite of the text's colour (contrast-color(), so only
+ * where the browser has it: a fixed colour could equal a host's own text colour). It is painted behind the glyphs, so
+ * the text keeps its contrast. The big panel only: on the narrow band the numeral is 14px and a copy that
+ * small would read as a blur. The title is left alone: it clips at its own box, which would cut the copy. Not with
+ * more contrast; forced colours drop text-shadow themselves.
+ */
+@media not (prefers-contrast: more) {
+  @supports (color: contrast-color(red)) {
+    @layer components {
+      @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
+        @container media-root (width >= 30rem) {
+          .sleeve-cover-time {
+            text-shadow: min(0.04em, 3px) min(0.03em, 2px) 0 var(--sleeve-misprint);
+          }
+        }
       }
     }
   }

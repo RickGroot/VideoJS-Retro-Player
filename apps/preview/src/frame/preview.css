@@ -16,6 +16,13 @@ body {
   padding: 24px;
 }
 
+/* The page asks for viewport-fit=cover, so keep the player out of the notch and rounded corners. */
+@supports (padding: env(safe-area-inset-top)) {
+  .preview-page {
+    padding: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px));
+  }
+}
+
 .preview-player {
   width: 100%;
   max-width: var(--preview-player-width, 56rem);

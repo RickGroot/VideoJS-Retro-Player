@@ -35,6 +35,14 @@
       display: none;
     }
 
+    /* Fullscreen on a notched screen: the paper still fills the player, the head and the list step in by the insets (zero elsewhere; the video skin defines them). */
+    @supports (padding: env(safe-area-inset-top)) {
+      .sleeve-sheet {
+        padding-block: var(--sleeve-inset-top, 0px) var(--sleeve-inset-bottom, 0px);
+        padding-inline: var(--sleeve-inset-start, 0px) var(--sleeve-inset-end, 0px);
+      }
+    }
+
     /* The sheet itself takes focus when nothing inside is the better place (Keys): a ring inside the border. */
     .sleeve-sheet:focus-visible {
       outline: var(--sleeve-focus-width) solid var(--sleeve-ink);

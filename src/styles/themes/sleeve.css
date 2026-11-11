@@ -99,6 +99,27 @@
   }
 
   /*
+   * Wide gamut: on a screen that shows Display P3 the pigments get more chroma at the same lightness and hue, so the
+   * one block of colour is as loud as the ink around it. Each value is inside P3 and keeps at least 4.5:1 with its
+   * text (on-pigment, on-danger) in both schemes. Not with more contrast: there the pigments keep their sRGB values and
+   * the 7:1 ones further down. A host pin replaces the whole field, so it is untouched, and forced colours never read
+   * these tokens. The hex values above stay for every other screen.
+   */
+  @media (color-gamut: p3) and (not (prefers-contrast: more)) {
+    @supports (color: oklch(0.5 0.1 20)) and (color: light-dark(red, red)) {
+      .media-skin[data-theme="sleeve"] {
+        --sleeve-danger: light-dark(oklch(0.553 0.244 23.6), oklch(0.733 0.203 28.7));
+        --sleeve-major: light-dark(oklch(0.837 0.193 82.3), oklch(0.805 0.186 80.8));
+        --sleeve-minor: light-dark(oklch(0.627 0.209 266.1), oklch(0.665 0.185 267.1));
+        --sleeve-dominant: light-dark(oklch(0.684 0.242 38.6), oklch(0.69 0.223 41.8));
+        --sleeve-diminished: light-dark(oklch(0.677 0.278 5.6), oklch(0.672 0.235 4.4));
+        --sleeve-augmented: light-dark(oklch(0.716 0.213 157.7), oklch(0.7 0.179 159.2));
+        --sleeve-suspended: light-dark(oklch(0.716 0.16 218.7), oklch(0.713 0.139 215));
+      }
+    }
+  }
+
+  /*
    * Host colour mode, both skins: the text on the field is the host's --sleeve-on-accent if set, else contrast-color()
    * of the pinned colour, else the scheme's fixed on-pigment. The second token is invalid while no pin is set, so
    * the state pigments keep their own on-pigment. contrast-color() sits behind @supports so other browsers skip it.
@@ -111,6 +132,8 @@
     .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]) {
       --sleeve-on-pin: contrast-color(var(--media-accent-color));
       --sleeve-on-field: var(--sleeve-on-accent, var(--sleeve-on-pin, var(--sleeve-on-pigment)));
+      /* The second plate of the cover's numeral, printed slightly out of register: the opposite of the text on the field, so a pin with light text (dark brand colour) gets a dark plate. Only defined here; the skins use it behind the same @supports. */
+      --sleeve-misprint: contrast-color(var(--sleeve-on-field));
     }
   }
 
@@ -181,6 +204,38 @@
     --media-backdrop-filter-surface: none;
     --media-backdrop-filter-indicator: none;
     --media-backdrop-filter-dialog: none;
+  }
+
+  /*
+   * Safe areas, video skin. env() insets are zero unless the host page has viewport-fit=cover. The four --sleeve-safe-*
+   * properties are the only place env() is read, so a test can override them. Only a fullscreen player uses them: the
+   * --sleeve-inset-* ones are zero otherwise, and are the ones the skin's rules read. The insets are physical (left,
+   * right), so start and end follow the direction. Fullscreen is the container's :fullscreen, or the fullscreen button's
+   * own data-fullscreen (which also covers a state a test sets by hand). The audio skin has no fullscreen button.
+   */
+  @supports (padding: env(safe-area-inset-top)) {
+    .media-skin[data-theme="sleeve"][data-preset="video"] {
+      --sleeve-safe-top: env(safe-area-inset-top, 0px);
+      --sleeve-safe-right: env(safe-area-inset-right, 0px);
+      --sleeve-safe-bottom: env(safe-area-inset-bottom, 0px);
+      --sleeve-safe-left: env(safe-area-inset-left, 0px);
+      --sleeve-inset-top: 0px;
+      --sleeve-inset-bottom: 0px;
+      --sleeve-inset-start: 0px;
+      --sleeve-inset-end: 0px;
+    }
+
+    .media-skin[data-theme="sleeve"][data-preset="video"]:is(:fullscreen, :has(.media-fullscreen-button[data-fullscreen])) {
+      --sleeve-inset-top: var(--sleeve-safe-top);
+      --sleeve-inset-bottom: var(--sleeve-safe-bottom);
+      --sleeve-inset-start: var(--sleeve-safe-left);
+      --sleeve-inset-end: var(--sleeve-safe-right);
+    }
+
+    .media-skin[data-theme="sleeve"][data-preset="video"]:is(:fullscreen, :has(.media-fullscreen-button[data-fullscreen])):where(:dir(rtl)) {
+      --sleeve-inset-start: var(--sleeve-safe-right);
+      --sleeve-inset-end: var(--sleeve-safe-left);
+    }
   }
 
   /* Ink and paper are already high contrast; harden the muted tones and the rules. */

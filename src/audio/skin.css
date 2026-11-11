@@ -1427,3 +1427,67 @@
     }
   }
 }
+
+/*
+ * Trimmed display type: the state word, title and numeral lose the empty space above the capitals and below the
+ * baseline, so the panel's padding measures to the letters. Without support the layout is the untrimmed one.
+ */
+@supports (text-box: trim-both cap alphabetic) {
+  @layer components {
+    @scope (.media-skin[data-theme="sleeve"][data-preset="audio"]) {
+      .sleeve-side,
+      .sleeve-numeral {
+        text-box: trim-both cap alphabetic;
+      }
+
+      /* The trim took the font's own space between the state word and the title; half an em of the word gives it back. */
+      .sleeve-side {
+        margin-block-end: 0.5em;
+      }
+
+      /*
+       * The title is trimmed at the top only. It clips its overflow, and a clip at the baseline would cut commas,
+       * cedillas and Q tails; the untrimmed bottom keeps the room the font gives them. At the top the clip is padded
+       * back out for accents on capitals and the box pulled in again by the same amount.
+       */
+      .sleeve-title {
+        text-box: trim-start cap alphabetic;
+        padding-block-start: 0.12em;
+        margin-block-start: -0.12em;
+      }
+    }
+  }
+}
+
+/* Balanced titles: a wrapped cover title breaks into even lines instead of one long line and a short tail. */
+@supports (text-wrap: balance) {
+  @layer components {
+    @scope (.media-skin[data-theme="sleeve"][data-preset="audio"]) {
+      .sleeve-title {
+        text-wrap: balance;
+      }
+    }
+  }
+}
+
+/*
+ * Misregistration on the numeral, as on the video cover: a hard second plate 0.04em across and 0.03em down (3px and
+ * 2px at most), behind the glyphs so the text keeps its contrast, in the opposite of the text's colour
+ * (contrast-color(), so only where the browser has it). Not with more contrast, and not in the error state, where the
+ * panel is paper and the plate would be the ink's own colour; forced colours drop text-shadow themselves.
+ */
+@media not (prefers-contrast: more) {
+  @supports (color: contrast-color(red)) {
+    @layer components {
+      @scope (.media-skin[data-theme="sleeve"][data-preset="audio"]) {
+        .sleeve-numeral {
+          text-shadow: min(0.04em, 3px) min(0.03em, 2px) 0 var(--sleeve-misprint);
+        }
+
+        :scope:has(media-error-dialog media-dialog-popup[data-open]) .sleeve-numeral {
+          text-shadow: none;
+        }
+      }
+    }
+  }
+}

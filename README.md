@@ -2,7 +2,7 @@
 
 A [Video.js](https://videojs.org) v10 skin for video and audio, for HTML, styled with plain CSS. An entry for the Video.js Skins Design Challenge. The design note is in [docs/design-note.md](docs/design-note.md).
 
-The idea: the video is the photograph on a record cover and the player is printed on it. Ink on paper, square corners, 2px ink rules, condensed capitals, and one flat block of colour (the field) that changes size with how much the player needs you. With no picture, the cover itself is the player ("Side B").
+The idea: the video is the photograph on a record cover and the player is printed on it. Ink on paper, square corners, 2px ink rules, condensed capitals, and one flat block of colour (the field) that changes size with how much the player needs you. With no picture, the cover itself is the player ("Side B"). The poster prints in greyscale on the cover, on wide players the cover's numeral sits slightly out of register, and the pigments get richer on wide-gamut screens.
 
 ## Use it
 
@@ -13,9 +13,10 @@ A skin is a light-DOM template plus CSS. Today a host uses it directly from this
 3. For more than one player on a page, run the template through `uniqueIds(template, suffix)` from `src/shared/unique-ids.ts` first. It suffixes every `id` and every attribute that points at one, so the players do not share ids.
 4. The video skin also has an audio look for media without a picture. Set `data-mode="audio"` on the skin root (`media-container`) to force it, `data-mode="video"` to prevent it, or leave it unset to let the skin decide. A host that knows its media has no picture should set `data-mode="audio"`: left to itself the skin can only switch once the metadata is known, so until then it shows the video look (and then the picture controls leave the strip, the poster moves beside the cover and, without a height from the host, the player takes its 5:2 shape). In the audio look the `f`, `c` and `i` shortcuts and double-tap fullscreen are switched off; a double-tap then seeks 10 seconds back on the left half and forward on the right half.
 5. Give the video player a shape: the skin fills its parent, so set a width and an `aspect-ratio` (or a height) on the element around it. In the audio look, without a height from the host, the player takes a 5:2 cover.
-6. Two custom properties set on the player colour it for a brand: `--media-accent-color` pins the field to one colour in every state, and `--sleeve-on-accent` sets the text and glyphs on it. Without the second, the skin picks black or white where the browser has `contrast-color()`.
+6. In fullscreen the video skin keeps its controls out of a phone's notch and rounded corners with `env(safe-area-inset-*)`, which is zero unless the host page's viewport meta has `viewport-fit=cover`.
+7. Two custom properties set on the player colour it for a brand: `--media-accent-color` pins the field to one colour in every state, and `--sleeve-on-accent` sets the text and glyphs on it. Without the second, the skin picks black or white where the browser has `contrast-color()`.
 
-7. The extras are optional and sit in `src/shared/` and `src/styles/extras/`; the video skin imports all of them, the audio skin only the Press, the registration mark and `<sleeve-session>`. Each is a helper element that writes `data-*` attributes for the CSS or opens a dialog, and none has an API of its own:
+8. The extras are optional and sit in `src/shared/` and `src/styles/extras/`; the video skin imports all of them, the audio skin only the Press, the registration mark and `<sleeve-session>`. Each is a helper element that writes `data-*` attributes for the CSS or opens a dialog, and none has an API of its own:
    - **Tracks** and **Keys** sheets, two dialogs opened from the settings menu or from a cell in the strip. The tracklist lists the media's chapters and a row seeks the media to that chapter (it uses the time feature's `seek()`, with the owner's approval). `T` opens it while focus is in the player; the Keys sheet lists the player's live hotkeys.
    - **The Press**: state changes print as a short stepped inset on the field, not a fade.
    - **Registration mark**: the crosshair around the play disc while buffering.

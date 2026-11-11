@@ -142,3 +142,19 @@
     outline-offset: 2px;
   }
 }
+
+/* Wide gamut: the same richer pigments as the skin (src/styles/themes/sleeve.css), for screens that show Display P3. */
+@media (color-gamut: p3) and (not (prefers-contrast: more)) {
+  @supports (color: oklch(0.5 0.1 20)) and (color: light-dark(red, red)) {
+    .tour[data-state="ready"] { --tour-field: light-dark(oklch(0.684 0.242 38.6), oklch(0.69 0.223 41.8)); }
+    .tour[data-state="playing"] { --tour-field: light-dark(oklch(0.837 0.193 82.3), oklch(0.805 0.186 80.8)); }
+    .tour[data-state="paused"] { --tour-field: light-dark(oklch(0.627 0.209 266.1), oklch(0.665 0.185 267.1)); }
+    .tour[data-state="ended"] { --tour-field: light-dark(oklch(0.716 0.213 157.7), oklch(0.7 0.179 159.2)); }
+    .tour[data-state="error"] { --tour-field: light-dark(oklch(0.553 0.244 23.6), oklch(0.733 0.203 28.7)); }
+    .tour-steps li[data-state="ready"] { --chip: light-dark(oklch(0.684 0.242 38.6), oklch(0.69 0.223 41.8)); }
+    .tour-steps li[data-state="playing"] { --chip: light-dark(oklch(0.837 0.193 82.3), oklch(0.805 0.186 80.8)); }
+    .tour-steps li[data-state="paused"] { --chip: light-dark(oklch(0.627 0.209 266.1), oklch(0.665 0.185 267.1)); }
+    .tour-steps li[data-state="ended"] { --chip: light-dark(oklch(0.716 0.213 157.7), oklch(0.7 0.179 159.2)); }
+    .tour-steps li[data-state="error"] { --chip: light-dark(oklch(0.553 0.244 23.6), oklch(0.733 0.203 28.7)); }
+  }
+}
