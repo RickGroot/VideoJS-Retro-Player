@@ -26,7 +26,7 @@ function liveSource(): string | null {
   try {
     const url = new URL(value.trim());
 
-    return url.protocol === 'https:' ? url.href : null;
+    return url.protocol === 'https:' && !url.username && !url.password ? url.href : null;
   } catch {
     return null;
   }
@@ -37,7 +37,7 @@ export function createPlayer(): HTMLElement {
   const own = liveSource();
 
   // Only constants go through innerHTML. The source below is set with setAttribute.
-  player.innerHTML = skinTemplate.replace(MEDIA_PLACEHOLDER, '<mux-video playsinline crossorigin></mux-video>');
+  player.innerHTML = skinTemplate.replace(MEDIA_PLACEHOLDER, own ? '<mux-video playsinline></mux-video>' : '<mux-video playsinline crossorigin></mux-video>');
 
   const media = player.querySelector('mux-video');
 

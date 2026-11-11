@@ -16,7 +16,15 @@
  *
  * Time comes from Video.js's time state. The skin's CSS hides this element.
  */
-import { PlayerController, type PropertyValues, playerContext, selectTime, UIElement } from '@videojs/html';
+import {
+  PlayerController,
+  type PropertyValues,
+  playerContext,
+  selectError,
+  selectPlayback,
+  selectTime,
+  UIElement,
+} from '@videojs/html';
 
 const ROOT_SELECTOR = '.media-skin';
 const BUTTON_SELECTOR = '.sleeve-skip';
@@ -43,6 +51,9 @@ function parse(kind: Kind, value: string | null, duration: number): Window | nul
 
 class SleeveSkip extends UIElement {
   readonly #time = new PlayerController(this, playerContext, selectTime);
+  // Runs update() when the media errors or ends, so the pill goes with the dialog or the end state.
+  readonly #error = new PlayerController(this, playerContext, selectError);
+  readonly #playback = new PlayerController(this, playerContext, selectPlayback);
 
   #root: HTMLElement | null = null;
   #observer: MutationObserver | null = null;
@@ -79,11 +90,13 @@ class SleeveSkip extends UIElement {
     if (!root || !button) return;
 
     const { currentTime = 0, duration = 0 } = this.#time.value ?? {};
-    const cue = root.hasAttribute('data-live') || !(duration > 0) ? null : this.#active(root, currentTime, duration);
+    const idle = root.hasAttribute('data-live') || !(duration > 0) || Boolean(this.#error.value?.error) || Boolean(this.#playback.value?.ended);
+    const cue = idle ? null : this.#active(root, currentTime, duration);
 
     if (cue) {
       // The seek is relative, so the distance to the end of the window is refreshed with every time update.
-      const seconds = Math.max(0.1, cue.end - currentTime).toFixed(1);
+      // Rounded up, so one press always lands at or past the end of the window.
+      const seconds = (Math.ceil(Math.max(0.1, cue.end - currentTime) * 10) / 10).toFixed(1);
       const label = LABELS[cue.kind];
       const text = button.querySelector<HTMLElement>(TEXT_SELECTOR);
 

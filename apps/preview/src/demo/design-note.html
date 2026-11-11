@@ -24,7 +24,7 @@
 <h3>Using it on your site</h3>
 <p>It is built from Video.js v10 custom elements, a light-DOM template and plain CSS (<code>:has()</code>, container queries, <code>light-dark()</code>). The only runtime dependency is <code>@videojs/html</code>, and the skin adds no player API of its own.</p>
 <ul>
-  <li>Put the template inside <code>video-player</code> or <code>audio-player</code> and import the skin's script.</li>
+  <li>Put the template inside <code>video-player</code> or <code>audio-player</code> (use <code>sleeve-player</code> from <code>src/video/player.ts</code> if the video should also play live) and import the skin's script.</li>
   <li>Set <code>--media-accent-color</code> to pin the field to a brand colour in every state.</li>
   <li>Set <code>--sleeve-on-accent</code> to choose the text colour on the field.</li>
 </ul>

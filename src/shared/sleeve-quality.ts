@@ -17,6 +17,21 @@ import { PlayerController, type PropertyValues, playerContext, selectQuality, UI
 const ROOT_SELECTOR = '.media-skin';
 const TAG_SELECTOR = '.sleeve-quality-tag';
 
+const STANDARD_SIZES = [4320, 2160, 1440, 1080, 720, 480, 360, 240];
+
+/** The number Video.js's own quality menu prints for a rendition: the short side, with wide pictures named by their 16:9 size. */
+function sizeOf(width: number | undefined, height: number | undefined): number | undefined {
+  const wide = (w: number) => {
+    const size = Math.round((w * 9) / 16);
+
+    return STANDARD_SIZES.includes(size) ? size : undefined;
+  };
+
+  if (width && height) return width > height && width * 9 > height * 16 ? (wide(width) ?? height) : Math.min(width, height);
+
+  return height || (width ? (wide(width) ?? width) : undefined);
+}
+
 class SleeveQuality extends UIElement {
   // The value is undefined under a player without the quality feature (the audio presets, for one).
   readonly #quality = new PlayerController(this, playerContext, selectQuality);
@@ -44,7 +59,8 @@ class SleeveQuality extends UIElement {
 
     const quality = this.#quality.value;
     const list = quality?.videoRenditionList ?? [];
-    const height = quality?.activeVideoRendition?.height;
+    const active = quality?.activeVideoRendition;
+    const height = sizeOf(active?.width, active?.height);
     let text = '';
 
     if (list.length > 1 && typeof height === 'number' && height > 0) {

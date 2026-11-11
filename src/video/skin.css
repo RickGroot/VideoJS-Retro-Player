@@ -1680,7 +1680,7 @@
         }
 
         /* Paused: the word and the time left (the strip's Block shows the elapsed time). Ready and ended keep the label and the duration. */
-        &:has(media-play-button[data-started][data-paused]:not([data-ended])) {
+        &:has(media-play-button[data-started][data-paused]:not([data-ended])):not([data-live]:not([data-sleeve-played])) {
           .sleeve-cover-ready {
             display: none;
           }
@@ -2178,6 +2178,11 @@
       --media-caption-track-y: calc(-1 * (var(--sleeve-strip-h) + var(--sleeve-caption-gap)));
     }
 
+    /* A visible skip pill sits above the strip; the captions rise above it too. */
+    :scope:has(.sleeve-skip:not([hidden])) {
+      --media-caption-track-y: calc(-1 * (var(--sleeve-strip-h) + 12px + 44px + var(--sleeve-caption-gap)));
+    }
+
     mux-video::part(video)::cue {
       background-color: var(--sleeve-paper);
       color: var(--sleeve-ink);
@@ -2524,8 +2529,8 @@
       }
     }
 
-    /* The cover says Live where it says Ready, before the media has started. */
-    :scope[data-live]:has(media-play-button:not([data-started], [data-ended])) {
+    /* The cover says Live where it says Ready, until the media has played (data-sleeve-played, from sleeve-state; Video.js's data-started is set by the seek to the live edge). */
+    :scope[data-live]:not([data-sleeve-played]):has(media-play-button:not([data-ended])) {
       .sleeve-cover-ready {
         display: none;
       }

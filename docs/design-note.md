@@ -51,6 +51,6 @@ Seen in headless Chromium only. Not seen: Safari, Firefox, real devices, screen 
 
 It is built from Video.js v10 custom elements, a light-DOM template and plain CSS (`:has()`, container queries, `light-dark()`). The only runtime dependency is `@videojs/html`, and the skin adds no player API of its own.
 
-- Put the template inside `video-player` or `audio-player` and import the skin's script.
+- Put the template inside `video-player` or `audio-player` (use `sleeve-player` from `src/video/player.ts` if the video should also play live) and import the skin's script.
 - Set `--media-accent-color` to pin the field to a brand colour in every state.
 - Set `--sleeve-on-accent` to choose the text colour on the field.

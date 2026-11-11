@@ -55,8 +55,8 @@ function buildMedia(pick: { tag: 'mux-video' | 'video' | 'audio'; src: string })
   media.setAttribute('preload', 'metadata');
 
   if (pick.tag !== 'audio') media.setAttribute('playsinline', '');
-  // hls.js reads the playlist with fetch, so the host has to allow it anyway; a plain element needs no CORS.
-  if (pick.tag === 'mux-video') media.setAttribute('crossorigin', '');
+  // No crossorigin: it would make a plain MP4 load in CORS mode and fail on hosts that do not send the header. hls.js
+  // fetches playlists in CORS mode by itself.
 
   return media;
 }

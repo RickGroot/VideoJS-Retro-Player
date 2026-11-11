@@ -15,6 +15,10 @@
  * It also writes `data-live` while the media is live, from Video.js's live feature (`targetLiveWindow` is not NaN; the
  * feature is only there under a player that includes it, such as `<sleeve-player>`). The CSS shows the live look from it.
  *
+ * It writes `data-sleeve-played` from the first `playing` event of a source until the media is emptied. Video.js's
+ * `data-started` is also set by a seek, and a live source is seeked to its live position on load, so `data-started`
+ * cannot say that a live source has not been played yet.
+ *
  * One thing the CSS cannot do: while the player is in audio mode (`data-mode="audio"`, or `data-media="audio"` unless
  * the host said `data-mode="video"`), the element sets Video.js's own `disabled` attribute on the hotkeys and gestures
  * the template marks with `data-sleeve-picture` (fullscreen, captions, picture in picture), and takes it off again
@@ -115,10 +119,18 @@ class SleeveState extends UIElement {
   #listen(media: Listenable | null): void {
     this.#media?.removeEventListener('loadedmetadata', this.#onMetadata);
     this.#media?.removeEventListener('resize', this.#onResize);
+    this.#media?.removeEventListener('playing', this.#onPlaying);
+    this.#media?.removeEventListener('emptied', this.#onEmptied);
     this.#media = media;
     media?.addEventListener('loadedmetadata', this.#onMetadata);
     media?.addEventListener('resize', this.#onResize);
+    media?.addEventListener('playing', this.#onPlaying);
+    media?.addEventListener('emptied', this.#onEmptied);
   }
+
+  readonly #onPlaying = (): void => this.#root?.setAttribute('data-sleeve-played', '');
+
+  readonly #onEmptied = (): void => this.#root?.removeAttribute('data-sleeve-played');
 
   // A new source keeps the last value, so audio to audio does not flash the video layout. Metadata settles it.
   readonly #onMetadata = (): void => {
