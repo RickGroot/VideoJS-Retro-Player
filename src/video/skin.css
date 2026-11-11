@@ -49,6 +49,22 @@
       background-color: var(--sleeve-letterbox);
     }
 
+    /*
+     * An iframe player (youtube-video, vimeo-video, cloudflare-video) has no size of its own: the player takes 16:9 and
+     * the element fills it. The element lets no pointer through, so the skin's controls and gestures get every press.
+     */
+    :scope:has(> :is(youtube-video, vimeo-video, cloudflare-video)) {
+      aspect-ratio: 16 / 9;
+    }
+
+    .media-container > :is(youtube-video, vimeo-video, cloudflare-video),
+    :scope > :is(youtube-video, vimeo-video, cloudflare-video) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
     .media-poster {
       width: 100%;
       height: 100%;

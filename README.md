@@ -40,6 +40,10 @@ The single-player pages read their settings from the hash: `width`, `ratio` (vid
 
 Change the media in `apps/preview/src/frame/player.ts` (video) and `audio-player.ts` (audio).
 
+## Sources
+
+The PLAY YOUR OWN box on `/` plays an https HLS, DASH, MP4, WebM or MP3 link, a Mux playback ID, a Cloudflare Stream link, and a single YouTube or Vimeo video link. The DASH, Cloudflare, YouTube and Vimeo engines are dev dependencies loaded on demand (`@videojs/youtube-video`, `@videojs/vimeo-video`): nothing from those services loads until you press Play, and the page says so before you do. A YouTube link is rebuilt from its video id and played from `youtube-nocookie.com`, though YouTube's script still comes from youtube.com; Vimeo is rebuilt from its id. Both show a "Watch on" link to the original page. The skin hides the controls a provider does not report (for example quality, captions, the live cell and, on YouTube, picture-in-picture), and `data-mode="video"` keeps the video look for these embeds. The visitor's link stays in the tab.
+
 ## Develop
 
 Needs Node 22.22 or newer and pnpm.

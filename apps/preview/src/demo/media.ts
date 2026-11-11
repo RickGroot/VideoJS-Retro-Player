@@ -40,3 +40,10 @@ export const LIVE_SRC = 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4
  */
 export const DASH_SRC = 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd';
 export const DASH_LIVE_SRC = 'https://livesim2.dashif.org/livesim2/testpic_2s/Manifest.mpd';
+
+/**
+ * Embedded-player examples: the Blender Foundation's open movie "Big Buck Bunny" (CC BY 3.0, (c) Blender Foundation),
+ * on the Foundation's official YouTube channel and its Vimeo page. Third party; either may go offline.
+ */
+export const YOUTUBE_EXAMPLE = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ';
+export const VIMEO_EXAMPLE = 'https://vimeo.com/1084537';

@@ -70,6 +70,7 @@
           <p class="visually-hidden" id="tour-live" role="status" aria-live="polite"></p>
         </div>
         <div id="video-stage" class="stage"></div>
+        <p id="own-watch" class="own-watch" hidden></p>
         <div class="toolbar">
           <fieldset class="choice" data-control="size">
             <legend>Width</legend>
@@ -97,7 +98,7 @@
             <button type="submit" id="own-play">Play</button>
             <button type="button" id="own-reset" disabled>Reset</button>
           </div>
-          <p id="own-help" class="own-help">HLS (.m3u8), DASH (.mpd), MP4, WebM, MP3, AAC, a Mux playback ID, or a Cloudflare Stream link. It plays in the player above.</p>
+          <p id="own-help" class="own-help">HLS (.m3u8), DASH (.mpd), MP4, WebM, MP3, AAC, a Mux playback ID, a Cloudflare Stream link, or a YouTube or Vimeo video link. It plays in the player above.</p>
           <p id="own-third" class="own-help" hidden></p>
           <p id="own-error" class="own-error" hidden></p>
           <div class="own-chips" role="group" aria-label="Examples">
@@ -106,8 +107,10 @@
             <button type="button" data-example="live">Mux's live test stream</button>
             <button type="button" data-example="dash">Akamai's DASH test stream</button>
             <button type="button" data-example="dash-live">DASH-IF's live DASH simulator</button>
+            <button type="button" data-example="youtube">Big Buck Bunny on YouTube (Blender)</button>
+            <button type="button" data-example="vimeo">Big Buck Bunny on Vimeo (Blender)</button>
           </div>
-          <p class="own-note">The live and DASH examples are public test streams from Mux, Akamai and the DASH Industry Forum. They are third party and may be offline.</p>
+          <p class="own-note">The live and DASH examples are public test streams from Mux, Akamai and the DASH Industry Forum. They are third party and may be offline. The YouTube and Vimeo examples are the Blender Foundation's open movie Big Buck Bunny (CC BY 3.0), on the Foundation's own pages: they are third party too and may be offline. A chip only fills the field; nothing from YouTube or Vimeo loads until you press Play.</p>
           <p id="own-status" class="visually-hidden" role="status" aria-live="polite"></p>
         </form>
       </section>

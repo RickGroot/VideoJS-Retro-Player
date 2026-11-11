@@ -43,6 +43,8 @@ interface PlayerSpec {
   artwork?: boolean;
   /** A visitor's own media (from PLAY YOUR OWN) in place of the demo clip, its poster, chapters and intro window. */
   media?: HTMLElement;
+  /** Pin the skin's look (`data-mode`): a visitor's iframe player reports no picture size, so it is pinned to video. */
+  mode?: 'video';
 }
 
 const wrappers: HTMLElement[] = [];
@@ -87,6 +89,8 @@ function createPlayer(spec: PlayerSpec): HTMLElement {
   }
 
   if (spec.kind === 'audio-mode') player.querySelector('.media-skin')?.setAttribute('data-mode', 'audio');
+  // The documented pin (README, "audio look"): data-mode="video" keeps the video look. Rebuilt with every player, so Reset drops it.
+  else if (spec.mode) player.querySelector('.media-skin')?.setAttribute('data-mode', spec.mode);
 
   return player;
 }
@@ -133,7 +137,7 @@ function remount(id: string): void {
 /** Point the player's media at a source that fails, which opens the skin's error panel. */
 function breakPlayer(id: string): void {
   const media = mounted.get(id)?.wrapper.querySelector(
-    'mux-video, mux-audio, shaka-video, cloudflare-video, video, audio',
+    'mux-video, mux-audio, shaka-video, cloudflare-video, youtube-video, vimeo-video, video, audio',
   );
 
   media?.setAttribute('src', BROKEN_SRC);
@@ -144,7 +148,7 @@ function breakPlayer(id: string): void {
 function resetToDemo(): void {
   const entry = mounted.get('video');
 
-  if (entry) entry.spec = { ...entry.spec, media: undefined };
+  if (entry) entry.spec = { ...entry.spec, media: undefined, mode: undefined };
 
   remount('video');
   own.cleared();
@@ -285,10 +289,10 @@ applySize();
 const own = initOwn({
   wrapper: videoWrapper,
   reset: resetToDemo,
-  play(media) {
+  play(media, options) {
     const entry = mounted.get('video');
 
-    if (entry) entry.spec = { ...entry.spec, media };
+    if (entry) entry.spec = { ...entry.spec, media, mode: options?.video ? 'video' : undefined };
 
     remount('video');
   },

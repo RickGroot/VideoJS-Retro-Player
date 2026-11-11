@@ -517,6 +517,18 @@ figcaption {
   align-items: center;
 }
 
+.own-watch {
+  margin: 8px 0 0;
+}
+
+.own-watch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--cell);
+  padding: 0 12px;
+  font-weight: 700;
+}
+
 .own-chips-label {
   font-stretch: 78%;
   font-size: 0.875rem;

@@ -1,4 +1,4 @@
-import { DASH_LIVE_SRC, DASH_SRC, DEMO_LABEL, LIVE_SRC } from './media';
+import { DASH_LIVE_SRC, DASH_SRC, DEMO_LABEL, LIVE_SRC, VIMEO_EXAMPLE, YOUTUBE_EXAMPLE } from './media';
 
 /**
  * PLAY YOUR OWN: a form that puts a visitor's own source in the demo page's main player. Page code only. It picks an
@@ -9,12 +9,22 @@ import { DASH_LIVE_SRC, DASH_SRC, DEMO_LABEL, LIVE_SRC } from './media';
  */
 
 /** The elements a pick can play on. `mux-video` is registered with the page; the engines load on demand. */
-type Tag = 'mux-video' | 'shaka-video' | 'cloudflare-video' | 'video' | 'audio';
-type Engine = 'shaka' | 'cloudflare';
+type Tag = 'mux-video' | 'shaka-video' | 'cloudflare-video' | 'youtube-video' | 'vimeo-video' | 'video' | 'audio';
+type Engine = 'shaka' | 'cloudflare' | 'youtube' | 'vimeo';
+
+/** A source played by someone else's iframe player. It brings an attribution link and the skin's video look. */
+interface Embed {
+  /** The text of the "Watch on ..." link, and its address: the provider's own page for this video. */
+  label: string;
+  watch: string;
+  /** Said when the embed reports an error: CORS is not the reason for an iframe player. */
+  hint: string;
+}
 
 interface Playable {
   tag: Tag;
   src: string;
+  embed?: Embed;
   /** Unknown address shape: play it natively first and, if that fails, try this engine once. */
   fallback?: Engine;
 }
@@ -40,7 +50,27 @@ const ENGINES: Record<Engine, { load: () => Promise<unknown>; tag: Tag; attribut
     attributes: ['src', 'preload'],
     third: "This loads Cloudflare's player.",
   },
+  youtube: {
+    // reference/components/youtube-video.md: a youtube-nocookie.com address makes the embed use the privacy-enhanced
+    // host (read in the package's source.js). The IFrame API script still comes from www.youtube.com (iframe-api.js).
+    load: () => import('@videojs/html/media/youtube-video'),
+    tag: 'youtube-video',
+    attributes: ['src', 'preload'],
+    third:
+      "This loads YouTube's player, in its privacy-enhanced mode, but its script still comes from youtube.com. YouTube will see your visit.",
+  },
+  vimeo: {
+    // reference/components/vimeo-video.md: the element builds a Vimeo embed and uses Vimeo's player SDK.
+    load: () => import('@videojs/html/media/vimeo-video'),
+    tag: 'vimeo-video',
+    attributes: ['src', 'preload'],
+    third: "This loads Vimeo's player. Vimeo will see your visit.",
+  },
 };
+
+const MEDIA_SELECTOR = 'mux-video, shaka-video, cloudflare-video, youtube-video, vimeo-video, video, audio';
+const EMBED_HINT =
+  'That video would not play. It may be private, removed, or its owner may not allow it to be embedded, or the player could not start.';
 
 const VIDEO_EXT = ['webm', 'ogv', 'mov'];
 const AUDIO_EXT = ['mp3', 'm4a', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac'];
@@ -65,13 +95,71 @@ function cloudflareUid(url: URL): string | null {
   return /^[0-9a-f]{32}$/i.test(first) ? first.toLowerCase() : null;
 }
 
+const YOUTUBE_HOSTS = ['youtube.com', 'www.youtube.com', 'm.youtube.com'];
+const VIMEO_HOSTS = ['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'];
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+const NOT_A_VIDEO = (who: string) =>
+  `That ${who} address is a playlist, channel, user or other page, not one video. Paste the link of a single video.`;
+
+/** A YouTube or Vimeo address, by exact hostname. null when the host is neither. The address is rebuilt from the id alone. */
+function embedFor(url: URL): Playable | { error: string } | null {
+  const host = url.hostname;
+  const parts = url.pathname.split('/').filter(Boolean);
+  const first = parts[0] ?? '';
+  const second = parts[1] ?? '';
+  const isYoutube = YOUTUBE_HOSTS.includes(host) || host === 'youtu.be' || host === 'www.youtube-nocookie.com';
+  const isVimeo = VIMEO_HOSTS.includes(host);
+
+  if (!isYoutube && !isVimeo) return null;
+  if (url.port) return { error: 'That address is not accepted.' };
+
+  if (isYoutube) {
+    let id = '';
+
+    if (host === 'youtu.be') id = first;
+    else if (host === 'www.youtube-nocookie.com') id = first === 'embed' ? second : '';
+    else if (first === 'watch') id = url.searchParams.get('v') ?? '';
+    else if (['shorts', 'embed', 'live'].includes(first)) id = second;
+
+    if (!YOUTUBE_ID.test(id)) return { error: NOT_A_VIDEO('YouTube') };
+
+    return {
+      tag: 'youtube-video',
+      src: `https://www.youtube-nocookie.com/embed/${id}`,
+      embed: {
+        label: 'Watch on YouTube',
+        watch: `https://www.youtube.com/watch?v=${id}`,
+        hint: EMBED_HINT,
+      },
+    };
+  }
+
+  // Vimeo: vimeo.com/<id> with an optional unlisted hash segment, or player.vimeo.com/video/<id>?h=<hash>.
+  const player = host === 'player.vimeo.com';
+  const id = player ? (first === 'video' ? second : '') : first;
+  const hash = player ? (url.searchParams.get('h') ?? '') : second;
+
+  if (!/^\d{1,12}$/.test(id) || (hash && !/^[A-Za-z0-9]{6,20}$/.test(hash)) || (!player && parts.length > 2)) {
+    return { error: NOT_A_VIDEO('Vimeo') };
+  }
+
+  const page = `https://vimeo.com/${id}${hash ? `/${hash}` : ''}`;
+
+  return { tag: 'vimeo-video', src: page, embed: { label: 'Watch on Vimeo', watch: page, hint: EMBED_HINT } };
+}
+
+/** The engine whose element plays a tag, if it has one that loads on demand. */
+function engineOf(tag: Tag): Engine | null {
+  const found = (Object.keys(ENGINES) as Engine[]).find((engine) => ENGINES[engine].tag === tag);
+
+  return found ?? null;
+}
+
 /** The engine a pasted text would load, found without requesting anything. Used for the "this loads" line. */
 export function engineFor(raw: string): Engine | null {
   const pick = pickSource(raw);
 
-  if ('error' in pick) return null;
-
-  return pick.tag === 'cloudflare-video' ? 'cloudflare' : pick.tag === 'shaka-video' ? 'shaka' : null;
+  return 'error' in pick ? null : engineOf(pick.tag);
 }
 
 /** Decide what a pasted address plays on, or why it does not. Nothing is requested. */
@@ -97,6 +185,10 @@ export function pickSource(raw: string): Pick {
 
   if (url.protocol !== 'https:') return { error: 'That kind of address is not played here. Paste an https link.' };
   if (url.username || url.password) return { error: 'That address is not accepted.' };
+
+  const embed = embedFor(url);
+
+  if (embed) return embed;
 
   const uid = cloudflareUid(url);
 
@@ -136,8 +228,11 @@ function buildMedia(pick: Playable, dashType = false): HTMLElement {
 }
 
 interface Host {
-  /** Replace the main player's media with this element. */
-  play: (media: HTMLElement) => void;
+  /**
+   * Replace the main player's media with this element. `video` pins the skin to its video look (data-mode="video"),
+   * for an iframe player, which reports no picture size and would otherwise get the audio look.
+   */
+  play: (media: HTMLElement, options?: { video?: boolean }) => void;
   /** Back to the demo clip. Calls `cleared()` on the way. */
   reset: () => void;
   /** The wrapper of the main player. */
@@ -160,6 +255,7 @@ export function initOwn(host: Host): { cleared: () => void } {
   const tour = document.getElementById('tour');
   const tourCaption = document.getElementById('tour-caption');
   const third = document.getElementById('own-third');
+  const watchSlot = document.getElementById('own-watch');
   const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-example]')];
 
   if (!form || !input || !play || !reset || !error || !status) return { cleared: () => {} };
@@ -219,12 +315,34 @@ export function initOwn(host: Host): { cleared: () => void } {
     third.hidden = !text;
   }
 
+  /** The provider's attribution link, next to the player and not over the picture. Always removed before it is set. */
+  function showWatch(shown: Embed | undefined): void {
+    if (!watchSlot) return;
+
+    watchSlot.replaceChildren();
+    watchSlot.hidden = !shown;
+
+    if (!shown) return;
+
+    const link = document.createElement('a');
+    const hidden = document.createElement('span');
+
+    link.href = shown.watch;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = shown.label;
+    hidden.className = 'visually-hidden';
+    hidden.textContent = ' (opens in a new tab)';
+    link.append(hidden);
+    watchSlot.append(link);
+  }
+
   function watch(pick: Playable, mine: number, swapped: boolean): void {
     listeners?.abort();
     listeners = new AbortController();
 
     const { signal } = listeners;
-    const media = host.wrapper.querySelector<HTMLElement>('mux-video, shaka-video, cloudflare-video, video, audio');
+    const media = host.wrapper.querySelector<HTMLElement>(MEDIA_SELECTOR);
 
     if (!media) return;
 
@@ -253,7 +371,7 @@ export function initOwn(host: Host): { cleared: () => void } {
         }
 
         play!.removeAttribute('aria-busy');
-        error!.textContent = swapped ? UNSUPPORTED : HINT;
+        error!.textContent = pick.embed ? pick.embed.hint : swapped ? UNSUPPORTED : HINT;
         error!.hidden = false;
         say('Your source could not be played.');
       },
@@ -281,12 +399,13 @@ export function initOwn(host: Host): { cleared: () => void } {
 
     if (mine !== turn) return;
 
-    host.play(buildMedia(pick, swapped));
+    host.play(buildMedia(pick, swapped), { video: Boolean(pick.embed) });
+    showWatch(pick.embed);
     watch(pick, mine, swapped);
     syncTour();
     setBusy();
 
-    const media = host.wrapper.querySelector<HTMLMediaElement>('mux-video, shaka-video, cloudflare-video, video, audio');
+    const media = host.wrapper.querySelector<HTMLMediaElement>(MEDIA_SELECTOR);
 
     // The press was a user gesture, so sound is allowed. A refusal is not an error.
     media?.play?.()?.catch?.(() => say('Press play.'));
@@ -296,7 +415,10 @@ export function initOwn(host: Host): { cleared: () => void } {
     own = true;
     turn += 1;
     play!.setAttribute('aria-busy', 'true');
-    const engine = pick.tag === 'cloudflare-video' ? 'cloudflare' : null;
+    const engine = engineOf(pick.tag);
+
+    // Another source starts: the last one's attribution link goes first.
+    showWatch(undefined);
 
     say(engine && ENGINES[engine].third ? `Loading your source. ${ENGINES[engine].third}` : 'Loading your source.');
     showThird(engine);
@@ -326,7 +448,7 @@ export function initOwn(host: Host): { cleared: () => void } {
   });
 
   // Say before Play what Play would load, without loading it.
-  input.addEventListener('input', () => showThird(engineFor(input.value) === 'cloudflare' ? 'cloudflare' : null));
+  input.addEventListener('input', () => showThird(engineFor(input.value)));
 
   reset.addEventListener('click', () => {
     host.reset();
@@ -343,6 +465,21 @@ export function initOwn(host: Host): { cleared: () => void } {
 
       const sources: Record<string, string> = { live: LIVE_SRC, dash: DASH_SRC, 'dash-live': DASH_LIVE_SRC };
       const src = sources[chip.dataset.example ?? ''];
+      const embedExamples: Record<string, string> = { youtube: YOUTUBE_EXAMPLE, vimeo: VIMEO_EXAMPLE };
+      const example = embedExamples[chip.dataset.example ?? ''];
+
+      // A third-party player is never loaded by a chip: it fills the field, says what Play would load, and waits.
+      if (example) {
+        const line = engineFor(example);
+
+        clearError();
+        input.value = example;
+        showThird(line);
+        say(line && ENGINES[line].third ? `Example filled in. ${ENGINES[line].third} Press Play to load it.` : '');
+        input.focus();
+
+        return;
+      }
 
       if (src) {
         input.value = src;
@@ -360,6 +497,7 @@ export function initOwn(host: Host): { cleared: () => void } {
 
       own = false;
       turn += 1;
+        showWatch(undefined);
       showThird(null);
       listeners?.abort();
       listeners = null;
