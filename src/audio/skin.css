@@ -152,6 +152,15 @@
       display: inline;
     }
 
+    /* Scrubbing back from the end: the media is paused, not ready. */
+    :scope:where(:has(media-play-button[data-ended]):has(media-time-slider[data-dragging])) :where(.sleeve-side > *) {
+      display: none;
+    }
+
+    :scope:where(:has(media-play-button[data-ended]):has(media-time-slider[data-dragging])) :where(.sleeve-side > .sleeve-word-paused) {
+      display: inline;
+    }
+
     :scope:where(:has(media-buffering-indicator[data-visible]):not(:has(media-time-slider[data-dragging]))) :where(.sleeve-side > *) {
       display: none;
     }
@@ -248,7 +257,7 @@
     }
 
     .sleeve-print[hidden],
-    .sleeve-art:has(.media-poster[data-loaded]) .sleeve-print {
+    .sleeve-art:has(.media-poster:is([data-loaded], [data-loading])) .sleeve-print {
       display: none;
     }
 

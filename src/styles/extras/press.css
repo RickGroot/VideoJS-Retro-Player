@@ -67,16 +67,19 @@
   }
 
   @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-    /* The state's keyframe name. :where() keeps the specificity equal, so the last match wins and the error is last. */
+    /*
+     * The state's keyframe name. :where() keeps the specificity equal, so the last match wins and the error is last.
+     * Scrubbing back from the end counts as paused, so the press prints once there and not again on release.
+     */
     .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-started]:not([data-paused], [data-ended]))) {
       --sleeve-press: sleeve-press-playing;
     }
 
-    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-started][data-paused]:not([data-ended]))) {
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-started]:is([data-paused], [data-ended]))) {
       --sleeve-press: sleeve-press-paused;
     }
 
-    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-ended])) {
+    .media-skin[data-theme="sleeve"]:is([data-preset="video"], [data-preset="audio"]):where(:has(media-play-button[data-ended]):not(:has(media-time-slider[data-dragging]))) {
       --sleeve-press: sleeve-press-ended;
     }
 

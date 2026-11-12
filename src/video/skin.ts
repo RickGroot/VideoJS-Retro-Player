@@ -66,6 +66,7 @@ import '../shared/icons';
 import '../shared/sleeve-state';
 import '../shared/sleeve-quality';
 import '../shared/sleeve-skip';
+import '../shared/sleeve-reach';
 import '../shared/sleeve-session';
 import '../shared/sleeve-caption-style';
 import '../shared/sleeve-tracklist';

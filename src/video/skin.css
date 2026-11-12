@@ -150,7 +150,6 @@
       position: absolute;
       inset-inline: 0;
       bottom: 0;
-      transition: opacity var(--sleeve-motion-fast) linear;
     }
 
     .sleeve-play-cell {
@@ -191,9 +190,19 @@
 
     /*
      * Hidden but still reachable with Tab: no display:none, no visibility:hidden. Anything inside showing a focus ring,
-     * an open menu, or buffering keeps the strip up (the Block and the buffering word live in it).
+     * an open menu, or buffering keeps the strip up (the Block and the buffering word live in it). The strip goes and
+     * comes as a hard cut: a fade would show the full strip for a moment while the Line hides.
+     *
+     * A focus ring counts only when it came from the keyboard. After a mouse click the clicked cell keeps focus, and
+     * the next hotkey would turn that stale focus into a visible one and pin the strip; `data-sleeve-pointer`, written
+     * by <sleeve-reach> (src/shared/sleeve-reach.ts) from a pointer press until the next Tab, rules that out. The skip
+     * pill is not part of the strip, so focus on it does not hold the strip either.
+     *
+     * A mouse pointer resting in the strip holds it too (`data-sleeve-reach`): Video.js hides the controls after its
+     * idle time wherever the pointer is, and a strip that goes from under the pointer turns the next click into a
+     * click on the picture.
      */
-    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):not(:has(media-buffering-indicator[data-visible])) media-controls:not([data-visible]):not(:has(:focus-visible)):not(:has([aria-expanded="true"])) .sleeve-strip {
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):not(:has(media-buffering-indicator[data-visible])):not([data-sleeve-reach]):is([data-sleeve-pointer], :not(:has(media-controls :focus-visible:not(.sleeve-skip, .sleeve-skip *)))) media-controls:not([data-visible]):not(:has([aria-expanded="true"])) .sleeve-strip {
       opacity: 0;
       pointer-events: none;
     }
@@ -201,15 +210,20 @@
     /*
      * The Line: while the video plays and the pointer is only moving over the picture, the strip is just its top row
      * (the play glyph and the time slider), about a third of the Block's height. The Block comes back when you reach
-     * for it: the pointer on the strip or in the band right above the Line where the Block will be drawn, keyboard
-     * focus, a press, a drag, an open menu, a pause or buffering. Mouse only: a touch tap always gets the full Block
-     * with its 44px cells, and a device with any touch screen never gets the Line. The cells stay in the tab order
-     * (no display:none, no visibility:hidden), like the hidden strip. A cell that was clicked with the mouse keeps
-     * focus while it folds away; the first key press makes that focus visible and the Block returns. The skip pill is
-     * not part of the strip: a press or focus on it leaves the Line as it is.
+     * for it: the pointer in the band right above the Line where the Block will be drawn, keyboard focus, an open menu,
+     * a pause or buffering. Mouse only: a touch tap always gets the full Block with its 44px cells, and a device with
+     * any touch screen never gets the Line. The cells stay in the tab order (no display:none, no visibility:hidden),
+     * like the hidden strip. A cell that was clicked with the mouse keeps focus while it folds away; a hotkey after
+     * that leaves the Line as it is (`data-sleeve-pointer`, see the hidden strip) and Tab brings the Block back. The
+     * skip pill is not part of the strip: a press or focus on it leaves the Line as it is.
+     *
+     * The pointer's part is `data-sleeve-reach`, written by <sleeve-reach> (src/shared/sleeve-reach.ts), not :hover.
+     * The Block's slider row sits higher than the Line's, so a hover on the Line must not open the Block (the slider
+     * would leave the pointer that is on it, and a press or a drag there would move it mid-gesture), and the Block
+     * must outlive the pointer by a moment so it does not flap at its edge. The helper keeps both rules.
      */
     @media (hover: hover) and (pointer: fine) and (not (any-pointer: coarse)) {
-      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not(:has(.sleeve-strip:hover)):not(:has(media-controls :is(:focus-visible, :active, [aria-expanded="true"], [data-dragging]):not(.sleeve-skip, .sleeve-skip *))):not(:has(media-live-button[data-live]:not([data-live-edge], [data-disabled]))) {
+      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not([data-sleeve-reach]):is([data-sleeve-pointer], :not(:has(media-controls :focus-visible:not(.sleeve-skip, .sleeve-skip *)))):not(:has(media-controls [aria-expanded="true"]:not(.sleeve-skip, .sleeve-skip *))):not(:has(media-live-button[data-live]:not([data-live-edge], [data-disabled]))) {
         /* The captions and everything else that measures from the strip follow the Line. */
         --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-rule-width));
 
@@ -253,9 +267,8 @@
       }
     }
 
-    /* No fades on the strip, menus, tooltips or indicators when asked. */
+    /* No fades on menus, tooltips or indicators when asked. */
     @media (prefers-reduced-motion: reduce) {
-      .sleeve-strip,
       .media-popup,
       .media-menu-content,
       .media-indicator {
@@ -1036,6 +1049,11 @@
       pointer-events: none;
     }
 
+    /* Menus open on a press, not on hover, so their bridge would only cover the time slider under them. */
+    .media-menu-popup:before {
+      pointer-events: none;
+    }
+
     /* Tooltips: solid ink plates with ground text. */
     .media-tooltip-popup {
       pointer-events: none;
@@ -1544,7 +1562,9 @@
       color: var(--sleeve-on-field);
       border-inline-end: var(--sleeve-rule-width) solid var(--sleeve-ink);
       pointer-events: none;
-      display: none;
+      /* Hidden with visibility, not display: an element that is drawn again replays its press animation (press.css). */
+      display: grid;
+      visibility: hidden;
       position: absolute;
     }
 
@@ -1632,7 +1652,7 @@
     /* Before the first play and at the end; not while scrubbing, not under the error dialog, and not on narrow players, where the play/restart glyph and the Block carry the state. */
     @container media-root (width >= 30rem) {
       :scope:is(:has(media-play-button:not([data-started])), :has(media-play-button[data-ended])):not(:has(media-time-slider[data-dragging])):not(:has(media-dialog-popup[data-open])) .sleeve-cover {
-        display: grid;
+        visibility: visible;
       }
     }
   }
@@ -1747,7 +1767,7 @@
       }
 
       :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):is(:has(media-play-button[data-paused]), :has(media-play-button[data-ended])):not(:has(media-time-slider[data-dragging])):not(:has(media-dialog-popup[data-open])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls [aria-expanded="true"])):not(:has(media-play-button[data-started][data-paused]:not([data-ended])):has(.media-captions-button[data-active])) .sleeve-cover {
-        display: grid;
+        visibility: visible;
       }
     }
   }
@@ -1786,7 +1806,7 @@
     }
 
     /* The same condition that fades the strip (see the strip), plus playing. Not in audio mode, where the strip never fades. */
-    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not(:has(media-controls :focus-visible)):not(:has(media-controls [aria-expanded="true"])):not([data-live]) .sleeve-spine {
+    :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):not(:has(media-controls[data-visible])):not([data-sleeve-reach]):is([data-sleeve-pointer], :not(:has(media-controls :focus-visible:not(.sleeve-skip, .sleeve-skip *)))):not(:has(media-controls [aria-expanded="true"])):not([data-live]) .sleeve-spine {
       display: block;
     }
   }
@@ -2026,7 +2046,7 @@
 
     /* The cover is up at every width and in every state except under the error dialog. Not hidden while scrubbing. */
     :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):not(:has(media-dialog-popup[data-open])) .sleeve-cover {
-      display: grid;
+      visibility: visible;
     }
 
     :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])) .sleeve-cover {
@@ -2160,14 +2180,15 @@
       pointer-events: none;
     }
 
-    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):has(.media-poster[data-loaded]) .sleeve-print {
+    :scope:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"])):has(.media-poster:is([data-loaded], [data-loading])) .sleeve-print {
       display: none;
     }
 
     /* The helper element has no box. */
     sleeve-state,
     sleeve-quality,
-    sleeve-skip {
+    sleeve-skip,
+    sleeve-reach {
       display: none;
     }
 
@@ -2204,10 +2225,21 @@
       --media-caption-track-y: calc(-1 * (var(--sleeve-rule-width) + 4px + var(--sleeve-caption-gap)));
     }
 
+    /* With a mouse the strip wakes as the Line, so the captions already rest at the Line's height and do not hop. */
+    @media (hover: hover) and (pointer: fine) and (not (any-pointer: coarse)) {
+      :scope {
+        --media-caption-track-y: calc(
+          -1 * (var(--sleeve-slider-row) + var(--sleeve-rule-width) + var(--sleeve-caption-gap))
+        );
+      }
+    }
+
+    /* Keyboard focus only, as for the hidden strip; :where() keeps this rule below the skip pill's. */
     :scope:is(
         [data-controls-visible],
+        [data-sleeve-reach],
         :has(media-buffering-indicator[data-visible]),
-        :has(media-controls :focus-visible),
+        :where(:not([data-sleeve-pointer]):has(media-controls :focus-visible:not(.sleeve-skip, .sleeve-skip *))),
         :has(media-controls [aria-expanded="true"])
       ) {
       --media-caption-track-y: calc(-1 * (var(--sleeve-strip-h) + var(--sleeve-caption-gap)));
@@ -2514,6 +2546,19 @@
         cursor: pointer;
       }
 
+      /* The field cell answers the pointer like the other cells: solid ink. */
+      @media (hover: hover) {
+        .sleeve-live:hover {
+          --sleeve-cell-bg: var(--sleeve-ink);
+          --sleeve-cell-fg: var(--sleeve-ground);
+        }
+      }
+
+      .sleeve-live:active {
+        --sleeve-cell-bg: var(--sleeve-ink);
+        --sleeve-cell-fg: var(--sleeve-ground);
+      }
+
       .sleeve-live-glyph {
         background-color: transparent;
       }
@@ -2634,7 +2679,8 @@
       display: grid;
       place-items: center;
       box-sizing: border-box;
-      min-inline-size: 5ch;
+      /* Room for the longest text (AUTO 1080P), so the slider beside it keeps its width when the rendition changes. */
+      min-inline-size: calc(10ch + 16px);
       margin-inline-start: auto;
       padding-inline: 8px;
       border-inline-start: var(--sleeve-rule-width) solid var(--sleeve-ink);
@@ -2715,9 +2761,11 @@
       display: none;
     }
 
-    .sleeve-skip:hover {
-      background-color: var(--sleeve-field);
-      color: var(--sleeve-on-field);
+    @media (hover: hover) {
+      .sleeve-skip:hover {
+        background-color: var(--sleeve-field);
+        color: var(--sleeve-on-field);
+      }
     }
 
     .sleeve-skip:focus-visible {

@@ -54,7 +54,7 @@ export function listenForMenuOpener({ root, dialog }: Sheet, signal: AbortSignal
 
       fromMenu = false;
       // The library's own focus return has run by now and found no opener; put focus on the button that opened the menu.
-      requestAnimationFrame(() => root.querySelector<HTMLElement>('.sleeve-settings-button')?.focus());
+      requestAnimationFrame(() => root.querySelector<HTMLElement>('.sleeve-settings-button')?.focus({ preventScroll: true }));
     },
     { signal }
   );

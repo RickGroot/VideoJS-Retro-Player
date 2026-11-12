@@ -90,6 +90,7 @@ Not yet checked: Safari, Firefox, real devices (touch, phones), screen readers, 
   - `src/audio/`: the audio skin.
   - `src/styles/`: tokens, themes and base styles both skins share, plus a per-preset layer in `video/` and `audio/`.
   - `src/shared/`: code both skins share, such as the icons, `uniqueIds` and `<sleeve-state>`, the helper element that tells the video skin's CSS whether the media has a picture.
+  - `src/shared/sleeve-reach.ts`: `<sleeve-reach>`, the helper element that tells the video skin's CSS when a mouse pointer has come for the strip (`data-sleeve-reach`) and whether the last input was a pointer press (`data-sleeve-pointer`), so the strip opens and closes in one step and does not hide under a resting pointer.
   - `src/shared/sleeve-sheet.ts`, `sleeve-tracklist.ts`, `sleeve-keys.ts`, `sleeve-session.ts` and `sleeve-caption-style.ts`: the extras above.
   - `src/styles/extras/`: `sheet.css`, `press.css`, `registration.css` and `captions.css`.
   - `src/skin.css`: global styles, loaded only in the preview.

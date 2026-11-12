@@ -85,7 +85,7 @@ class SleeveTracklist extends UIElement {
 
         this.#opener = null;
         requestAnimationFrame(() => {
-          if (opener?.isConnected && !root.contains(document.activeElement)) opener.focus();
+          if (opener?.isConnected && !root.contains(document.activeElement)) opener.focus({ preventScroll: true });
         });
       },
       { signal }
@@ -216,7 +216,13 @@ class SleeveTracklist extends UIElement {
     if (!row) return;
 
     row.focus({ preventScroll: true });
-    row.scrollIntoView({ block: 'nearest' });
+
+    // Scroll the list's own box only: scrollIntoView() would scroll the page too when the player is partly off screen.
+    const box = this.getBoundingClientRect();
+    const bounds = row.getBoundingClientRect();
+
+    if (bounds.top < box.top) this.scrollTop -= box.top - bounds.top;
+    else if (bounds.bottom > box.bottom) this.scrollTop += bounds.bottom - box.bottom;
   }
 
   readonly #onKeydown = (event: KeyboardEvent): void => {
