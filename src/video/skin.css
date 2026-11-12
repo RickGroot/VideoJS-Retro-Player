@@ -25,8 +25,13 @@
       position: relative;
       overflow: hidden;
       container: media-root / inline-size;
-      /* The strip's height: both rows, the gap between them and the top rule. The cover and the spine measure from it. */
-      --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-cell) + var(--sleeve-rule-width) * 2);
+      /*
+       * The strip's full height: both rows, the gap between them and the top rule. --sleeve-strip-h is the height it
+       * has right now (the Line shrinks it), and the cover and the spine measure from that one. The skip pill
+       * measures from the full height, so it stays where it is whatever the strip does.
+       */
+      --sleeve-strip-full-h: calc(var(--sleeve-slider-row) + var(--sleeve-cell) + var(--sleeve-rule-width) * 2);
+      --sleeve-strip-h: var(--sleeve-strip-full-h);
     }
 
     /* Two-tone ring (ink outside, ground inside): one of the two always contrasts with whatever frame is playing. */
@@ -200,10 +205,11 @@
      * focus, a press, a drag, an open menu, a pause or buffering. Mouse only: a touch tap always gets the full Block
      * with its 44px cells, and a device with any touch screen never gets the Line. The cells stay in the tab order
      * (no display:none, no visibility:hidden), like the hidden strip. A cell that was clicked with the mouse keeps
-     * focus while it folds away; the first key press makes that focus visible and the Block returns.
+     * focus while it folds away; the first key press makes that focus visible and the Block returns. The skip pill is
+     * not part of the strip: a press or focus on it leaves the Line as it is.
      */
     @media (hover: hover) and (pointer: fine) and (not (any-pointer: coarse)) {
-      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not(:has(.sleeve-strip:hover)):not(:has(media-controls :is(:focus-visible, :active, [aria-expanded="true"], [data-dragging]))):not(:has(media-live-button[data-live]:not([data-live-edge], [data-disabled]))) {
+      :scope:not(:is([data-mode="audio"], [data-media="audio"]:not([data-mode="video"]))):has(media-play-button[data-started]:not([data-paused], [data-ended])):not(:has(media-buffering-indicator[data-visible])):has(media-controls[data-visible]):not(:has(.sleeve-strip:hover)):not(:has(media-controls :is(:focus-visible, :active, [aria-expanded="true"], [data-dragging]):not(.sleeve-skip, .sleeve-skip *))):not(:has(media-live-button[data-live]:not([data-live-edge], [data-disabled]))) {
         /* The captions and everything else that measures from the strip follow the Line. */
         --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-rule-width));
 
@@ -2207,9 +2213,9 @@
       --media-caption-track-y: calc(-1 * (var(--sleeve-strip-h) + var(--sleeve-caption-gap)));
     }
 
-    /* A visible skip pill sits above the strip; the captions rise above it too. */
+    /* A visible skip pill sits above the full strip, whatever the strip shows; the captions rise above it too. */
     :scope:has(.sleeve-skip:not([hidden])) {
-      --media-caption-track-y: calc(-1 * (var(--sleeve-strip-h) + 12px + 44px + var(--sleeve-caption-gap)));
+      --media-caption-track-y: calc(-1 * (var(--sleeve-strip-full-h) + 12px + 44px + var(--sleeve-caption-gap)));
     }
 
     mux-video::part(video)::cue {
@@ -2671,9 +2677,10 @@
 /*
  * Skip pill. <sleeve-skip> (src/shared/sleeve-skip.ts) shows .sleeve-skip, a <media-seek-button>, while the playhead is
  * inside an intro or credits window the host gave on the skin root. A paper cell on the picture with a 2px ink rule and
- * square corners, above the strip's right end and following --sleeve-strip-h (the Line shrinks the strip, the pill
- * follows). The word is printed in the cell and the glyph is decoration. It is not in the strip, so the strip's
- * hiding does not take it along. Hard cuts, no motion.
+ * square corners, above the strip's right end. It measures from --sleeve-strip-full-h, so it has one position: it
+ * does not move when the strip hides, shrinks to the Line or comes back, and a press always lands on it. The word is
+ * printed in the cell and the glyph is decoration. It is not in the strip, so the strip's hiding does not take it
+ * along. Hard cuts, no motion.
  */
 @layer components {
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
@@ -2681,7 +2688,7 @@
       position: absolute;
       z-index: 12;
       inset-inline-end: 12px;
-      inset-block-end: calc(var(--sleeve-strip-h) + 12px);
+      inset-block-end: calc(var(--sleeve-strip-full-h) + 12px);
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -2757,7 +2764,7 @@
   @supports (padding: env(safe-area-inset-top)) {
     @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {
       :scope.media-container {
-        --sleeve-strip-h: calc(var(--sleeve-slider-row) + var(--sleeve-cell) + var(--sleeve-rule-width) * 2 + var(--sleeve-inset-bottom));
+        --sleeve-strip-full-h: calc(var(--sleeve-slider-row) + var(--sleeve-cell) + var(--sleeve-rule-width) * 2 + var(--sleeve-inset-bottom));
       }
 
       .sleeve-strip {
