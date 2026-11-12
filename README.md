@@ -67,6 +67,8 @@ pnpm typecheck
 pnpm build
 ```
 
+Check a CSS change against the build as well (`pnpm build`, then `pnpm exec vite preview`): the build splits the CSS into chunks and loads them in a different order from the dev server. That is why every skin stylesheet restates the layer order on its first lines.
+
 ## Deploy
 
 A push to `main` builds the pages and publishes `dist/` to GitHub Pages through `.github/workflows/deploy.yml`. The repository needs Settings → Pages → Source set to "GitHub Actions". The build uses relative URLs, so it works under any base path.

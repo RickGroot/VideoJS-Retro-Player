@@ -24,6 +24,9 @@ export default defineConfig({
   build: {
     outDir: path('./dist'),
     emptyOutDir: true,
+    // Browsers that know `light-dark()`, so the minifier leaves it alone. Lowered, it only follows a colour scheme
+    // set in a stylesheet rule, and the pages set a forced scheme as an inline style.
+    cssTarget: ['chrome123', 'edge123', 'firefox120', 'safari17.5'],
     rolldownOptions: {
       // The public demo page, the workbench shell, the video preview it frames, and the audio skin's own preview page.
       input: {
