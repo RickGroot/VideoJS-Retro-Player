@@ -7,6 +7,9 @@
  * The strip rules (cells, play cell, sliders, tooltips, error dialog) repeat the video skin's: the two skins share
  * the tokens and the look, not the selectors, because each is scoped to its own preset. See docs/spikes.md s10-s13.
  */
+/* The layer order, restated here because a bundler may load this file before base.css. */
+@layer base, components, utilities;
+
 @layer components {
   @scope (.media-skin[data-theme="sleeve"][data-preset="audio"]) {
     /* The player: the container is the ink ground, its children sit 2px in, so the margins are the frame. */

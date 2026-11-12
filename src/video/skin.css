@@ -3,6 +3,9 @@
  * ink on paper, no shadows, blur or gradients. Every colour comes from a --sleeve-* token (themes/sleeve.css).
  * Cells sit on an ink ground and are separated by 2px gaps, so the gaps read as ink rules.
  */
+/* The layer order, restated here because a bundler may load this file before base.css. */
+@layer base, components, utilities;
+
 @layer components {
   /* The player, its poster and the shared type treatment. */
   @scope (.media-skin[data-theme="sleeve"][data-preset="video"]) {

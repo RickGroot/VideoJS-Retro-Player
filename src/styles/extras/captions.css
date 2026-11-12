@@ -9,6 +9,9 @@
  * The proof lines in the menu (.sleeve-caption-proof) print each preset on its own plate; the plates are real colours
  * on purpose, as they are what the cue will look like.
  */
+/* The layer order, restated here because a bundler may load this file before base.css. */
+@layer base, components, utilities;
+
 @layer components {
   @media not (forced-colors: active) {
     .media-skin[data-caption-style="large"] mux-video::part(video)::cue {

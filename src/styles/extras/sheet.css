@@ -10,6 +10,9 @@
  * Opening it: the strip has a labelled TRACKS cell where there is room (container 52rem and up); below that, and for
  * Keys everywhere, an item in the settings menu. With no chapters neither Tracks opener is shown (display:none).
  */
+/* The layer order, restated here because a bundler may load this file before base.css. */
+@layer base, components, utilities;
+
 @layer components {
   @scope (.media-skin[data-theme="sleeve"]) {
     media-dialog:has(> .sleeve-sheet) {

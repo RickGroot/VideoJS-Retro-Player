@@ -11,6 +11,9 @@
  * The front copy steps between two offsets with steps(). With prefers-reduced-motion: reduce it holds the first offset,
  * so the plates sit out of register and still: the cue is the doubled shape, not the motion.
  */
+/* The layer order, restated here because a bundler may load this file before base.css. */
+@layer base, components, utilities;
+
 @layer components {
   .media-skin[data-theme="sleeve"] .sleeve-play::after,
   .media-skin[data-theme="sleeve"] .sleeve-play-cell::before {

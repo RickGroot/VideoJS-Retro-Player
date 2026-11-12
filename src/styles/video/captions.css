@@ -1,3 +1,6 @@
+/* The layer order, restated here because a bundler may load this file before base.css. */
+@layer base, components, utilities;
+
 @layer components {
   @scope (.media-skin) {
     :scope {
