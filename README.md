@@ -107,6 +107,8 @@ Not yet checked: Safari, Firefox, real devices (touch, phones), screen readers, 
 
 Apache-2.0, see [LICENSE](LICENSE) and [NOTICE](NOTICE). The skins start from the Video.js Scaffold skin (Apache-2.0, Video.js contributors). Archivo is self-hosted under the SIL OFL 1.1.
 
+The demo clip is NASA's "Cosmic Dawn" trailer, streamed from Mux; its poster and chapter titles come from that clip. NASA media is generally not subject to copyright in the United States, see [NASA's media usage guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/). The other example streams on the demo page carry their own credit there.
+
 ## Learn more
 
 - [Build your own skin](https://videojs.org/docs/framework/html/guides/build-your-own-skin)
