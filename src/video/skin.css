@@ -258,6 +258,12 @@
           display: none;
         }
 
+        /* The focus ring is drawn on the disc, which the Line does not have: the cell takes it. */
+        .sleeve-play:focus-visible {
+          outline: var(--sleeve-focus-width) solid var(--sleeve-on-field);
+          outline-offset: calc(var(--sleeve-focus-width) * -1);
+        }
+
         /* Without the disc the glyph sits on the cell itself, which forced colours paint Canvas. */
         @media (forced-colors: active) {
           .sleeve-play {

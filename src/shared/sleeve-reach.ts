@@ -21,8 +21,9 @@
  * `data-sleeve-pointer`: the last input in the player was a pointer press, not the Tab key. A cell that was clicked
  * keeps focus, and the first key press after that (a hotkey, say) makes the browser match `:focus-visible` on it. The
  * CSS keeps the strip up for keyboard focus, so without this attribute one click followed by a hotkey would hold the
- * strip up for good. Set on any pointer press in the player, dropped on Tab. Without the helper the attribute is
- * never set and every visible focus counts, which is the safe side.
+ * strip up for good. Set on any pointer press in the player, dropped on Tab, and on an Escape that closes a menu or a
+ * sheet (focus then goes back to a cell in the strip, and the strip has to stay up for it). Without the helper the
+ * attribute is never set and every visible focus counts, which is the safe side.
  *
  * The skin's CSS hides this element.
  */
@@ -34,6 +35,8 @@ const CONTROLS_SELECTOR = 'media-controls';
 const LINE_SELECTOR = '.sleeve-slider-row, .sleeve-play-cell';
 const ATTRIBUTE = 'data-sleeve-reach';
 const POINTER_ATTRIBUTE = 'data-sleeve-pointer';
+/** An open menu or sheet in the player. */
+const OPEN_SELECTOR = '[aria-expanded="true"], media-dialog-popup[data-open]';
 /** How long the full strip outlives the pointer, in milliseconds. */
 const GRACE = 300;
 const CAPTURE = { capture: true, passive: true } as const;
@@ -107,7 +110,13 @@ class SleeveReach extends HTMLElement {
   };
 
   readonly #onKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Tab') this.#root?.removeAttribute(POINTER_ATTRIBUTE);
+    const root = this.#root;
+    if (!root) return;
+
+    // Escape that closes a menu or a sheet sends focus back to a cell in the strip: from there on it is keyboard use.
+    if (event.key === 'Tab' || (event.key === 'Escape' && root.querySelector(OPEN_SELECTOR))) {
+      root.removeAttribute(POINTER_ATTRIBUTE);
+    }
   };
 
   readonly #onLeave = (event: PointerEvent): void => {
