@@ -2,6 +2,10 @@
 
 A [Video.js](https://videojs.org) v10 skin for video and audio, for HTML, styled with plain CSS. An entry for the Video.js Skins Design Challenge. The design note is in [docs/design-note.md](docs/design-note.md).
 
+![The Sleeve video skin before play: an orange cover panel with the title and running time, the poster in greyscale, and the control strip under a 2px rule](docs/media/sleeve-1-ready.jpg)
+
+More pictures are in [docs/media](docs/media): playing, paused in the dark scheme, the audio skin and a phone-width player.
+
 The idea: the video is the photograph on a record cover and the player is printed on it. Ink on paper, square corners, 2px ink rules, condensed capitals, and one flat block of colour (the field) that changes size with how much the player needs you. With no picture, the cover itself is the player ("Side B"). The poster prints in greyscale on the cover, on wide players the cover's numeral sits slightly out of register, and the pigments get richer on wide-gamut screens.
 
 ## Use it
